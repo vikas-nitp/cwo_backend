@@ -1,0 +1,9 @@
+{
+  "authEnabled": false,
+  "offerLockingEnabled": false,
+  "allOffers": true,
+  "savedCards": false,
+  "dailyVisitorsEnabled": true,
+  "supported_banks": ["HDFC", "ICICI", "SBI", "AXIS", "AMEX"],
+  "supported_platforms": ["MakeMyTrip", "Cleartrip", "EaseMyTrip", "Goibibo"]
+}
