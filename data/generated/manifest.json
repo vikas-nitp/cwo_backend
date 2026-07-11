@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "data_version": "2026-07-11-3042aa94eb4c",
+  "generated_at": "2026-07-11T00:00:00+00:00",
+  "source_row_count": 6,
+  "accepted_row_count": 6,
+  "rejected_row_count": 0,
+  "supported_platforms": [
+    "MAKEMYTRIP",
+    "CLEARTRIP"
+  ]
+}
