@@ -1,0 +1,12 @@
+{
+  "data_version": "2026-07-11-3042aa94eb4c",
+  "banks": [{"id": "HDFC", "name": "HDFC Bank"}],
+  "platforms": [
+    {"id": "MAKEMYTRIP", "name": "MakeMyTrip"},
+    {"id": "CLEARTRIP", "name": "Cleartrip"}
+  ],
+  "payment_methods": ["CREDIT", "DEBIT", "NO_CARD"],
+  "categories": ["FLIGHT_DOMESTIC"],
+  "booking_channels": ["WEB", "APP", "WEB_AND_APP"],
+  "airports": []
+}
