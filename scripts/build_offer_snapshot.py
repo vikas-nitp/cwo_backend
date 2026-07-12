@@ -242,7 +242,9 @@ def build_records(
                 or str(offer.extra.get("is_test_data", "false")).lower() == "true"
             )
             if is_synthetic:
-                raise ValueError("synthetic test rows are forbidden in production snapshots")
+                raise ValueError(
+                    "synthetic test rows are forbidden in production snapshots"
+                )
             seen[offer.offer_id] = record.source
             accepted.append(offer)
             summary["accepted_count"] += 1
@@ -341,10 +343,7 @@ def build_records(
 
 def build_catalogue(catalogue: Path, output_dir: Path) -> int:
     specs = load_catalogue(catalogue)
-    source_digest = hashlib.sha256()
-    for spec in sorted(specs, key=lambda item: str(item.path)):
-        source_digest.update(str(spec.path).encode())
-        source_digest.update(spec.path.read_bytes())
+    source_digest = source_hash(specs, catalogue.parent)
     records: list[tuple[SourceRecord, SourceSpec]] = []
     adapter_errors: list[str] = []
     for spec in specs:
@@ -381,10 +380,24 @@ def build_catalogue(catalogue: Path, output_dir: Path) -> int:
         {
             "source_owner": "backend",
             "source_file": "data/source/catalogue.yml",
-            "source_hash": f"sha256:{source_digest.hexdigest()}",
+            "source_hash": f"sha256:{source_digest}",
             "contract_version": "1.1",
         },
     )
+
+
+def source_hash(specs: list[SourceSpec], catalogue_dir: Path) -> str:
+    """Hash source identity and content without checkout-specific absolute paths."""
+    digest = hashlib.sha256()
+    identified = [
+        (spec.path.relative_to(catalogue_dir).as_posix(), spec) for spec in specs
+    ]
+    for relative_path, spec in sorted(identified, key=lambda item: item[0]):
+        digest.update(relative_path.encode())
+        digest.update(b"\0")
+        digest.update(spec.path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
 
 
 def build(source: Path, output_dir: Path) -> int:

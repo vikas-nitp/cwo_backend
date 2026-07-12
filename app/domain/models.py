@@ -61,7 +61,11 @@ class Offer(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def migrate_supported_cards(cls, value):
-        if isinstance(value, dict) and not value.get("supported_cards") and value.get("card_name"):
+        if (
+            isinstance(value, dict)
+            and not value.get("supported_cards")
+            and value.get("card_name")
+        ):
             value = {**value, "supported_cards": [value["card_name"]]}
         return value
 

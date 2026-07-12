@@ -20,7 +20,10 @@ def search(payload: SearchRequest, request: Request, response: Response):
                 request, 503, "DATA_NOT_READY", "Offer data is not ready."
             )
         flags = request.app.state.feature_flags
-        if payload.booking_amount is not None and not flags.bookingAmountComparisonEnabled:
+        if (
+            payload.booking_amount is not None
+            and not flags.bookingAmountComparisonEnabled
+        ):
             return error_response(
                 request,
                 400,
