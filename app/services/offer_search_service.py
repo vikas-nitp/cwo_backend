@@ -61,6 +61,16 @@ class OfferSearchService:
                         "estimated_savings": item.estimate.estimated_savings,
                         "estimated_final_amount": item.estimate.estimated_final_amount,
                         "savings_label": item.estimate.savings_label,
+                        "amount_eligible": item.estimate.eligible
+                        if request.booking_amount is not None
+                        else None,
+                        "comparison_text": (
+                            f"Save ₹{item.savings_delta:,.0f} more"
+                            if request.booking_amount is not None
+                            and item.savings_delta is not None
+                            and item.savings_delta > 0
+                            else None
+                        ),
                         "booking_url": offer.booking_url
                         or BOOKING_URLS.get(offer.platform_id),
                     }
@@ -74,16 +84,32 @@ class OfferSearchService:
                 platform_ids=list(request.platforms) or None,
                 categories=[request.category],
             )
-            benefits = [
+            amounts = [
                 offer.max_discount
                 if offer.max_discount is not None
                 else offer.discount_value
                 for offer in strip_offers
+                if offer.discount_type == "FLAT" or offer.max_discount is not None
             ]
+            percentages = [
+                offer.discount_value
+                for offer in strip_offers
+                if offer.discount_type == "PERCENT" and offer.max_discount is None
+            ]
+            if amounts:
+                benefit_type, benefit_value = "AMOUNT", max(amounts)
+                display_text = f"Up to ₹{benefit_value:,.0f}"
+            elif percentages:
+                benefit_type, benefit_value = "PERCENTAGE", max(percentages)
+                display_text = f"Up to {benefit_value:,.0f}% off"
+            else:
+                benefit_type, benefit_value, display_text = None, None, "No offers"
             date_strip.append(
                 SearchDateBenefit(
                     date=strip_date,
-                    best_benefit=max(benefits) if benefits else None,
+                    benefit_type=benefit_type,
+                    benefit_value=benefit_value,
+                    display_text=display_text,
                 )
             )
         return SearchResponse(

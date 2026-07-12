@@ -14,7 +14,11 @@ from app.core.config import SETTINGS
 router = APIRouter(tags=["Offers"])
 
 
-@router.get("/offers", response_model=OffersResponse)
+@router.get(
+    "/offers",
+    response_model=OffersResponse,
+    response_model_exclude_none=True,
+)
 def offers(
     request: Request,
     response: Response,
@@ -35,7 +39,7 @@ def offers(
             "FEATURE_CONFIG_INVALID",
             "Feature configuration is not ready.",
         )
-    if not flags.allOffers:
+    if not flags.publicAllOffersEnabled:
         return error_response(
             request,
             403,
@@ -57,7 +61,7 @@ def offers(
     if not_modified(request, etag):
         return Response(status_code=304, headers=dict(response.headers))
     try:
-        return OfferCatalogService(repository).list(
+        result = OfferCatalogService(repository).list(
             active_on=active_on,
             banks=bank,
             platforms=platform,
@@ -67,6 +71,16 @@ def offers(
             page=page,
             limit=limit,
         )
+        if not flags.couponCodeEnabled:
+            result = result.model_copy(
+                update={
+                    "offers": [
+                        offer.model_copy(update={"coupon_code": None})
+                        for offer in result.offers
+                    ]
+                }
+            )
+        return result
     except UnsupportedFilterError as exc:
         code = (
             "UNSUPPORTED_PLATFORM"

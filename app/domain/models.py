@@ -13,7 +13,7 @@ from pydantic import (
     model_validator,
 )
 
-PlatformId = Literal["MAKEMYTRIP", "CLEARTRIP"]
+PlatformId = str
 PaymentMethod = Literal["CREDIT", "DEBIT", "NO_CARD"]
 Category = Literal["FLIGHT_DOMESTIC"]
 BookingChannel = Literal["WEB", "APP", "WEB_AND_APP"]
@@ -32,6 +32,7 @@ class Offer(BaseModel):
     bank_id: str | None = None
     bank_name: str | None = None
     card_name: str | None = None
+    supported_cards: list[str] = Field(default_factory=list)
     payment_method: PaymentMethod
     category: Category
     booking_channel: BookingChannel
@@ -56,6 +57,13 @@ class Offer(BaseModel):
     is_active: bool = True
     publish_status: PublishStatus
     extra: dict[str, Any] = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    @classmethod
+    def migrate_supported_cards(cls, value):
+        if isinstance(value, dict) and not value.get("supported_cards") and value.get("card_name"):
+            value = {**value, "supported_cards": [value["card_name"]]}
+        return value
 
     @model_validator(mode="after")
     def validate_dates(self) -> "Offer":

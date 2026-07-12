@@ -90,8 +90,19 @@ def rank_offers(
     if not result and ordered:
         result.append((*ordered[0], "GENERAL_BEST"))
 
-    best = _benefit(ordered[0][0], ordered[0][1]) if ordered else Decimal("0")
+    baseline = result[0][1].estimated_savings if result else None
     return [
-        RankedOffer(o, e, kind, i, best - _benefit(o, e))
+        RankedOffer(
+            o,
+            e,
+            kind,
+            i,
+            e.estimated_savings - baseline
+            if baseline is not None
+            and e.eligible
+            and e.estimated_savings is not None
+            and e.estimated_savings > baseline
+            else None,
+        )
         for i, (o, e, kind) in enumerate(result, 1)
     ]

@@ -52,7 +52,11 @@ def test_valid_csv_preserves_blank_zero_and_extra(tmp_path):
     offer = json.loads((output / "offers.snapshot.json").read_text())[0]
     assert offer["max_discount"] is None
     assert offer["min_transaction"] == 0
-    assert offer["extra"] == {"custom": "kept"}
+    assert offer["extra"] == {
+        "custom": "kept",
+        "data_classification": "PRODUCTION",
+        "is_test_data": False,
+    }
     report = json.loads((output / "validation-report.json").read_text())
     assert report["sources"][0]["path"] == "offers.csv"
 

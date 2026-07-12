@@ -12,12 +12,11 @@ def test_meta_and_flags(client):
     assert client.get("/api/v1/meta").json()["data_version"]
     flags = client.get("/api/v1/feature-flags").json()
     assert flags == {
-        "authEnabled": False,
-        "offerLockingEnabled": False,
-        "savedCards": False,
-        "allOffers": True,
-        "dailyVisitorsEnabled": False,
+        "phase2UserFeaturesEnabled": False,
+        "publicAllOffersEnabled": True,
         "couponCodeEnabled": False,
+        "analyticsEnabled": True,
+        "bookingAmountComparisonEnabled": False,
         "config_version": flags["config_version"],
     }
 
@@ -27,6 +26,7 @@ def test_offers_pagination(client):
     assert len(payload["offers"]) == 2
     assert payload["pagination"]["total"] == 6
     assert payload["facets"]["platforms"]
+    assert all("coupon_code" not in offer for offer in payload["offers"])
 
 
 def test_search_with_calculated_savings(client, valid_search):
@@ -35,8 +35,25 @@ def test_search_with_calculated_savings(client, valid_search):
     body = response.json()
     assert len(body["date_strip"]) == 11
     assert body["date_strip"][0]["date"] == date.today().isoformat()
-    assert body["date_strip"][0]["best_benefit"] is not None
-    assert body["offers"][0]["estimated_savings"] is not None
+    assert body["date_strip"][0]["display_text"]
+    assert "estimated_savings" not in body["offers"][0]
+
+
+def test_booking_comparison_is_flag_guarded(client, valid_search):
+    original = client.app.state.feature_flags
+    payload = {**valid_search, "booking_amount": 6500}
+    try:
+        disabled = client.post("/api/v1/search", json=payload)
+        assert disabled.status_code == 400
+        assert disabled.json()["error"]["code"] == "BOOKING_COMPARISON_DISABLED"
+        client.app.state.feature_flags = original.model_copy(
+            update={"bookingAmountComparisonEnabled": True}
+        )
+        enabled = client.post("/api/v1/search", json=payload)
+        assert enabled.status_code == 200
+        assert enabled.json()["offers"][0]["estimated_savings"] is not None
+    finally:
+        client.app.state.feature_flags = original
 
 
 def test_same_airport_and_date_window(client, valid_search):
@@ -48,11 +65,12 @@ def test_same_airport_and_date_window(client, valid_search):
     assert response.json()["error"]["code"] == "INVALID_SEARCH_DATE"
 
 
-def test_unsupported_platform(client, valid_search):
+def test_unknown_dynamic_platform_returns_no_offers(client, valid_search):
     response = client.post(
         "/api/v1/search", json={**valid_search, "platforms": ["GOIBIBO"]}
     )
-    assert response.status_code == 422
+    assert response.status_code == 200
+    assert response.json()["offers"] == []
 
 
 def test_not_found_uses_error_contract(client):

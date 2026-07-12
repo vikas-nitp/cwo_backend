@@ -15,12 +15,11 @@ def write(path, payload):
 
 def valid(**changes):
     payload = {
-        "authEnabled": False,
-        "offerLockingEnabled": False,
-        "allOffers": True,
-        "savedCards": False,
-        "dailyVisitorsEnabled": False,
+        "phase2UserFeaturesEnabled": False,
+        "publicAllOffersEnabled": True,
         "couponCodeEnabled": False,
+        "analyticsEnabled": True,
+        "bookingAmountComparisonEnabled": False,
     }
     payload.update(changes)
     return payload
@@ -31,7 +30,7 @@ def test_valid_loading_and_stable_version(tmp_path):
     write(path, valid())
     first = load_feature_flags(path)
     second = load_feature_flags(path)
-    assert first.allOffers is True
+    assert first.publicAllOffersEnabled is True
     assert first.couponCodeEnabled is False
     assert first.version() == second.version()
     assert len(first.version()) == 8
@@ -44,38 +43,23 @@ def test_missing_malformed_unknown_and_invalid_type(tmp_path):
     malformed.write_text("{")
     with pytest.raises(FeatureFlagConfigError, match="malformed"):
         load_feature_flags(malformed)
-    for payload in (valid(unknown=True), valid(allOffers="true")):
+    for payload in (valid(unknown=True), valid(publicAllOffersEnabled="true")):
         path = tmp_path / "invalid.json"
         write(path, payload)
         with pytest.raises(FeatureFlagConfigError, match="invalid"):
             load_feature_flags(path)
 
 
-def test_unsupported_and_dependent_features_are_rejected(tmp_path):
-    path = tmp_path / "flags.json"
-    write(path, valid(savedCards=True))
-    with pytest.raises(FeatureFlagConfigError, match="unsupported"):
-        load_feature_flags(path)
-    write(path, valid(offerLockingEnabled=True))
-    with pytest.raises(FeatureFlagConfigError, match="requires authEnabled"):
-        load_feature_flags(path)
-    for name in ("authEnabled", "dailyVisitorsEnabled"):
-        write(path, valid(**{name: True}))
-        with pytest.raises(FeatureFlagConfigError, match="unsupported"):
-            load_feature_flags(path)
-
-
-def test_supported_flags_accept_true_and_false_states():
-    assert FeatureFlags(allOffers=False, couponCodeEnabled=False).allOffers is False
-    enabled = FeatureFlags(allOffers=True, couponCodeEnabled=True)
-    assert enabled.allOffers is True
-    assert enabled.couponCodeEnabled is True
+@pytest.mark.parametrize("value", [False, True])
+def test_all_flags_accept_true_and_false_states(value):
+    flags = FeatureFlags(**{name: value for name in FeatureFlags.model_fields})
+    assert all(flag is value for flag in flags.model_dump().values())
 
 
 def test_all_offers_toggle_and_readiness(client):
     original = client.app.state.feature_flags
     try:
-        client.app.state.feature_flags = FeatureFlags(allOffers=False)
+        client.app.state.feature_flags = FeatureFlags(publicAllOffersEnabled=False)
         disabled = client.get("/api/v1/offers")
         assert disabled.status_code == 403
         assert disabled.json()["error"]["code"] == "FEATURE_DISABLED"

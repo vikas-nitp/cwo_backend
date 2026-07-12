@@ -1,5 +1,5 @@
 {
-  "data_version": "2026-07-11-d21186a536d2",
+  "data_version": "2026-07-11-7ddd0d5bf575",
   "active_on": "2026-07-11",
   "platforms": {
     "CLEARTRIP": {
@@ -14,6 +14,7 @@
         "NO_CARD"
       ],
       "booking_channels": [
+        "APP",
         "WEB",
         "WEB_AND_APP"
       ]
@@ -29,7 +30,7 @@
         "NO_CARD"
       ],
       "booking_channels": [
-        "APP",
+        "WEB",
         "WEB_AND_APP"
       ]
     }
@@ -59,7 +60,7 @@
         "CREDIT"
       ],
       "booking_channels": [
-        "WEB_AND_APP"
+        "APP"
       ]
     },
     "SBI": {
@@ -71,7 +72,7 @@
         "CREDIT"
       ],
       "booking_channels": [
-        "APP"
+        "WEB_AND_APP"
       ]
     }
   }

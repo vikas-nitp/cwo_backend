@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict
 
 
 class FeatureFlagConfigError(ValueError):
@@ -14,29 +14,11 @@ class FeatureFlagConfigError(ValueError):
 class FeatureFlags(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
 
-    authEnabled: bool = False
-    offerLockingEnabled: bool = False
-    allOffers: bool = True
-    savedCards: bool = False
-    dailyVisitorsEnabled: bool = False
+    phase2UserFeaturesEnabled: bool = False
+    publicAllOffersEnabled: bool = True
     couponCodeEnabled: bool = False
-
-    @model_validator(mode="after")
-    def validate_supported_capabilities(self) -> "FeatureFlags":
-        if self.offerLockingEnabled and not self.authEnabled:
-            raise ValueError("offerLockingEnabled=true requires authEnabled=true")
-        unsupported = {
-            "authEnabled": self.authEnabled,
-            "offerLockingEnabled": self.offerLockingEnabled,
-            "savedCards": self.savedCards,
-            "dailyVisitorsEnabled": self.dailyVisitorsEnabled,
-        }
-        enabled = [name for name, value in unsupported.items() if value]
-        if enabled:
-            raise ValueError(
-                f"unsupported features must remain disabled: {', '.join(enabled)}"
-            )
-        return self
+    analyticsEnabled: bool = True
+    bookingAmountComparisonEnabled: bool = False
 
     def version(self) -> str:
         payload = json.dumps(self.model_dump(), sort_keys=True, separators=(",", ":"))

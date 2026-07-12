@@ -67,6 +67,8 @@ class SearchOffer(Offer):
     estimated_savings: Decimal | None
     estimated_final_amount: Decimal | None
     savings_label: str
+    amount_eligible: bool | None = None
+    comparison_text: str | None = None
 
     @field_serializer(
         "savings_delta",
@@ -79,9 +81,11 @@ class SearchOffer(Offer):
 
 class SearchDateBenefit(BaseModel):
     date: date
-    best_benefit: Decimal | None
+    benefit_type: str | None
+    benefit_value: Decimal | None
+    display_text: str
 
-    @field_serializer("best_benefit")
+    @field_serializer("benefit_value")
     def serialize_benefit(self, value: Decimal | None) -> float | None:
         return None if value is None else float(value)
 

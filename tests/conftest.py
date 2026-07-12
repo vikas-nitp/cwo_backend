@@ -23,5 +23,4 @@ def valid_search():
         "to": "BLR",
         "date": date.today().isoformat(),
         "banks": ["HDFC"],
-        "booking_amount": 6500,
     }

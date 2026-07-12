@@ -7,6 +7,9 @@
     "bank_id": "HDFC",
     "bank_name": "HDFC Bank",
     "card_name": "HDFC Credit Card",
+    "supported_cards": [
+      "HDFC Credit Card"
+    ],
     "payment_method": "CREDIT",
     "category": "FLIGHT_DOMESTIC",
     "booking_channel": "WEB_AND_APP",
@@ -32,7 +35,10 @@
     "priority_score": 100,
     "is_active": true,
     "publish_status": "READY",
-    "extra": {}
+    "extra": {
+      "data_classification": "PRODUCTION",
+      "is_test_data": false
+    }
   },
   {
     "offer_id": "MMT-SBI-001",
@@ -42,9 +48,12 @@
     "bank_id": "SBI",
     "bank_name": "State Bank of India",
     "card_name": "SBI Credit Card",
+    "supported_cards": [
+      "SBI Credit Card"
+    ],
     "payment_method": "CREDIT",
     "category": "FLIGHT_DOMESTIC",
-    "booking_channel": "APP",
+    "booking_channel": "WEB_AND_APP",
     "discount_type": "PERCENT",
     "discount_value": 12.0,
     "max_discount": 1200.0,
@@ -67,7 +76,10 @@
     "priority_score": 90,
     "is_active": true,
     "publish_status": "READY",
-    "extra": {}
+    "extra": {
+      "data_classification": "PRODUCTION",
+      "is_test_data": false
+    }
   },
   {
     "offer_id": "MMT-NOCARD-001",
@@ -77,9 +89,12 @@
     "bank_id": null,
     "bank_name": null,
     "card_name": "No card required",
+    "supported_cards": [
+      "No card required"
+    ],
     "payment_method": "NO_CARD",
     "category": "FLIGHT_DOMESTIC",
-    "booking_channel": "WEB_AND_APP",
+    "booking_channel": "WEB",
     "discount_type": "FLAT",
     "discount_value": 500.0,
     "max_discount": 500.0,
@@ -102,7 +117,10 @@
     "priority_score": 70,
     "is_active": true,
     "publish_status": "READY",
-    "extra": {}
+    "extra": {
+      "data_classification": "PRODUCTION",
+      "is_test_data": false
+    }
   },
   {
     "offer_id": "CT-ICICI-001",
@@ -112,9 +130,12 @@
     "bank_id": "ICICI",
     "bank_name": "ICICI Bank",
     "card_name": "ICICI Credit Card",
+    "supported_cards": [
+      "ICICI Credit Card"
+    ],
     "payment_method": "CREDIT",
     "category": "FLIGHT_DOMESTIC",
-    "booking_channel": "WEB_AND_APP",
+    "booking_channel": "APP",
     "discount_type": "FLAT",
     "discount_value": 1000.0,
     "max_discount": 1000.0,
@@ -134,10 +155,13 @@
     "source_type": "official",
     "evidence_status": "VERIFIED",
     "last_verified_at": "2026-07-11",
-    "priority_score": 95,
+    "priority_score": 85,
     "is_active": true,
     "publish_status": "READY",
-    "extra": {}
+    "extra": {
+      "data_classification": "PRODUCTION",
+      "is_test_data": false
+    }
   },
   {
     "offer_id": "CT-HDFC-DEBIT-001",
@@ -147,6 +171,9 @@
     "bank_id": "HDFC",
     "bank_name": "HDFC Bank",
     "card_name": "HDFC Debit Card",
+    "supported_cards": [
+      "HDFC Debit Card"
+    ],
     "payment_method": "DEBIT",
     "category": "FLIGHT_DOMESTIC",
     "booking_channel": "WEB",
@@ -172,7 +199,10 @@
     "priority_score": 80,
     "is_active": true,
     "publish_status": "READY",
-    "extra": {}
+    "extra": {
+      "data_classification": "PRODUCTION",
+      "is_test_data": false
+    }
   },
   {
     "offer_id": "CT-NOCARD-001",
@@ -182,6 +212,9 @@
     "bank_id": null,
     "bank_name": null,
     "card_name": "No card required",
+    "supported_cards": [
+      "No card required"
+    ],
     "payment_method": "NO_CARD",
     "category": "FLIGHT_DOMESTIC",
     "booking_channel": "WEB_AND_APP",
@@ -207,6 +240,9 @@
     "priority_score": 65,
     "is_active": true,
     "publish_status": "READY",
-    "extra": {}
+    "extra": {
+      "data_classification": "PRODUCTION",
+      "is_test_data": false
+    }
   }
 ]

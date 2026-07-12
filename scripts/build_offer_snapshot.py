@@ -30,6 +30,9 @@ ALIASES = {
     "coupon": "coupon_code",
     "active": "is_active",
     "channels": "booking_channel",
+    "card_names": "supported_cards",
+    "supported_card": "supported_cards",
+    "eligible_cards": "supported_cards",
 }
 CANONICAL_FIELDS = set(Offer.model_fields) - {"extra"}
 REQUIRED = {
@@ -82,6 +85,8 @@ def normalize_row(
             ("platform_id", spec.platform_id),
             ("platform_name", spec.platform_name),
         ):
+            if not default:
+                continue
             explicit = aliased.get(field)
             if explicit not in (None, "") and str(explicit).upper().replace(
                 " ", ""
@@ -104,7 +109,7 @@ def normalize_row(
             output[key] = None
         elif key in BOOL_FIELDS:
             output[key] = parse_bool(value)
-        elif key == "eligibility_notes":
+        elif key in {"eligibility_notes", "supported_cards"}:
             output[key] = (
                 value
                 if isinstance(value, list)
@@ -126,6 +131,8 @@ def normalize_row(
             output[field] = str(output[field]).upper().replace(" ", "")
     if output.get("booking_channel"):
         output["booking_channel"] = output["booking_channel"].replace("+", "_AND_")
+    extra.setdefault("data_classification", "PRODUCTION")
+    extra.setdefault("is_test_data", False)
     output["extra"] = extra
     return output
 
@@ -229,6 +236,13 @@ def build_records(
                     f"duplicate offer_id {offer_id}; first seen in {seen[offer_id]}"
                 )
             offer = Offer.model_validate(data)
+            is_synthetic = (
+                str(offer.extra.get("data_classification", "PRODUCTION")).upper()
+                == "SYNTHETIC_TEST"
+                or str(offer.extra.get("is_test_data", "false")).lower() == "true"
+            )
+            if is_synthetic:
+                raise ValueError("synthetic test rows are forbidden in production snapshots")
             seen[offer.offer_id] = record.source
             accepted.append(offer)
             summary["accepted_count"] += 1
@@ -288,7 +302,7 @@ def build_records(
         "source_row_count": len(records),
         "accepted_row_count": len(accepted),
         "rejected_row_count": len(errors),
-        "supported_platforms": ["MAKEMYTRIP", "CLEARTRIP"],
+        "supported_platforms": [platform_id for platform_id, _ in platforms],
         **(source_metadata or {}),
     }
     report = {

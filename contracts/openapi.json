@@ -128,14 +128,14 @@
       "FeatureFlagsResponse": {
         "additionalProperties": false,
         "properties": {
-          "allOffers": {
+          "analyticsEnabled": {
             "default": true,
-            "title": "Alloffers",
+            "title": "Analyticsenabled",
             "type": "boolean"
           },
-          "authEnabled": {
+          "bookingAmountComparisonEnabled": {
             "default": false,
-            "title": "Authenabled",
+            "title": "Bookingamountcomparisonenabled",
             "type": "boolean"
           },
           "config_version": {
@@ -147,19 +147,14 @@
             "title": "Couponcodeenabled",
             "type": "boolean"
           },
-          "dailyVisitorsEnabled": {
+          "phase2UserFeaturesEnabled": {
             "default": false,
-            "title": "Dailyvisitorsenabled",
+            "title": "Phase2Userfeaturesenabled",
             "type": "boolean"
           },
-          "offerLockingEnabled": {
-            "default": false,
-            "title": "Offerlockingenabled",
-            "type": "boolean"
-          },
-          "savedCards": {
-            "default": false,
-            "title": "Savedcards",
+          "publicAllOffersEnabled": {
+            "default": true,
+            "title": "Publicalloffersenabled",
             "type": "boolean"
           }
         },
@@ -357,10 +352,6 @@
             "type": "string"
           },
           "platform_id": {
-            "enum": [
-              "MAKEMYTRIP",
-              "CLEARTRIP"
-            ],
             "title": "Platform Id",
             "type": "string"
           },
@@ -399,6 +390,13 @@
             "minLength": 1,
             "title": "Source Url",
             "type": "string"
+          },
+          "supported_cards": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Supported Cards",
+            "type": "array"
           },
           "terms_url": {
             "anyOf": [
@@ -585,10 +583,6 @@
       "PlatformMetadata": {
         "properties": {
           "id": {
-            "enum": [
-              "MAKEMYTRIP",
-              "CLEARTRIP"
-            ],
             "title": "Id",
             "type": "string"
           },
@@ -606,7 +600,18 @@
       },
       "SearchDateBenefit": {
         "properties": {
-          "best_benefit": {
+          "benefit_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Benefit Type"
+          },
+          "benefit_value": {
             "anyOf": [
               {
                 "type": "number"
@@ -615,23 +620,40 @@
                 "type": "null"
               }
             ],
-            "title": "Best Benefit"
+            "title": "Benefit Value"
           },
           "date": {
             "format": "date",
             "title": "Date",
             "type": "string"
+          },
+          "display_text": {
+            "title": "Display Text",
+            "type": "string"
           }
         },
         "required": [
           "date",
-          "best_benefit"
+          "benefit_type",
+          "benefit_value",
+          "display_text"
         ],
         "title": "SearchDateBenefit",
         "type": "object"
       },
       "SearchOffer": {
         "properties": {
+          "amount_eligible": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Eligible"
+          },
           "bank_id": {
             "anyOf": [
               {
@@ -691,6 +713,17 @@
             "const": "FLIGHT_DOMESTIC",
             "title": "Category",
             "type": "string"
+          },
+          "comparison_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparison Text"
           },
           "coupon_code": {
             "anyOf": [
@@ -835,10 +868,6 @@
             "type": "string"
           },
           "platform_id": {
-            "enum": [
-              "MAKEMYTRIP",
-              "CLEARTRIP"
-            ],
             "title": "Platform Id",
             "type": "string"
           },
@@ -892,6 +921,13 @@
             "minLength": 1,
             "title": "Source Url",
             "type": "string"
+          },
+          "supported_cards": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Supported Cards",
+            "type": "array"
           },
           "terms_url": {
             "anyOf": [
@@ -996,10 +1032,6 @@
           },
           "platforms": {
             "items": {
-              "enum": [
-                "MAKEMYTRIP",
-                "CLEARTRIP"
-              ],
               "type": "string"
             },
             "title": "Platforms",
@@ -1272,7 +1304,7 @@
             "name": "limit",
             "required": false,
             "schema": {
-              "default": 50,
+              "default": 20,
               "maximum": 100,
               "minimum": 1,
               "title": "Limit",

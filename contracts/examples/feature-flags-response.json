@@ -1,8 +1,8 @@
 {
   "config_version": "0096a449",
-  "authEnabled": false,
-  "offerLockingEnabled": false,
-  "allOffers": true,
-  "savedCards": false,
-  "dailyVisitorsEnabled": false
+  "phase2UserFeaturesEnabled": false,
+  "publicAllOffersEnabled": true,
+  "couponCodeEnabled": false,
+  "analyticsEnabled": true,
+  "bookingAmountComparisonEnabled": false
 }

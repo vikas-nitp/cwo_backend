@@ -25,7 +25,7 @@ class RuntimeSettings(BaseModel):
     booking_window_days: int = Field(10, ge=1, le=31)
     supported_platforms: tuple[str, ...] = ("MAKEMYTRIP", "CLEARTRIP")
     contract_version: str = "1.1"
-    default_page_limit: int = Field(50, ge=1, le=100)
+    default_page_limit: int = Field(20, ge=1, le=100)
     max_page_limit: int = Field(100, ge=1, le=500)
     meta_cache_ttl: int = Field(86400, ge=0)
     flags_cache_ttl: int = Field(300, ge=0)
@@ -93,7 +93,7 @@ def load_runtime_settings() -> RuntimeSettings:
         booking_window_days=int(os.getenv("BOOKING_WINDOW_DAYS", "10")),
         supported_platforms=tuple(_csv("SUPPORTED_PLATFORMS", "MAKEMYTRIP,CLEARTRIP")),
         contract_version=os.getenv("CONTRACT_VERSION", "1.1"),
-        default_page_limit=int(os.getenv("DEFAULT_PAGE_LIMIT", "50")),
+        default_page_limit=int(os.getenv("DEFAULT_PAGE_LIMIT", "20")),
         max_page_limit=int(os.getenv("MAX_PAGE_LIMIT", "100")),
         meta_cache_ttl=int(os.getenv("META_CACHE_TTL", "86400")),
         flags_cache_ttl=int(os.getenv("FLAGS_CACHE_TTL", "300")),

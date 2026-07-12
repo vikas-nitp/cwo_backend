@@ -1,8 +1,7 @@
 {
-  "authEnabled": false,
-  "offerLockingEnabled": false,
-  "allOffers": true,
-  "savedCards": false,
-  "dailyVisitorsEnabled": false,
-  "couponCodeEnabled": false
+  "phase2UserFeaturesEnabled": false,
+  "publicAllOffersEnabled": true,
+  "couponCodeEnabled": false,
+  "analyticsEnabled": true,
+  "bookingAmountComparisonEnabled": false
 }
