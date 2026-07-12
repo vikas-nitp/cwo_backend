@@ -1,9 +1,0 @@
-{
-  "authEnabled": false,
-  "offerLockingEnabled": false,
-  "allOffers": true,
-  "savedCards": false,
-  "dailyVisitorsEnabled": false,
-  "supported_banks": ["HDFC", "ICICI", "SBI"],
-  "supported_platforms": ["MAKEMYTRIP", "CLEARTRIP"]
-}

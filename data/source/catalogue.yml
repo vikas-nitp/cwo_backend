@@ -1,0 +1,10 @@
+sources:
+  - path: makemytrip/offers.csv
+    format: csv
+    platform_id: MAKEMYTRIP
+    platform_name: MakeMyTrip
+
+  - path: cleartrip/offers.json
+    format: json
+    platform_id: CLEARTRIP
+    platform_name: Cleartrip

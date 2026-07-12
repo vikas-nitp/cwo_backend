@@ -54,7 +54,7 @@ def test_valid_csv_preserves_blank_zero_and_extra(tmp_path):
     assert offer["min_transaction"] == 0
     assert offer["extra"] == {"custom": "kept"}
     report = json.loads((output / "validation-report.json").read_text())
-    assert report["source"] == "offers.csv"
+    assert report["sources"][0]["path"] == "offers.csv"
 
 
 def test_duplicate_and_invalid_platform_fail_with_report(tmp_path):

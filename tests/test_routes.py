@@ -10,12 +10,14 @@ def test_health(client):
 
 def test_meta_and_flags(client):
     assert client.get("/api/v1/meta").json()["data_version"]
-    assert client.get("/api/v1/feature-flags").json() == {
+    flags = client.get("/api/v1/feature-flags").json()
+    assert flags == {
         "authEnabled": False,
         "offerLockingEnabled": False,
         "savedCards": False,
         "allOffers": True,
         "dailyVisitorsEnabled": False,
+        "config_version": flags["config_version"],
     }
 
 
@@ -23,6 +25,7 @@ def test_offers_pagination(client):
     payload = client.get("/api/v1/offers?limit=2").json()
     assert len(payload["offers"]) == 2
     assert payload["pagination"]["total"] == 6
+    assert payload["facets"]["platforms"]
 
 
 def test_search_with_calculated_savings(client, valid_search):
@@ -53,3 +56,53 @@ def test_not_found_uses_error_contract(client):
     response = client.get("/does-not-exist")
     assert response.status_code == 404
     assert response.json()["error"]["code"] == "RESOURCE_NOT_FOUND"
+
+
+def test_multi_select_filters_and_strict_bank(client):
+    response = client.get(
+        "/api/v1/offers?platform=MAKEMYTRIP&platform=CLEARTRIP&bank=HDFC&bank=SBI&payment_method=CREDIT"
+    )
+    assert response.status_code == 200
+    offers = response.json()["offers"]
+    assert {offer["offer_id"] for offer in offers} == {"MMT-HDFC-001", "MMT-SBI-001"}
+    assert all(offer["bank_id"] in {"HDFC", "SBI"} for offer in offers)
+
+
+def test_unsupported_filter_codes(client):
+    platform = client.get("/api/v1/offers?platform=GOIBIBO")
+    assert platform.status_code == 400
+    assert platform.json()["error"]["code"] == "UNSUPPORTED_PLATFORM"
+    bank = client.get("/api/v1/offers?bank=UNKNOWN")
+    assert bank.status_code == 400
+    assert bank.json()["error"]["code"] == "UNSUPPORTED_FILTER"
+
+
+def test_version_cache_headers_and_conditional_get(client, valid_search):
+    meta = client.get("/api/v1/meta")
+    assert meta.headers["x-contract-version"] == "1.1"
+    assert meta.headers["x-data-version"]
+    assert (
+        client.get(
+            "/api/v1/meta", headers={"If-None-Match": meta.headers["etag"]}
+        ).status_code
+        == 304
+    )
+    offers = client.get("/api/v1/offers")
+    assert (
+        client.get(
+            "/api/v1/offers", headers={"If-None-Match": offers.headers["etag"]}
+        ).status_code
+        == 304
+    )
+    search = client.post("/api/v1/search", json=valid_search)
+    assert search.headers["cache-control"] == "no-store"
+    assert search.headers["x-contract-version"] == "1.1"
+
+
+def test_readiness_allows_no_offer_active_today(client, monkeypatch):
+    repository = client.app.state.offer_repository
+    monkeypatch.setattr(repository, "list_offers", lambda **kwargs: [])
+    response = client.get("/health/ready")
+    assert response.status_code == 200
+    assert response.json()["offer_count"] == 6
+    assert response.json()["active_offer_count"] == 0

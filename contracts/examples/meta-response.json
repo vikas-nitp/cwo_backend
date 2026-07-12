@@ -1,5 +1,5 @@
 {
-  "data_version": "2026-07-11-3042aa94eb4c",
+  "data_version": "2026-07-11-d21186a536d2",
   "banks": [{"id": "HDFC", "name": "HDFC Bank"}],
   "platforms": [
     {"id": "MAKEMYTRIP", "name": "MakeMyTrip"},

@@ -1,6 +1,39 @@
 {
   "components": {
     "schemas": {
+      "AirportMetadata": {
+        "properties": {
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "is_domestic_default": {
+            "title": "Is Domestic Default",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "city",
+          "name",
+          "country",
+          "is_domestic_default"
+        ],
+        "title": "AirportMetadata",
+        "type": "object"
+      },
       "BankMetadata": {
         "properties": {
           "id": {
@@ -17,6 +50,118 @@
           "name"
         ],
         "title": "BankMetadata",
+        "type": "object"
+      },
+      "CatalogueFacets": {
+        "properties": {
+          "banks": {
+            "items": {
+              "$ref": "#/components/schemas/FacetOption"
+            },
+            "title": "Banks",
+            "type": "array"
+          },
+          "booking_channels": {
+            "items": {
+              "$ref": "#/components/schemas/FacetOption"
+            },
+            "title": "Booking Channels",
+            "type": "array"
+          },
+          "payment_methods": {
+            "items": {
+              "$ref": "#/components/schemas/FacetOption"
+            },
+            "title": "Payment Methods",
+            "type": "array"
+          },
+          "platforms": {
+            "items": {
+              "$ref": "#/components/schemas/FacetOption"
+            },
+            "title": "Platforms",
+            "type": "array"
+          }
+        },
+        "required": [
+          "platforms",
+          "banks",
+          "payment_methods",
+          "booking_channels"
+        ],
+        "title": "CatalogueFacets",
+        "type": "object"
+      },
+      "FacetOption": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "disabled": {
+            "title": "Disabled",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "selected": {
+            "title": "Selected",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "count",
+          "selected",
+          "disabled"
+        ],
+        "title": "FacetOption",
+        "type": "object"
+      },
+      "FeatureFlagsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "allOffers": {
+            "default": true,
+            "title": "Alloffers",
+            "type": "boolean"
+          },
+          "authEnabled": {
+            "default": false,
+            "title": "Authenabled",
+            "type": "boolean"
+          },
+          "config_version": {
+            "title": "Config Version",
+            "type": "string"
+          },
+          "dailyVisitorsEnabled": {
+            "default": false,
+            "title": "Dailyvisitorsenabled",
+            "type": "boolean"
+          },
+          "offerLockingEnabled": {
+            "default": false,
+            "title": "Offerlockingenabled",
+            "type": "boolean"
+          },
+          "savedCards": {
+            "default": false,
+            "title": "Savedcards",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "config_version"
+        ],
+        "title": "FeatureFlagsResponse",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -65,6 +210,19 @@
             "title": "Booking Channel",
             "type": "string"
           },
+          "booking_url": {
+            "anyOf": [
+              {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booking Url"
+          },
           "card_name": {
             "anyOf": [
               {
@@ -101,15 +259,8 @@
             "type": "string"
           },
           "discount_value": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Discount Value"
+            "title": "Discount Value",
+            "type": "number"
           },
           "eligibility_notes": {
             "items": {
@@ -302,8 +453,7 @@
         "properties": {
           "airports": {
             "items": {
-              "additionalProperties": true,
-              "type": "object"
+              "$ref": "#/components/schemas/AirportMetadata"
             },
             "title": "Airports",
             "type": "array"
@@ -376,6 +526,9 @@
             "title": "Data Version",
             "type": "string"
           },
+          "facets": {
+            "$ref": "#/components/schemas/CatalogueFacets"
+          },
           "offers": {
             "items": {
               "$ref": "#/components/schemas/Offer"
@@ -390,7 +543,8 @@
         "required": [
           "data_version",
           "offers",
-          "pagination"
+          "pagination",
+          "facets"
         ],
         "title": "OffersResponse",
         "type": "object"
@@ -527,15 +681,8 @@
             "type": "string"
           },
           "discount_value": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Discount Value"
+            "title": "Discount Value",
+            "type": "number"
           },
           "display_kind": {
             "title": "Display Kind",
@@ -583,7 +730,13 @@
             "title": "Evidence Status",
             "type": "string"
           },
+          "extra": {
+            "additionalProperties": true,
+            "title": "Extra",
+            "type": "object"
+          },
           "is_active": {
+            "default": true,
             "title": "Is Active",
             "type": "boolean"
           },
@@ -598,6 +751,11 @@
               }
             ],
             "title": "Last Verified At"
+          },
+          "login_required": {
+            "default": false,
+            "title": "Login Required",
+            "type": "boolean"
           },
           "max_discount": {
             "anyOf": [
@@ -621,11 +779,18 @@
             ],
             "title": "Min Transaction"
           },
+          "new_user_only": {
+            "default": false,
+            "title": "New User Only",
+            "type": "boolean"
+          },
           "offer_id": {
+            "minLength": 1,
             "title": "Offer Id",
             "type": "string"
           },
           "offer_title": {
+            "minLength": 1,
             "title": "Offer Title",
             "type": "string"
           },
@@ -647,10 +812,12 @@
             "type": "string"
           },
           "platform_name": {
+            "minLength": 1,
             "title": "Platform Name",
             "type": "string"
           },
           "priority_score": {
+            "default": 0,
             "title": "Priority Score",
             "type": "integer"
           },
@@ -678,6 +845,17 @@
             "title": "Savings Label",
             "type": "string"
           },
+          "source_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Type"
+          },
           "source_url": {
             "format": "uri",
             "minLength": 1,
@@ -697,6 +875,17 @@
             ],
             "title": "Terms Url"
           },
+          "usage_limit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage Limit"
+          },
           "valid_from": {
             "format": "date",
             "title": "Valid From",
@@ -710,37 +899,25 @@
         },
         "required": [
           "offer_id",
-          "display_kind",
-          "display_rank",
-          "savings_delta",
           "platform_id",
           "platform_name",
           "offer_title",
-          "bank_id",
-          "bank_name",
-          "card_name",
           "payment_method",
           "category",
           "booking_channel",
           "discount_type",
           "discount_value",
-          "max_discount",
-          "min_transaction",
-          "estimated_savings",
-          "estimated_final_amount",
-          "savings_label",
-          "coupon_code",
           "valid_from",
           "valid_to",
-          "eligibility_notes",
-          "terms_url",
           "source_url",
-          "booking_url",
           "evidence_status",
-          "last_verified_at",
-          "priority_score",
-          "is_active",
-          "publish_status"
+          "publish_status",
+          "display_kind",
+          "display_rank",
+          "savings_delta",
+          "estimated_savings",
+          "estimated_final_amount",
+          "savings_label"
         ],
         "title": "SearchOffer",
         "type": "object"
@@ -916,7 +1093,7 @@
   "info": {
     "description": "API for CardwiseOffer - Find best credit card offers",
     "title": "CardwiseOffer API",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -928,11 +1105,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": {
-                    "type": "boolean"
-                  },
-                  "title": "Response Feature Flags Api V1 Feature Flags Get",
-                  "type": "object"
+                  "$ref": "#/components/schemas/FeatureFlagsResponse"
                 }
               }
             },
@@ -975,15 +1148,12 @@
             "name": "bank",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Bank"
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Bank",
+              "type": "array"
             }
           },
           {
@@ -991,15 +1161,12 @@
             "name": "platform",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Platform"
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Platform",
+              "type": "array"
             }
           },
           {
@@ -1007,20 +1174,12 @@
             "name": "payment_method",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "enum": [
-                    "CREDIT",
-                    "DEBIT",
-                    "NO_CARD"
-                  ],
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Payment Method"
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Payment Method",
+              "type": "array"
             }
           },
           {
@@ -1028,20 +1187,12 @@
             "name": "booking_channel",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "enum": [
-                    "WEB",
-                    "APP",
-                    "WEB_AND_APP"
-                  ],
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Booking Channel"
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Booking Channel",
+              "type": "array"
             }
           },
           {
@@ -1049,16 +1200,12 @@
             "name": "category",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "const": "FLIGHT_DOMESTIC",
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Category"
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Category",
+              "type": "array"
             }
           },
           {

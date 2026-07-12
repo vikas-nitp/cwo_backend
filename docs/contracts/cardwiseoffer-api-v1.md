@@ -1,26 +1,26 @@
-# CardwiseOffer API v1
+# CardwiseOffer API contract 1.1
 
-Base path: `/api/v1`. Machine-readable source: `contracts/openapi.json`.
+Base path: `/api/v1`. Machine-readable source: `contracts/openapi.json`. Successful data responses expose `X-Contract-Version: 1.1`, `X-Data-Version`, and an `ETag`; `POST /search` is `no-store`.
 
-## Runtime and data
+## Data and feature configuration
 
-The service supports only `MAKEMYTRIP`, `CLEARTRIP`, and `FLIGHT_DOMESTIC`. Publishable offers are active, `READY`, `VERIFIED`, and valid on the requested date. Money is returned as JSON numbers; absent optional amounts are `null`.
+`data/source/catalogue.yml` compiles platform-specific CSV, XLSX, and JSON sources into immutable offer, metadata, facet, manifest, and validation snapshots. Runtime loads every snapshot and `data/config/feature_flags.json` once during lifespan startup. Supported banks and platforms are derived only from publishable offers.
+
+Unsupported capabilities (`authEnabled`, `offerLockingEnabled`, `savedCards`, and `dailyVisitorsEnabled`) must remain false. `allOffers=false` returns HTTP 403 with `FEATURE_DISABLED`; metadata and search remain available.
 
 ## Endpoints
 
 - `GET /health/live`: process liveness.
-- `GET /health/ready`: snapshot state, offer count, and data version; 503 if unavailable or empty.
-- `GET /api/v1/meta`: derived banks, platforms, methods, categories, channels, and airports.
-- `GET /api/v1/offers`: filters `bank`, `platform`, `payment_method`, `booking_channel`, `category`, `active_on`; pagination uses `page` and `limit`.
-- `POST /api/v1/search`: accepts `from`, `to`, `date`, up to two `banks`, supported `platforms`, category, and optional positive `booking_amount`.
-- `GET /api/v1/feature-flags`: release capability flags; authentication and locking are false.
+- `GET /health/ready`: snapshot/config state, total publishable and currently active counts, data/config/contract versions.
+- `GET /api/v1/meta`: derived metadata.
+- `GET /api/v1/offers`: repeated `bank`, `platform`, `payment_method`, `booking_channel`, and `category` values use OR within a group and AND across groups. Pagination happens after filtering. The response contains self-excluding facet counts.
+- `POST /api/v1/search`: selected banks are ranking preferences, not strict filters. An outside-bank alternative and no-card default may be returned.
+- `GET /api/v1/feature-flags`: validated configuration plus stable `config_version`.
 
-Search dates range from today through today plus ten days. Origin and destination must differ. Exact estimates exist only when `booking_amount` is present and eligibility permits calculation. No fare or price strip is returned.
+Catalogue and search offers share the canonical `Offer` fields, including `booking_url` and `extra`; search adds display/ranking and optional calculation fields. Exact savings exist only when `booking_amount` is supplied and eligible. No synthetic fare or price strip exists.
 
-Ranking kinds are `SELECTED_CARD`, `SECOND_SELECTED_CARD`, `BETTER_ALTERNATIVE`, `DEFAULT_OFFER`, and `GENERAL_BEST`. Backend order is authoritative.
-
-Errors use `{ "error": { "code", "message", "field", "request_id" } }`. Examples under `contracts/examples/` are executable contract fixtures.
+Errors use `{ "error": { "code", "message", "field", "request_id" } }` and are `no-store`. Contract examples under `contracts/examples/` are validated by the actual Pydantic models.
 
 ## Frontend synchronization
 
-Copy this document, `contracts/openapi.json`, and `contracts/examples/*` into the frontend contract location or consume them from a published artifact. Generate TypeScript types from OpenAPI. Do not merge a contract change unless backend examples/tests pass and the frontend adapter/build accepts the regenerated types.
+Generate TypeScript DTOs from `contracts/openapi.json`. API mode uses `VITE_DATA_SOURCE=api` (with temporary compatibility for `VITE_DATA_MODE`) and `VITE_API_BASE_URL`. UI behavior must follow all five flags and must not send client-auth assertions or rerank API search results.

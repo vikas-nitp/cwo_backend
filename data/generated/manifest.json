@@ -1,7 +1,8 @@
 {
-  "schema_version": "1.0",
-  "data_version": "2026-07-11-3042aa94eb4c",
+  "schema_version": "1.1",
+  "data_version": "2026-07-11-d21186a536d2",
   "generated_at": "2026-07-11T00:00:00+00:00",
+  "source_count": 2,
   "source_row_count": 6,
   "accepted_row_count": 6,
   "rejected_row_count": 0,

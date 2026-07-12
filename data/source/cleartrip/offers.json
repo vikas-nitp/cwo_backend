@@ -1,0 +1,40 @@
+{
+  "offers": [
+    {
+      "offer_id": "CT-ICICI-001", "offer_title": "ICICI domestic flight offer", "bank_id": "ICICI",
+      "bank_name": "ICICI Bank", "card_name": "ICICI Credit Card", "payment_method": "CREDIT",
+      "category": "FLIGHT_DOMESTIC", "booking_channel": "WEB_AND_APP", "discount_type": "FLAT",
+      "discount_value": 1000, "max_discount": 1000, "min_transaction": 6000, "coupon_code": "CTICICI",
+      "valid_from": "2026-07-01", "valid_to": "2027-12-31", "usage_limit": "Once per card",
+      "new_user_only": false, "login_required": false, "eligibility_notes": ["Valid on selected ICICI credit cards"],
+      "terms_url": "https://www.cleartrip.com/offers/india/domestic-flights",
+      "source_url": "https://www.cleartrip.com/offers/india/domestic-flights", "booking_url": "https://www.cleartrip.com/flights",
+      "source_type": "official", "evidence_status": "VERIFIED", "last_verified_at": "2026-07-11",
+      "priority_score": 95, "is_active": true, "publish_status": "READY"
+    },
+    {
+      "offer_id": "CT-HDFC-DEBIT-001", "offer_title": "HDFC debit card domestic offer", "bank_id": "HDFC",
+      "bank_name": "HDFC Bank", "card_name": "HDFC Debit Card", "payment_method": "DEBIT",
+      "category": "FLIGHT_DOMESTIC", "booking_channel": "WEB", "discount_type": "PERCENT",
+      "discount_value": 8, "max_discount": 800, "min_transaction": 3500, "coupon_code": "CTHDFC",
+      "valid_from": "2026-07-01", "valid_to": "2027-12-31", "usage_limit": "Once per card",
+      "new_user_only": false, "login_required": false, "eligibility_notes": ["Valid on selected HDFC debit cards"],
+      "terms_url": "https://www.cleartrip.com/offers/india/domestic-flights",
+      "source_url": "https://www.cleartrip.com/offers/india/domestic-flights", "booking_url": "https://www.cleartrip.com/flights",
+      "source_type": "official", "evidence_status": "VERIFIED", "last_verified_at": "2026-07-11",
+      "priority_score": 80, "is_active": true, "publish_status": "READY"
+    },
+    {
+      "offer_id": "CT-NOCARD-001", "offer_title": "Cleartrip domestic flight coupon", "bank_id": null,
+      "bank_name": null, "card_name": "No card required", "payment_method": "NO_CARD",
+      "category": "FLIGHT_DOMESTIC", "booking_channel": "WEB_AND_APP", "discount_type": "PERCENT",
+      "discount_value": 7, "max_discount": 600, "min_transaction": 2500, "coupon_code": "CTFLY",
+      "valid_from": "2026-07-01", "valid_to": "2027-12-31", "usage_limit": "Once per user",
+      "new_user_only": true, "login_required": false, "eligibility_notes": ["New users only"],
+      "terms_url": "https://www.cleartrip.com/offers/india/domestic-flights",
+      "source_url": "https://www.cleartrip.com/offers/india/domestic-flights", "booking_url": "https://www.cleartrip.com/flights",
+      "source_type": "official", "evidence_status": "VERIFIED", "last_verified_at": "2026-07-11",
+      "priority_score": 65, "is_active": true, "publish_status": "READY"
+    }
+  ]
+}

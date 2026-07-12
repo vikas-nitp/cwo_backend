@@ -1,10 +1,15 @@
 from datetime import date
-from typing import Literal
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Query, Request, Response
 
+from app.api.errors import error_response
+from app.api.headers import not_modified, version_headers
 from app.schemas.offers import OffersResponse
-from app.services.offer_catalog_service import OfferCatalogService
+from app.services.offer_catalog_service import (
+    OfferCatalogService,
+    UnsupportedFilterError,
+)
+from app.core.config import SETTINGS
 
 router = APIRouter(tags=["Offers"])
 
@@ -12,22 +17,60 @@ router = APIRouter(tags=["Offers"])
 @router.get("/offers", response_model=OffersResponse)
 def offers(
     request: Request,
-    bank: str | None = None,
-    platform: str | None = None,
-    payment_method: Literal["CREDIT", "DEBIT", "NO_CARD"] | None = None,
-    booking_channel: Literal["WEB", "APP", "WEB_AND_APP"] | None = None,
-    category: Literal["FLIGHT_DOMESTIC"] | None = None,
+    response: Response,
+    bank: list[str] = Query(default=[]),
+    platform: list[str] = Query(default=[]),
+    payment_method: list[str] = Query(default=[]),
+    booking_channel: list[str] = Query(default=[]),
+    category: list[str] = Query(default=[]),
     active_on: date = Query(default_factory=date.today),
     page: int = Query(1, ge=1),
-    limit: int = Query(50, ge=1, le=100),
-) -> OffersResponse:
-    return OfferCatalogService(request.app.state.offer_repository).list(
-        active_on=active_on,
-        bank=bank,
-        platform=platform,
-        payment_method=payment_method,
-        booking_channel=booking_channel,
-        category=category,
-        page=page,
-        limit=limit,
+    limit: int = Query(SETTINGS.default_page_limit, ge=1, le=SETTINGS.max_page_limit),
+):
+    flags = request.app.state.feature_flags
+    if flags is None:
+        return error_response(
+            request,
+            503,
+            "FEATURE_CONFIG_INVALID",
+            "Feature configuration is not ready.",
+        )
+    if not flags.allOffers:
+        return error_response(
+            request,
+            403,
+            "FEATURE_DISABLED",
+            "The All Offers catalogue is currently unavailable.",
+        )
+    repository = request.app.state.offer_repository
+    if not repository.loaded:
+        return error_response(
+            request, 503, "DATA_NOT_READY", "Offer data is not ready."
+        )
+    version = repository.get_manifest().data_version
+    etag = version_headers(
+        response,
+        version=version,
+        cache_key=str(request.url),
+        cache_control=f"public, max-age={SETTINGS.offers_cache_ttl}",
     )
+    if not_modified(request, etag):
+        return Response(status_code=304, headers=dict(response.headers))
+    try:
+        return OfferCatalogService(repository).list(
+            active_on=active_on,
+            banks=bank,
+            platforms=platform,
+            payment_methods=payment_method,
+            booking_channels=booking_channel,
+            categories=category,
+            page=page,
+            limit=limit,
+        )
+    except UnsupportedFilterError as exc:
+        code = (
+            "UNSUPPORTED_PLATFORM"
+            if str(exc).startswith("Unsupported platform")
+            else "UNSUPPORTED_FILTER"
+        )
+        return error_response(request, 400, code, str(exc))

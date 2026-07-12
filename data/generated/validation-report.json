@@ -1,6 +1,27 @@
 {
   "valid": true,
+  "source_count": 2,
+  "source_row_count": 6,
+  "accepted_row_count": 6,
+  "rejected_row_count": 0,
+  "warning_count": 0,
   "generated_at": "2026-07-11T00:00:00+00:00",
-  "source": "data/source/offers.csv",
-  "errors": []
+  "sources": [
+    {
+      "path": "makemytrip/offers.csv",
+      "format": "csv",
+      "row_count": 3,
+      "accepted_count": 3,
+      "rejected_count": 0
+    },
+    {
+      "path": "cleartrip/offers.json",
+      "format": "json",
+      "row_count": 3,
+      "accepted_count": 3,
+      "rejected_count": 0
+    }
+  ],
+  "errors": [],
+  "warnings": []
 }

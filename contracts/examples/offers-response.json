@@ -1,5 +1,5 @@
 {
-  "data_version": "2026-07-11-3042aa94eb4c",
+  "data_version": "2026-07-11-d21186a536d2",
   "offers": [{
     "offer_id": "MMT-HDFC-001", "platform_id": "MAKEMYTRIP", "platform_name": "MakeMyTrip",
     "offer_title": "HDFC domestic flight offer", "bank_id": "HDFC", "bank_name": "HDFC Bank",
@@ -9,9 +9,15 @@
     "valid_from": "2026-07-01", "valid_to": "2027-12-31", "usage_limit": "Once per card",
     "new_user_only": false, "login_required": false, "eligibility_notes": ["Valid on selected HDFC credit cards"],
     "terms_url": "https://www.makemytrip.com/promos/flight-offers.html",
-    "source_url": "https://www.makemytrip.com/promos/flight-offers.html", "source_type": "official",
+    "source_url": "https://www.makemytrip.com/promos/flight-offers.html", "booking_url": "https://www.makemytrip.com/flights/", "source_type": "official",
     "evidence_status": "VERIFIED", "last_verified_at": "2026-07-11", "priority_score": 100,
     "is_active": true, "publish_status": "READY", "extra": {}
   }],
-  "pagination": {"page": 1, "limit": 50, "total": 1, "total_pages": 1}
+  "pagination": {"page": 1, "limit": 50, "total": 1, "total_pages": 1},
+  "facets": {
+    "platforms": [{"id": "MAKEMYTRIP", "name": "MakeMyTrip", "count": 1, "selected": false, "disabled": false}],
+    "banks": [{"id": "HDFC", "name": "HDFC Bank", "count": 1, "selected": false, "disabled": false}],
+    "payment_methods": [{"id": "CREDIT", "name": "Credit", "count": 1, "selected": false, "disabled": false}],
+    "booking_channels": [{"id": "WEB_AND_APP", "name": "Web And App", "count": 1, "selected": false, "disabled": false}]
+  }
 }

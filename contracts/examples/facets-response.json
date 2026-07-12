@@ -1,0 +1,21 @@
+{
+  "platforms": [
+    {"id": "MAKEMYTRIP", "name": "MakeMyTrip", "count": 3, "selected": false, "disabled": false},
+    {"id": "CLEARTRIP", "name": "Cleartrip", "count": 3, "selected": false, "disabled": false}
+  ],
+  "banks": [
+    {"id": "HDFC", "name": "HDFC Bank", "count": 2, "selected": false, "disabled": false},
+    {"id": "ICICI", "name": "ICICI Bank", "count": 1, "selected": false, "disabled": false},
+    {"id": "SBI", "name": "State Bank of India", "count": 1, "selected": false, "disabled": false}
+  ],
+  "payment_methods": [
+    {"id": "CREDIT", "name": "Credit", "count": 3, "selected": false, "disabled": false},
+    {"id": "DEBIT", "name": "Debit", "count": 1, "selected": false, "disabled": false},
+    {"id": "NO_CARD", "name": "No Card", "count": 2, "selected": false, "disabled": false}
+  ],
+  "booking_channels": [
+    {"id": "APP", "name": "App", "count": 1, "selected": false, "disabled": false},
+    {"id": "WEB", "name": "Web", "count": 1, "selected": false, "disabled": false},
+    {"id": "WEB_AND_APP", "name": "Web And App", "count": 4, "selected": false, "disabled": false}
+  ]
+}
