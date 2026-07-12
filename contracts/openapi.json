@@ -34,6 +34,111 @@
         "title": "AirportMetadata",
         "type": "object"
       },
+      "AvailabilityDay": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "benefit_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Benefit Type"
+          },
+          "benefit_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Benefit Value"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "display_text": {
+            "title": "Display Text",
+            "type": "string"
+          },
+          "offer_count": {
+            "title": "Offer Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "date",
+          "offer_count",
+          "benefit_type",
+          "benefit_value",
+          "display_text",
+          "available"
+        ],
+        "title": "AvailabilityDay",
+        "type": "object"
+      },
+      "AvailabilityResponse": {
+        "properties": {
+          "availability_end": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability End"
+          },
+          "availability_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability Start"
+          },
+          "data_version": {
+            "title": "Data Version",
+            "type": "string"
+          },
+          "dataset_last_updated_at": {
+            "format": "date",
+            "title": "Dataset Last Updated At",
+            "type": "string"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/AvailabilityDay"
+            },
+            "title": "Days",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data_version",
+          "availability_start",
+          "availability_end",
+          "dataset_last_updated_at"
+        ],
+        "title": "AvailabilityResponse",
+        "type": "object"
+      },
       "BankMetadata": {
         "properties": {
           "id": {
@@ -177,7 +282,183 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
-      "Offer": {
+      "OfferMetadata": {
+        "properties": {
+          "airports": {
+            "items": {
+              "$ref": "#/components/schemas/AirportMetadata"
+            },
+            "title": "Airports",
+            "type": "array"
+          },
+          "availability_end": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability End"
+          },
+          "availability_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability Start"
+          },
+          "banks": {
+            "items": {
+              "$ref": "#/components/schemas/BankMetadata"
+            },
+            "title": "Banks",
+            "type": "array"
+          },
+          "booking_channels": {
+            "items": {
+              "enum": [
+                "WEB",
+                "APP",
+                "WEB_AND_APP"
+              ],
+              "type": "string"
+            },
+            "title": "Booking Channels",
+            "type": "array"
+          },
+          "categories": {
+            "items": {
+              "const": "FLIGHT_DOMESTIC",
+              "type": "string"
+            },
+            "title": "Categories",
+            "type": "array"
+          },
+          "data_version": {
+            "title": "Data Version",
+            "type": "string"
+          },
+          "dataset_last_updated_at": {
+            "format": "date",
+            "title": "Dataset Last Updated At",
+            "type": "string"
+          },
+          "payment_methods": {
+            "items": {
+              "enum": [
+                "CREDIT",
+                "DEBIT",
+                "NO_CARD"
+              ],
+              "type": "string"
+            },
+            "title": "Payment Methods",
+            "type": "array"
+          },
+          "platforms": {
+            "items": {
+              "$ref": "#/components/schemas/PlatformMetadata"
+            },
+            "title": "Platforms",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data_version",
+          "banks",
+          "platforms",
+          "payment_methods",
+          "categories",
+          "booking_channels",
+          "dataset_last_updated_at"
+        ],
+        "title": "OfferMetadata",
+        "type": "object"
+      },
+      "OffersResponse": {
+        "properties": {
+          "data_version": {
+            "title": "Data Version",
+            "type": "string"
+          },
+          "facets": {
+            "$ref": "#/components/schemas/CatalogueFacets"
+          },
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/PublicOffer"
+            },
+            "title": "Offers",
+            "type": "array"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "data_version",
+          "offers",
+          "pagination",
+          "facets"
+        ],
+        "title": "OffersResponse",
+        "type": "object"
+      },
+      "Pagination": {
+        "properties": {
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "total_pages": {
+            "title": "Total Pages",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "total_pages"
+        ],
+        "title": "Pagination",
+        "type": "object"
+      },
+      "PlatformMetadata": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "PlatformMetadata",
+        "type": "object"
+      },
+      "PublicOffer": {
         "properties": {
           "bank_id": {
             "anyOf": [
@@ -259,8 +540,9 @@
             "type": "string"
           },
           "discount_value": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
             "title": "Discount Value",
-            "type": "number"
+            "type": "string"
           },
           "eligibility_notes": {
             "items": {
@@ -269,46 +551,16 @@
             "title": "Eligibility Notes",
             "type": "array"
           },
-          "evidence_status": {
-            "enum": [
-              "VERIFIED",
-              "PARTIAL",
-              "UNVERIFIED"
-            ],
-            "title": "Evidence Status",
+          "expiry_date": {
+            "format": "date",
+            "title": "Expiry Date",
             "type": "string"
-          },
-          "extra": {
-            "additionalProperties": true,
-            "title": "Extra",
-            "type": "object"
-          },
-          "is_active": {
-            "default": true,
-            "title": "Is Active",
-            "type": "boolean"
-          },
-          "last_verified_at": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Verified At"
-          },
-          "login_required": {
-            "default": false,
-            "title": "Login Required",
-            "type": "boolean"
           },
           "max_discount": {
             "anyOf": [
               {
-                "type": "number"
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
               },
               {
                 "type": "null"
@@ -319,7 +571,8 @@
           "min_transaction": {
             "anyOf": [
               {
-                "type": "number"
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
               },
               {
                 "type": "null"
@@ -328,17 +581,14 @@
             "title": "Min Transaction"
           },
           "new_user_only": {
-            "default": false,
             "title": "New User Only",
             "type": "boolean"
           },
           "offer_id": {
-            "minLength": 1,
             "title": "Offer Id",
             "type": "string"
           },
           "offer_title": {
-            "minLength": 1,
             "title": "Offer Title",
             "type": "string"
           },
@@ -356,39 +606,7 @@
             "type": "string"
           },
           "platform_name": {
-            "minLength": 1,
             "title": "Platform Name",
-            "type": "string"
-          },
-          "priority_score": {
-            "default": 0,
-            "title": "Priority Score",
-            "type": "integer"
-          },
-          "publish_status": {
-            "enum": [
-              "READY",
-              "DRAFT",
-              "HIDDEN"
-            ],
-            "title": "Publish Status",
-            "type": "string"
-          },
-          "source_type": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Source Type"
-          },
-          "source_url": {
-            "format": "uri",
-            "minLength": 1,
-            "title": "Source Url",
             "type": "string"
           },
           "supported_cards": {
@@ -411,6 +629,11 @@
             ],
             "title": "Terms Url"
           },
+          "updated_at": {
+            "format": "date",
+            "title": "Updated At",
+            "type": "string"
+          },
           "usage_limit": {
             "anyOf": [
               {
@@ -426,11 +649,6 @@
             "format": "date",
             "title": "Valid From",
             "type": "string"
-          },
-          "valid_to": {
-            "format": "date",
-            "title": "Valid To",
-            "type": "string"
           }
         },
         "required": [
@@ -444,162 +662,20 @@
           "discount_type",
           "discount_value",
           "valid_from",
-          "valid_to",
-          "source_url",
-          "evidence_status",
-          "publish_status"
+          "expiry_date",
+          "updated_at",
+          "new_user_only",
+          "eligibility_notes"
         ],
-        "title": "Offer",
-        "type": "object"
-      },
-      "OfferMetadata": {
-        "properties": {
-          "airports": {
-            "items": {
-              "$ref": "#/components/schemas/AirportMetadata"
-            },
-            "title": "Airports",
-            "type": "array"
-          },
-          "banks": {
-            "items": {
-              "$ref": "#/components/schemas/BankMetadata"
-            },
-            "title": "Banks",
-            "type": "array"
-          },
-          "booking_channels": {
-            "items": {
-              "enum": [
-                "WEB",
-                "APP",
-                "WEB_AND_APP"
-              ],
-              "type": "string"
-            },
-            "title": "Booking Channels",
-            "type": "array"
-          },
-          "categories": {
-            "items": {
-              "const": "FLIGHT_DOMESTIC",
-              "type": "string"
-            },
-            "title": "Categories",
-            "type": "array"
-          },
-          "data_version": {
-            "title": "Data Version",
-            "type": "string"
-          },
-          "payment_methods": {
-            "items": {
-              "enum": [
-                "CREDIT",
-                "DEBIT",
-                "NO_CARD"
-              ],
-              "type": "string"
-            },
-            "title": "Payment Methods",
-            "type": "array"
-          },
-          "platforms": {
-            "items": {
-              "$ref": "#/components/schemas/PlatformMetadata"
-            },
-            "title": "Platforms",
-            "type": "array"
-          }
-        },
-        "required": [
-          "data_version",
-          "banks",
-          "platforms",
-          "payment_methods",
-          "categories",
-          "booking_channels"
-        ],
-        "title": "OfferMetadata",
-        "type": "object"
-      },
-      "OffersResponse": {
-        "properties": {
-          "data_version": {
-            "title": "Data Version",
-            "type": "string"
-          },
-          "facets": {
-            "$ref": "#/components/schemas/CatalogueFacets"
-          },
-          "offers": {
-            "items": {
-              "$ref": "#/components/schemas/Offer"
-            },
-            "title": "Offers",
-            "type": "array"
-          },
-          "pagination": {
-            "$ref": "#/components/schemas/Pagination"
-          }
-        },
-        "required": [
-          "data_version",
-          "offers",
-          "pagination",
-          "facets"
-        ],
-        "title": "OffersResponse",
-        "type": "object"
-      },
-      "Pagination": {
-        "properties": {
-          "limit": {
-            "title": "Limit",
-            "type": "integer"
-          },
-          "page": {
-            "title": "Page",
-            "type": "integer"
-          },
-          "total": {
-            "title": "Total",
-            "type": "integer"
-          },
-          "total_pages": {
-            "title": "Total Pages",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "page",
-          "limit",
-          "total",
-          "total_pages"
-        ],
-        "title": "Pagination",
-        "type": "object"
-      },
-      "PlatformMetadata": {
-        "properties": {
-          "id": {
-            "title": "Id",
-            "type": "string"
-          },
-          "name": {
-            "title": "Name",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "name"
-        ],
-        "title": "PlatformMetadata",
+        "title": "PublicOffer",
         "type": "object"
       },
       "SearchDateBenefit": {
         "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
           "benefit_type": {
             "anyOf": [
               {
@@ -630,13 +706,19 @@
           "display_text": {
             "title": "Display Text",
             "type": "string"
+          },
+          "offer_count": {
+            "title": "Offer Count",
+            "type": "integer"
           }
         },
         "required": [
           "date",
           "benefit_type",
           "benefit_value",
-          "display_text"
+          "display_text",
+          "offer_count",
+          "available"
         ],
         "title": "SearchDateBenefit",
         "type": "object"
@@ -745,8 +827,9 @@
             "type": "string"
           },
           "discount_value": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
             "title": "Discount Value",
-            "type": "number"
+            "type": "string"
           },
           "display_kind": {
             "title": "Display Kind",
@@ -785,46 +868,16 @@
             ],
             "title": "Estimated Savings"
           },
-          "evidence_status": {
-            "enum": [
-              "VERIFIED",
-              "PARTIAL",
-              "UNVERIFIED"
-            ],
-            "title": "Evidence Status",
+          "expiry_date": {
+            "format": "date",
+            "title": "Expiry Date",
             "type": "string"
-          },
-          "extra": {
-            "additionalProperties": true,
-            "title": "Extra",
-            "type": "object"
-          },
-          "is_active": {
-            "default": true,
-            "title": "Is Active",
-            "type": "boolean"
-          },
-          "last_verified_at": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Verified At"
-          },
-          "login_required": {
-            "default": false,
-            "title": "Login Required",
-            "type": "boolean"
           },
           "max_discount": {
             "anyOf": [
               {
-                "type": "number"
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
               },
               {
                 "type": "null"
@@ -835,7 +888,8 @@
           "min_transaction": {
             "anyOf": [
               {
-                "type": "number"
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
               },
               {
                 "type": "null"
@@ -844,17 +898,14 @@
             "title": "Min Transaction"
           },
           "new_user_only": {
-            "default": false,
             "title": "New User Only",
             "type": "boolean"
           },
           "offer_id": {
-            "minLength": 1,
             "title": "Offer Id",
             "type": "string"
           },
           "offer_title": {
-            "minLength": 1,
             "title": "Offer Title",
             "type": "string"
           },
@@ -872,22 +923,7 @@
             "type": "string"
           },
           "platform_name": {
-            "minLength": 1,
             "title": "Platform Name",
-            "type": "string"
-          },
-          "priority_score": {
-            "default": 0,
-            "title": "Priority Score",
-            "type": "integer"
-          },
-          "publish_status": {
-            "enum": [
-              "READY",
-              "DRAFT",
-              "HIDDEN"
-            ],
-            "title": "Publish Status",
             "type": "string"
           },
           "savings_delta": {
@@ -903,23 +939,6 @@
           },
           "savings_label": {
             "title": "Savings Label",
-            "type": "string"
-          },
-          "source_type": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Source Type"
-          },
-          "source_url": {
-            "format": "uri",
-            "minLength": 1,
-            "title": "Source Url",
             "type": "string"
           },
           "supported_cards": {
@@ -942,6 +961,11 @@
             ],
             "title": "Terms Url"
           },
+          "updated_at": {
+            "format": "date",
+            "title": "Updated At",
+            "type": "string"
+          },
           "usage_limit": {
             "anyOf": [
               {
@@ -957,11 +981,6 @@
             "format": "date",
             "title": "Valid From",
             "type": "string"
-          },
-          "valid_to": {
-            "format": "date",
-            "title": "Valid To",
-            "type": "string"
           }
         },
         "required": [
@@ -975,10 +994,10 @@
           "discount_type",
           "discount_value",
           "valid_from",
-          "valid_to",
-          "source_url",
-          "evidence_status",
-          "publish_status",
+          "expiry_date",
+          "updated_at",
+          "new_user_only",
+          "eligibility_notes",
           "display_kind",
           "display_rank",
           "savings_delta",
@@ -1167,6 +1186,59 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/availability": {
+      "get": {
+        "operationId": "availability_api_v1_availability_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "From",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "To",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Availability",
+        "tags": [
+          "Availability"
+        ]
+      }
+    },
     "/api/v1/feature-flags": {
       "get": {
         "operationId": "feature_flags_api_v1_feature_flags_get",

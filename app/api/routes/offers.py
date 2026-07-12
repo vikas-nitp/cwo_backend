@@ -10,6 +10,7 @@ from app.services.offer_catalog_service import (
     UnsupportedFilterError,
 )
 from app.core.config import SETTINGS
+from app.core.dates import today_ist
 
 router = APIRouter(tags=["Offers"])
 
@@ -27,7 +28,7 @@ def offers(
     payment_method: list[str] = Query(default=[]),
     booking_channel: list[str] = Query(default=[]),
     category: list[str] = Query(default=[]),
-    active_on: date = Query(default_factory=date.today),
+    active_on: date = Query(default_factory=today_ist),
     page: int = Query(1, ge=1),
     limit: int = Query(SETTINGS.default_page_limit, ge=1, le=SETTINGS.max_page_limit),
 ):

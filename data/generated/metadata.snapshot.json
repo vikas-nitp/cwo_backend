@@ -1,13 +1,33 @@
 {
-  "data_version": "2026-07-11-7ddd0d5bf575",
+  "data_version": "2026-07-12-b3c9bde44ee5",
   "banks": [
+    {
+      "id": "AMEX",
+      "name": "American Express"
+    },
+    {
+      "id": "AXIS",
+      "name": "Axis Bank"
+    },
     {
       "id": "HDFC",
       "name": "HDFC Bank"
     },
     {
+      "id": "HSBC",
+      "name": "HSBC Bank"
+    },
+    {
       "id": "ICICI",
       "name": "ICICI Bank"
+    },
+    {
+      "id": "INDUSIND",
+      "name": "IndusInd Bank"
+    },
+    {
+      "id": "KOTAK",
+      "name": "Kotak Bank"
     },
     {
       "id": "SBI",
@@ -18,6 +38,14 @@
     {
       "id": "CLEARTRIP",
       "name": "Cleartrip"
+    },
+    {
+      "id": "EASEMYTRIP",
+      "name": "EaseMyTrip"
+    },
+    {
+      "id": "GOIBIBO",
+      "name": "Goibibo"
     },
     {
       "id": "MAKEMYTRIP",
@@ -738,5 +766,8 @@
       "country": "IN",
       "is_domestic_default": true
     }
-  ]
+  ],
+  "availability_start": "2026-07-13",
+  "availability_end": "2026-10-15",
+  "dataset_last_updated_at": "2026-07-12"
 }

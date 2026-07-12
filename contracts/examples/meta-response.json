@@ -8,5 +8,8 @@
   "payment_methods": ["CREDIT", "DEBIT", "NO_CARD"],
   "categories": ["FLIGHT_DOMESTIC"],
   "booking_channels": ["WEB", "APP", "WEB_AND_APP"],
-  "airports": []
+  "airports": [],
+  "availability_start": "2026-07-13",
+  "availability_end": "2026-10-15",
+  "dataset_last_updated_at": "2026-07-12"
 }

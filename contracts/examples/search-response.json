@@ -4,11 +4,11 @@
   "offers": [{
     "offer_id": "MMT-HDFC-001", "display_kind": "SELECTED_CARD", "display_rank": 1, "savings_delta": 0,
     "platform_id": "MAKEMYTRIP", "platform_name": "MakeMyTrip", "offer_title": "HDFC domestic flight offer",
-    "bank_id": "HDFC", "bank_name": "HDFC Bank", "card_name": "HDFC Credit Card", "payment_method": "CREDIT",
+    "bank_id": "HDFC", "bank_name": "HDFC Bank", "card_name": "HDFC Credit Card", "supported_cards": ["HDFC Credit Card"], "payment_method": "CREDIT",
     "category": "FLIGHT_DOMESTIC", "booking_channel": "WEB_AND_APP", "discount_type": "PERCENT",
     "discount_value": 10, "max_discount": 1500, "min_transaction": 5000, "estimated_savings": 650,
     "estimated_final_amount": 5850, "savings_label": "Estimated saving ₹650", "coupon_code": "MMTHDFC",
-    "valid_from": "2026-07-01", "valid_to": "2027-12-31", "usage_limit": "Once per card", "new_user_only": false,
+    "valid_from": "2026-07-01", "expiry_date": "2027-12-31", "updated_at": "2026-07-11", "usage_limit": "Once per card", "new_user_only": false,
     "login_required": false, "eligibility_notes": ["Valid on selected HDFC credit cards"],
     "terms_url": "https://www.makemytrip.com/promos/flight-offers.html", "source_url": "https://www.makemytrip.com/promos/flight-offers.html",
     "booking_url": "https://www.makemytrip.com/flights/", "source_type": "official", "evidence_status": "VERIFIED", "last_verified_at": "2026-07-11",

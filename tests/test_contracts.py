@@ -3,10 +3,9 @@ from pathlib import Path
 
 from app.domain.models import OfferMetadata
 from app.schemas.common import ErrorResponse
-from app.schemas.offers import CatalogueFacets, OffersResponse
+from app.schemas.offers import CatalogueFacets, OffersResponse, PublicOffer
 from app.schemas.search import SearchResponse
 from app.schemas.search import SearchOffer
-from app.domain.models import Offer
 from app.core.feature_flags import FeatureFlagsResponse
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,4 +32,4 @@ def test_openapi_is_current():
 
 
 def test_search_and_catalogue_share_canonical_offer_fields():
-    assert set(Offer.model_fields) <= set(SearchOffer.model_fields)
+    assert set(PublicOffer.model_fields) <= set(SearchOffer.model_fields)

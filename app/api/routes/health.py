@@ -1,4 +1,4 @@
-from datetime import date
+from app.core.dates import today_ist
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
@@ -35,7 +35,7 @@ def ready(request: Request):
             headers={"Cache-Control": "no-store"},
         )
     publishable = repository.list_publishable()
-    active = repository.list_offers(active_on=date.today())
+    active = repository.list_offers(active_on=today_ist())
     if not publishable:
         return JSONResponse(
             status_code=503,

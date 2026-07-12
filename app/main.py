@@ -37,6 +37,7 @@ from app.api.routes.meta import router as meta_router
 from app.api.routes.offers import router as offers_router
 from app.api.routes.search import router as search_router
 from app.api.routes.feature_flags import router as feature_flags_router
+from app.api.routes.availability import router as availability_router
 from app.repositories.file_offer_repository import FileOfferRepository
 
 # Setup logging first
@@ -131,6 +132,7 @@ app.include_router(meta_router, prefix=API_PREFIX)
 app.include_router(offers_router, prefix=API_PREFIX)
 app.include_router(search_router, prefix=API_PREFIX)
 app.include_router(feature_flags_router, prefix=API_PREFIX)
+app.include_router(availability_router, prefix=API_PREFIX)
 
 
 # ── Development Server ──────────────────────────────────────

@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from app.core.config import BOOKING_WINDOW_DAYS
+from app.core.dates import today_ist
 from app.domain.calculations import estimate_savings
 from app.domain.ranking import rank_offers
 from app.repositories.base import OfferRepository
@@ -28,13 +28,22 @@ class OfferSearchService:
     def search(
         self, request: SearchRequest, today: date | None = None
     ) -> SearchResponse:
-        today = today or date.today()
-        if request.date < today or request.date > today + timedelta(
-            days=BOOKING_WINDOW_DAYS
+        today = today or today_ist()
+        metadata = self.repository.get_metadata()
+        known_banks = {bank.id for bank in metadata.banks}
+        unknown_banks = set(request.banks) - known_banks
+        if unknown_banks:
+            raise ValueError(f"Unknown bank ID: {', '.join(sorted(unknown_banks))}")
+        if request.date < today:
+            raise SearchDateError("Travel date cannot be in the past.")
+        if (
+            metadata.availability_start is None
+            or metadata.availability_end is None
+            or not metadata.availability_start
+            <= request.date
+            <= metadata.availability_end
         ):
-            raise SearchDateError(
-                f"Travel date must be from today through the next {BOOKING_WINDOW_DAYS} days."
-            )
+            raise SearchDateError("Travel date is outside offer availability.")
         offers = self.repository.list_offers(
             active_on=request.date,
             platform_ids=list(request.platforms) or None,
@@ -76,9 +85,12 @@ class OfferSearchService:
                     }
                 )
             )
+        if not offers:
+            raise SearchDateError("No eligible offers are available on this date.")
         date_strip = []
-        for offset in range(BOOKING_WINDOW_DAYS + 1):
-            strip_date = today + timedelta(days=offset)
+        strip_end = min(request.date + timedelta(days=6), metadata.availability_end)
+        for offset in range((strip_end - request.date).days + 1):
+            strip_date = request.date + timedelta(days=offset)
             strip_offers = self.repository.list_offers(
                 active_on=strip_date,
                 platform_ids=list(request.platforms) or None,
@@ -110,6 +122,8 @@ class OfferSearchService:
                     benefit_type=benefit_type,
                     benefit_value=benefit_value,
                     display_text=display_text,
+                    offer_count=len(strip_offers),
+                    available=bool(strip_offers),
                 )
             )
         return SearchResponse(

@@ -22,7 +22,6 @@ class RuntimeSettings(BaseModel):
     facets_snapshot_path: Path = ROOT / "data/generated/facets.snapshot.json"
     manifest_path: Path = ROOT / "data/generated/manifest.json"
     feature_flags_path: Path = ROOT / "data/config/feature_flags.json"
-    booking_window_days: int = Field(10, ge=1, le=31)
     supported_platforms: tuple[str, ...] = ("MAKEMYTRIP", "CLEARTRIP")
     contract_version: str = "1.1"
     default_page_limit: int = Field(20, ge=1, le=100)
@@ -90,7 +89,6 @@ def load_runtime_settings() -> RuntimeSettings:
         feature_flags_path=Path(
             os.getenv("FEATURE_FLAGS_PATH", ROOT / "data/config/feature_flags.json")
         ),
-        booking_window_days=int(os.getenv("BOOKING_WINDOW_DAYS", "10")),
         supported_platforms=tuple(_csv("SUPPORTED_PLATFORMS", "MAKEMYTRIP,CLEARTRIP")),
         contract_version=os.getenv("CONTRACT_VERSION", "1.1"),
         default_page_limit=int(os.getenv("DEFAULT_PAGE_LIMIT", "20")),
@@ -115,7 +113,6 @@ METADATA_SNAPSHOT_PATH = str(SETTINGS.metadata_snapshot_path)
 FACETS_SNAPSHOT_PATH = str(SETTINGS.facets_snapshot_path)
 MANIFEST_PATH = str(SETTINGS.manifest_path)
 FEATURE_FLAGS_PATH = str(SETTINGS.feature_flags_path)
-BOOKING_WINDOW_DAYS = SETTINGS.booking_window_days
 SUPPORTED_PLATFORMS = SETTINGS.supported_platforms
 CONTRACT_VERSION = SETTINGS.contract_version
 

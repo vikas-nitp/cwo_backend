@@ -9,6 +9,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    AliasChoices,
     field_serializer,
     model_validator,
 )
@@ -42,7 +43,8 @@ class Offer(BaseModel):
     min_transaction: Decimal | None = Field(default=None, ge=0)
     coupon_code: str | None = None
     valid_from: date
-    valid_to: date
+    expiry_date: date = Field(validation_alias=AliasChoices("expiry_date", "valid_to"))
+    updated_at: date
     usage_limit: str | None = None
     new_user_only: bool = False
     login_required: bool = False
@@ -61,18 +63,20 @@ class Offer(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def migrate_supported_cards(cls, value):
-        if (
-            isinstance(value, dict)
-            and not value.get("supported_cards")
-            and value.get("card_name")
-        ):
-            value = {**value, "supported_cards": [value["card_name"]]}
+        if isinstance(value, dict):
+            value = dict(value)
+            if not value.get("supported_cards") and value.get("card_name"):
+                value["supported_cards"] = [value["card_name"]]
+            if not value.get("updated_at"):
+                value["updated_at"] = value.get("last_verified_at") or value.get(
+                    "valid_from"
+                )
         return value
 
     @model_validator(mode="after")
     def validate_dates(self) -> "Offer":
-        if self.valid_from > self.valid_to:
-            raise ValueError("valid_from must be on or before valid_to")
+        if self.valid_from > self.expiry_date:
+            raise ValueError("valid_from must be on or before expiry_date")
         if self.payment_method == "NO_CARD" and self.bank_id:
             raise ValueError("NO_CARD offers cannot specify bank_id")
         return self
@@ -112,6 +116,9 @@ class OfferMetadata(BaseModel):
     categories: list[Category]
     booking_channels: list[BookingChannel]
     airports: list[AirportMetadata] = Field(default_factory=list)
+    availability_start: date | None = None
+    availability_end: date | None = None
+    dataset_last_updated_at: date
 
 
 class DataManifest(BaseModel):
@@ -123,6 +130,11 @@ class DataManifest(BaseModel):
     accepted_row_count: int
     rejected_row_count: int
     supported_platforms: list[PlatformId]
+    contract_version: str = "1.1"
+    source_hash: str = ""
+    feature_config_version: str = ""
+    record_count: int = 0
+    dataset_last_updated_at: date
 
 
 class FacetSnapshot(BaseModel):

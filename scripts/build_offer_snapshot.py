@@ -15,6 +15,8 @@ sys.path.insert(0, str(ROOT))
 from pydantic import ValidationError  # noqa: E402
 
 from app.domain.models import Offer  # noqa: E402
+from app.core.dates import today_ist  # noqa: E402
+from app.core.feature_flags import load_feature_flags  # noqa: E402
 from app.ingestion.sources import (  # noqa: E402
     SourceRecord,
     SourceSpec,
@@ -26,7 +28,8 @@ ALIASES = {
     "bank": "bank_id",
     "platform": "platform_id",
     "min_txn": "min_transaction",
-    "valid_till": "valid_to",
+    "valid_till": "expiry_date",
+    "valid_to": "expiry_date",
     "coupon": "coupon_code",
     "active": "is_active",
     "channels": "booking_channel",
@@ -46,7 +49,7 @@ REQUIRED = {
     "discount_type",
     "discount_value",
     "valid_from",
-    "valid_to",
+    "expiry_date",
     "source_url",
     "evidence_status",
     "publish_status",
@@ -144,7 +147,7 @@ def _facets(offers: list[Offer], active_on, data_version: str) -> dict[str, Any]
         if o.is_active
         and o.publish_status == "READY"
         and o.evidence_status == "VERIFIED"
-        and o.valid_from <= active_on <= o.valid_to
+        and o.valid_from <= active_on <= o.expiry_date
     ]
     platforms: dict[str, dict[str, Any]] = {}
     banks: dict[str, dict[str, Any]] = {}
@@ -269,7 +272,7 @@ def build_records(
         json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()[:12]
     version_date = max(
-        (o.last_verified_at or o.valid_from for o in accepted),
+        (o.updated_at for o in accepted),
         default=datetime.now(timezone.utc).date(),
     )
     generated_at = datetime.combine(
@@ -283,6 +286,16 @@ def build_records(
         and o.publish_status == "READY"
         and o.evidence_status == "VERIFIED"
     ]
+    today = today_ist()
+    non_expired = [offer for offer in publishable if offer.expiry_date >= today]
+    availability_start = (
+        max(today, min(offer.valid_from for offer in non_expired))
+        if non_expired
+        else None
+    )
+    availability_end = (
+        max(offer.expiry_date for offer in non_expired) if non_expired else None
+    )
     banks = sorted(
         {(o.bank_id, o.bank_name or o.bank_id) for o in publishable if o.bank_id}
     )
@@ -295,7 +308,15 @@ def build_records(
         "categories": sorted({o.category for o in publishable}),
         "booking_channels": sorted({o.booking_channel for o in publishable}),
         "airports": json.loads((ROOT / "data/airports.json").read_text()),
+        "availability_start": availability_start.isoformat()
+        if availability_start
+        else None,
+        "availability_end": availability_end.isoformat() if availability_end else None,
+        "dataset_last_updated_at": version_date.isoformat(),
     }
+    feature_config_version = load_feature_flags(
+        ROOT / "data/config/feature_flags.json"
+    ).version()
     manifest = {
         "schema_version": "1.1",
         "data_version": data_version,
@@ -305,6 +326,9 @@ def build_records(
         "accepted_row_count": len(accepted),
         "rejected_row_count": len(errors),
         "supported_platforms": [platform_id for platform_id, _ in platforms],
+        "feature_config_version": feature_config_version,
+        "record_count": len(accepted),
+        "dataset_last_updated_at": version_date.isoformat(),
         **(source_metadata or {}),
     }
     report = {

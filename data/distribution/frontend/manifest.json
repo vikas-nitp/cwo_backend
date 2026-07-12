@@ -1,17 +1,22 @@
 {
   "schema_version": "1.1",
-  "data_version": "2026-07-11-7ddd0d5bf575",
-  "generated_at": "2026-07-11T00:00:00+00:00",
+  "data_version": "2026-07-12-b3c9bde44ee5",
+  "generated_at": "2026-07-12T00:00:00+00:00",
   "source_count": 1,
-  "source_row_count": 6,
-  "accepted_row_count": 6,
+  "source_row_count": 30,
+  "accepted_row_count": 30,
   "rejected_row_count": 0,
   "supported_platforms": [
     "CLEARTRIP",
+    "EASEMYTRIP",
+    "GOIBIBO",
     "MAKEMYTRIP"
   ],
+  "feature_config_version": "81c3170a",
+  "record_count": 30,
+  "dataset_last_updated_at": "2026-07-12",
   "source_owner": "backend",
   "source_file": "data/source/catalogue.yml",
-  "source_hash": "sha256:db032ffe18370a9cc604c34c062784ceb9f46a86f079feea77d02b4c89d35095",
+  "source_hash": "sha256:ebeb15e20aad925f411192284c361e8318f1f8c4063cf85b34887668c4e95473",
   "contract_version": "1.1"
 }

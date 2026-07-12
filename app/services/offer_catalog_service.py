@@ -4,7 +4,7 @@ from datetime import date
 
 from app.repositories.base import OfferRepository
 from app.schemas.common import Pagination
-from app.schemas.offers import CatalogueFacets, FacetOption, OffersResponse
+from app.schemas.offers import CatalogueFacets, FacetOption, OffersResponse, PublicOffer
 
 
 class UnsupportedFilterError(ValueError):
@@ -129,7 +129,7 @@ class OfferCatalogService:
             categories=categories or None,
         )
         offers.sort(
-            key=lambda offer: (offer.priority_score, offer.valid_to), reverse=True
+            key=lambda offer: (offer.priority_score, offer.expiry_date), reverse=True
         )
         facets = CatalogueFacets(
             platforms=self._options(
@@ -177,7 +177,10 @@ class OfferCatalogService:
         start = (page - 1) * limit
         return OffersResponse(
             data_version=self.repository.get_manifest().data_version,
-            offers=offers[start : start + limit],
+            offers=[
+                PublicOffer.model_validate(offer)
+                for offer in offers[start : start + limit]
+            ],
             pagination=Pagination(
                 page=page,
                 limit=limit,

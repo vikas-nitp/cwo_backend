@@ -64,7 +64,8 @@ FIELDS = [
     "min_transaction",
     "coupon_code",
     "valid_from",
-    "valid_to",
+    "expiry_date",
+    "updated_at",
     "usage_limit",
     "new_user_only",
     "login_required",
@@ -94,14 +95,14 @@ def rows() -> list[dict[str, object]]:
         discount_type, discount_value, cap = DISCOUNTS[index % len(DISCOUNTS)]
         state = index % 10
         valid_from = today - timedelta(days=30)
-        valid_to = today + timedelta(days=30)
+        expiry_date = today + timedelta(days=30)
         active, publish, evidence = True, "READY", "VERIFIED"
         if state == 0:
-            valid_to = today - timedelta(days=1)
+            expiry_date = today - timedelta(days=1)
         elif state == 1:
             valid_from = today + timedelta(days=1)
         elif state == 2:
-            valid_to = today
+            expiry_date = today
         elif state == 3:
             publish = "DRAFT"
         elif state == 4:
@@ -130,7 +131,8 @@ def rows() -> list[dict[str, object]]:
                 "min_transaction": MINIMUMS[index % len(MINIMUMS)],
                 "coupon_code": f"SYN{index + 1:04d}",
                 "valid_from": valid_from.isoformat(),
-                "valid_to": valid_to.isoformat(),
+                "expiry_date": expiry_date.isoformat(),
+                "updated_at": today.isoformat(),
                 "usage_limit": "Once per synthetic user",
                 "new_user_only": condition == "New users only",
                 "login_required": False,

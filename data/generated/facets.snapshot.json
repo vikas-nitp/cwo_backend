@@ -1,6 +1,6 @@
 {
-  "data_version": "2026-07-11-7ddd0d5bf575",
-  "active_on": "2026-07-11",
+  "data_version": "2026-07-12-b3c9bde44ee5",
+  "active_on": "2026-07-12",
   "platforms": {
     "CLEARTRIP": {
       "offer_count": 3,
@@ -19,18 +19,28 @@
         "WEB_AND_APP"
       ]
     },
+    "GOIBIBO": {
+      "offer_count": 1,
+      "banks": [
+        "INDUSIND"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB"
+      ]
+    },
     "MAKEMYTRIP": {
-      "offer_count": 3,
+      "offer_count": 2,
       "banks": [
         "HDFC",
         "SBI"
       ],
       "payment_methods": [
-        "CREDIT",
-        "NO_CARD"
+        "CREDIT"
       ],
       "booking_channels": [
-        "WEB",
         "WEB_AND_APP"
       ]
     }
@@ -61,6 +71,18 @@
       ],
       "booking_channels": [
         "APP"
+      ]
+    },
+    "INDUSIND": {
+      "offer_count": 1,
+      "platforms": [
+        "GOIBIBO"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB"
       ]
     },
     "SBI": {

@@ -10,7 +10,8 @@ from pydantic import (
     model_validator,
 )
 
-from app.domain.models import Category, Offer, PlatformId
+from app.domain.models import Category, PlatformId
+from app.schemas.offers import PublicOffer
 
 
 class SearchRequest(BaseModel):
@@ -60,7 +61,7 @@ class SearchSummary(BaseModel):
         return None if value is None else float(value)
 
 
-class SearchOffer(Offer):
+class SearchOffer(PublicOffer):
     display_kind: str
     display_rank: int
     savings_delta: Decimal | None
@@ -84,6 +85,8 @@ class SearchDateBenefit(BaseModel):
     benefit_type: str | None
     benefit_value: Decimal | None
     display_text: str
+    offer_count: int
+    available: bool
 
     @field_serializer("benefit_value")
     def serialize_benefit(self, value: Decimal | None) -> float | None:

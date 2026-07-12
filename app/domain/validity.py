@@ -8,5 +8,5 @@ def is_publishable(offer: Offer, active_on: date) -> bool:
         offer.is_active
         and offer.publish_status == "READY"
         and offer.evidence_status == "VERIFIED"
-        and offer.valid_from <= active_on <= offer.valid_to
+        and offer.valid_from <= active_on <= offer.expiry_date
     )

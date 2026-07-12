@@ -34,7 +34,7 @@ def rank_offers(
     selected = list(dict.fromkeys(bank.upper() for bank in selected_banks))
     ordered = sorted(
         items,
-        key=lambda item: (_benefit(*item), item[0].priority_score, item[0].valid_to),
+        key=lambda item: (_benefit(*item), item[0].priority_score, item[0].expiry_date),
         reverse=True,
     )
     result: list[tuple[Offer, SavingsEstimate, str]] = []

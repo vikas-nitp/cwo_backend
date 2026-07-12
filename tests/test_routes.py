@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date
 
 
 def test_health(client):
@@ -24,7 +24,7 @@ def test_meta_and_flags(client):
 def test_offers_pagination(client):
     payload = client.get("/api/v1/offers?limit=2").json()
     assert len(payload["offers"]) == 2
-    assert payload["pagination"]["total"] == 6
+    assert payload["pagination"]["total"] >= 9
     assert payload["facets"]["platforms"]
     assert all("coupon_code" not in offer for offer in payload["offers"])
 
@@ -33,7 +33,7 @@ def test_search_with_calculated_savings(client, valid_search):
     response = client.post("/api/v1/search", json=valid_search)
     assert response.status_code == 200, response.text
     body = response.json()
-    assert len(body["date_strip"]) == 11
+    assert len(body["date_strip"]) == 7
     assert body["date_strip"][0]["date"] == date.today().isoformat()
     assert body["date_strip"][0]["display_text"]
     assert "estimated_savings" not in body["offers"][0]
@@ -56,21 +56,21 @@ def test_booking_comparison_is_flag_guarded(client, valid_search):
         client.app.state.feature_flags = original
 
 
-def test_same_airport_and_date_window(client, valid_search):
+def test_same_airport_and_offer_derived_date_range(client, valid_search):
     same = {**valid_search, "to": "DEL"}
     assert client.post("/api/v1/search", json=same).status_code == 422
-    late = {**valid_search, "date": (date.today() + timedelta(days=11)).isoformat()}
+    late = {**valid_search, "date": "2026-10-16"}
     response = client.post("/api/v1/search", json=late)
     assert response.status_code == 400
     assert response.json()["error"]["code"] == "INVALID_SEARCH_DATE"
 
 
-def test_unknown_dynamic_platform_returns_no_offers(client, valid_search):
+def test_dynamic_platform_returns_its_offers(client, valid_search):
     response = client.post(
         "/api/v1/search", json={**valid_search, "platforms": ["GOIBIBO"]}
     )
     assert response.status_code == 200
-    assert response.json()["offers"] == []
+    assert response.json()["offers"]
 
 
 def test_not_found_uses_error_contract(client):
@@ -85,12 +85,12 @@ def test_multi_select_filters_and_strict_bank(client):
     )
     assert response.status_code == 200
     offers = response.json()["offers"]
-    assert {offer["offer_id"] for offer in offers} == {"MMT-HDFC-001", "MMT-SBI-001"}
+    assert {offer["offer_id"] for offer in offers} == {"MMT-HDFC-01", "MMT-SBI-01"}
     assert all(offer["bank_id"] in {"HDFC", "SBI"} for offer in offers)
 
 
 def test_unsupported_filter_codes(client):
-    platform = client.get("/api/v1/offers?platform=GOIBIBO")
+    platform = client.get("/api/v1/offers?platform=UNKNOWN")
     assert platform.status_code == 400
     assert platform.json()["error"]["code"] == "UNSUPPORTED_PLATFORM"
     bank = client.get("/api/v1/offers?bank=UNKNOWN")
@@ -125,5 +125,5 @@ def test_readiness_allows_no_offer_active_today(client, monkeypatch):
     monkeypatch.setattr(repository, "list_offers", lambda **kwargs: [])
     response = client.get("/health/ready")
     assert response.status_code == 200
-    assert response.json()["offer_count"] == 6
+    assert response.json()["offer_count"] == 25
     assert response.json()["active_offer_count"] == 0

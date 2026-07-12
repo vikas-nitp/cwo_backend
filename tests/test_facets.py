@@ -44,8 +44,8 @@ def test_or_within_and_and_across_groups():
         payment_methods=["CREDIT"],
     )
     assert {offer.offer_id for offer in result.offers} == {
-        "MMT-HDFC-001",
-        "MMT-SBI-001",
+        "MMT-HDFC-01",
+        "MMT-SBI-01",
     }
     assert all(offer.bank_id in {"HDFC", "SBI"} for offer in result.offers)
 

@@ -47,3 +47,5 @@ def search(payload: SearchRequest, request: Request, response: Response):
         return result
     except SearchDateError as exc:
         return error_response(request, 400, "INVALID_SEARCH_DATE", str(exc), "date")
+    except ValueError as exc:
+        return error_response(request, 400, "INVALID_SEARCH_FILTER", str(exc), "banks")

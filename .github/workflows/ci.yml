@@ -14,8 +14,8 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements-dev.txt
-      - run: python scripts/build_offer_snapshot.py
-      - run: git diff --exit-code -- data/generated
+      - run: python scripts/build_data_bundle.py
+      - run: git diff --exit-code -- data/generated data/distribution/frontend
       - run: ruff format --check app scripts tests
       - run: ruff check app scripts tests
       - run: mypy app
