@@ -11,7 +11,12 @@ from app.main import app
 
 
 @pytest.fixture
-def client():
+def client(monkeypatch):
+    monkeypatch.setattr(
+        "app.services.offer_search_service.today_ist", lambda: date(2026, 7, 13)
+    )
+    monkeypatch.setattr("app.api.routes.offers.today_ist", lambda: date(2026, 7, 13))
+    monkeypatch.setattr("app.api.routes.health.today_ist", lambda: date(2026, 7, 13))
     with TestClient(app) as value:
         yield value
 
@@ -21,6 +26,6 @@ def valid_search():
     return {
         "from": "DEL",
         "to": "BLR",
-        "date": date.today().isoformat(),
+        "date": date(2026, 7, 13).isoformat(),
         "banks": ["HDFC"],
     }

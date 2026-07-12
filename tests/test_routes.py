@@ -1,6 +1,3 @@
-from datetime import date
-
-
 def test_health(client):
     assert client.get("/health/live").json() == {"ok": True}
     ready = client.get("/health/ready")
@@ -34,7 +31,7 @@ def test_search_with_calculated_savings(client, valid_search):
     assert response.status_code == 200, response.text
     body = response.json()
     assert len(body["date_strip"]) == 7
-    assert body["date_strip"][0]["date"] == date.today().isoformat()
+    assert body["date_strip"][0]["date"] == "2026-07-13"
     assert body["date_strip"][0]["display_text"]
     assert "estimated_savings" not in body["offers"][0]
 

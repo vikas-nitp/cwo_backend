@@ -69,7 +69,7 @@ def test_all_offers_toggle_and_readiness(client):
                 json={
                     "from": "DEL",
                     "to": "BLR",
-                    "date": __import__("datetime").date.today().isoformat(),
+                    "date": "2026-07-13",
                 },
             ).status_code
             == 200
