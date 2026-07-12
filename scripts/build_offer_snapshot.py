@@ -189,7 +189,10 @@ def _facets(offers: list[Offer], active_on, data_version: str) -> dict[str, Any]
 
 
 def build_records(
-    records: list[tuple[SourceRecord, SourceSpec]], output_dir: Path, source_count: int
+    records: list[tuple[SourceRecord, SourceSpec]],
+    output_dir: Path,
+    source_count: int,
+    source_metadata: dict[str, str] | None = None,
 ) -> int:
     accepted: list[Offer] = []
     errors: list[dict[str, Any]] = []
@@ -286,6 +289,7 @@ def build_records(
         "accepted_row_count": len(accepted),
         "rejected_row_count": len(errors),
         "supported_platforms": ["MAKEMYTRIP", "CLEARTRIP"],
+        **(source_metadata or {}),
     }
     report = {
         "valid": not errors,
@@ -323,6 +327,10 @@ def build_records(
 
 def build_catalogue(catalogue: Path, output_dir: Path) -> int:
     specs = load_catalogue(catalogue)
+    source_digest = hashlib.sha256()
+    for spec in sorted(specs, key=lambda item: str(item.path)):
+        source_digest.update(str(spec.path).encode())
+        source_digest.update(spec.path.read_bytes())
     records: list[tuple[SourceRecord, SourceSpec]] = []
     adapter_errors: list[str] = []
     for spec in specs:
@@ -352,7 +360,17 @@ def build_catalogue(catalogue: Path, output_dir: Path) -> int:
             json.dumps(report, indent=2) + "\n"
         )
         return 1
-    return build_records(records, output_dir, len(specs))
+    return build_records(
+        records,
+        output_dir,
+        len(specs),
+        {
+            "source_owner": "backend",
+            "source_file": "data/source/catalogue.yml",
+            "source_hash": f"sha256:{source_digest.hexdigest()}",
+            "contract_version": "1.1",
+        },
+    )
 
 
 def build(source: Path, output_dir: Path) -> int:

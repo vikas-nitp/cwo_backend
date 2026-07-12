@@ -77,7 +77,17 @@ class SearchOffer(Offer):
         return None if value is None else float(value)
 
 
+class SearchDateBenefit(BaseModel):
+    date: date
+    best_benefit: Decimal | None
+
+    @field_serializer("best_benefit")
+    def serialize_benefit(self, value: Decimal | None) -> float | None:
+        return None if value is None else float(value)
+
+
 class SearchResponse(BaseModel):
     data_version: str
     summary: SearchSummary
     offers: list[SearchOffer]
+    date_strip: list[SearchDateBenefit] = Field(default_factory=list)

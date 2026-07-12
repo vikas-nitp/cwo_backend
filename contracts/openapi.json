@@ -142,6 +142,11 @@
             "title": "Config Version",
             "type": "string"
           },
+          "couponCodeEnabled": {
+            "default": false,
+            "title": "Couponcodeenabled",
+            "type": "boolean"
+          },
           "dailyVisitorsEnabled": {
             "default": false,
             "title": "Dailyvisitorsenabled",
@@ -599,6 +604,32 @@
         "title": "PlatformMetadata",
         "type": "object"
       },
+      "SearchDateBenefit": {
+        "properties": {
+          "best_benefit": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Benefit"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "best_benefit"
+        ],
+        "title": "SearchDateBenefit",
+        "type": "object"
+      },
       "SearchOffer": {
         "properties": {
           "bank_id": {
@@ -992,6 +1023,13 @@
           "data_version": {
             "title": "Data Version",
             "type": "string"
+          },
+          "date_strip": {
+            "items": {
+              "$ref": "#/components/schemas/SearchDateBenefit"
+            },
+            "title": "Date Strip",
+            "type": "array"
           },
           "offers": {
             "items": {

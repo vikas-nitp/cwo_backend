@@ -3,7 +3,13 @@ from app.core.config import BOOKING_WINDOW_DAYS
 from app.domain.calculations import estimate_savings
 from app.domain.ranking import rank_offers
 from app.repositories.base import OfferRepository
-from app.schemas.search import SearchOffer, SearchRequest, SearchResponse, SearchSummary
+from app.schemas.search import (
+    SearchDateBenefit,
+    SearchOffer,
+    SearchRequest,
+    SearchResponse,
+    SearchSummary,
+)
 
 BOOKING_URLS = {
     "MAKEMYTRIP": "https://www.makemytrip.com/flights/",
@@ -60,6 +66,26 @@ class OfferSearchService:
                     }
                 )
             )
+        date_strip = []
+        for offset in range(BOOKING_WINDOW_DAYS + 1):
+            strip_date = today + timedelta(days=offset)
+            strip_offers = self.repository.list_offers(
+                active_on=strip_date,
+                platform_ids=list(request.platforms) or None,
+                categories=[request.category],
+            )
+            benefits = [
+                offer.max_discount
+                if offer.max_discount is not None
+                else offer.discount_value
+                for offer in strip_offers
+            ]
+            date_strip.append(
+                SearchDateBenefit(
+                    date=strip_date,
+                    best_benefit=max(benefits) if benefits else None,
+                )
+            )
         return SearchResponse(
             data_version=self.repository.get_manifest().data_version,
             summary=SearchSummary.model_validate(
@@ -71,4 +97,5 @@ class OfferSearchService:
                 }
             ),
             offers=results,
+            date_strip=date_strip,
         )

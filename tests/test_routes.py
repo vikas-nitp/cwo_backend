@@ -17,6 +17,7 @@ def test_meta_and_flags(client):
         "savedCards": False,
         "allOffers": True,
         "dailyVisitorsEnabled": False,
+        "couponCodeEnabled": False,
         "config_version": flags["config_version"],
     }
 
@@ -32,7 +33,9 @@ def test_search_with_calculated_savings(client, valid_search):
     response = client.post("/api/v1/search", json=valid_search)
     assert response.status_code == 200, response.text
     body = response.json()
-    assert "strip7days" not in body
+    assert len(body["date_strip"]) == 11
+    assert body["date_strip"][0]["date"] == date.today().isoformat()
+    assert body["date_strip"][0]["best_benefit"] is not None
     assert body["offers"][0]["estimated_savings"] is not None
 
 

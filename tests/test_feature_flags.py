@@ -20,6 +20,7 @@ def valid(**changes):
         "allOffers": True,
         "savedCards": False,
         "dailyVisitorsEnabled": False,
+        "couponCodeEnabled": False,
     }
     payload.update(changes)
     return payload
@@ -31,6 +32,7 @@ def test_valid_loading_and_stable_version(tmp_path):
     first = load_feature_flags(path)
     second = load_feature_flags(path)
     assert first.allOffers is True
+    assert first.couponCodeEnabled is False
     assert first.version() == second.version()
     assert len(first.version()) == 8
 
@@ -57,6 +59,17 @@ def test_unsupported_and_dependent_features_are_rejected(tmp_path):
     write(path, valid(offerLockingEnabled=True))
     with pytest.raises(FeatureFlagConfigError, match="requires authEnabled"):
         load_feature_flags(path)
+    for name in ("authEnabled", "dailyVisitorsEnabled"):
+        write(path, valid(**{name: True}))
+        with pytest.raises(FeatureFlagConfigError, match="unsupported"):
+            load_feature_flags(path)
+
+
+def test_supported_flags_accept_true_and_false_states():
+    assert FeatureFlags(allOffers=False, couponCodeEnabled=False).allOffers is False
+    enabled = FeatureFlags(allOffers=True, couponCodeEnabled=True)
+    assert enabled.allOffers is True
+    assert enabled.couponCodeEnabled is True
 
 
 def test_all_offers_toggle_and_readiness(client):

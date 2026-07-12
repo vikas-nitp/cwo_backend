@@ -19,6 +19,7 @@ class FeatureFlags(BaseModel):
     allOffers: bool = True
     savedCards: bool = False
     dailyVisitorsEnabled: bool = False
+    couponCodeEnabled: bool = False
 
     @model_validator(mode="after")
     def validate_supported_capabilities(self) -> "FeatureFlags":
