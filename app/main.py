@@ -6,7 +6,9 @@ Run with:
 """
 
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from pathlib import Path
+import os
 import uuid
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,6 +47,9 @@ _redoc_url = "/redoc" if APP_ENV == "dev" else None
 _openapi_url = "/openapi.json" if APP_ENV == "dev" else None
 
 
+_MAX_SNAPSHOT_AGE_HOURS = int(os.getenv("MAX_SNAPSHOT_AGE_HOURS", "24"))
+
+
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     repository = FileOfferRepository(
@@ -53,11 +58,23 @@ async def lifespan(application: FastAPI):
     application.state.offer_repository = repository
     try:
         repository.load()
+        manifest = repository.get_manifest()
         logger.info(
             "Loaded %s offers (data_version=%s)",
-            repository.get_manifest().accepted_row_count,
-            repository.get_manifest().data_version,
+            manifest.accepted_row_count,
+            manifest.data_version,
         )
+        generated_at = manifest.generated_at
+        if generated_at.tzinfo is None:
+            generated_at = generated_at.replace(tzinfo=timezone.utc)
+        age_hours = (datetime.now(timezone.utc) - generated_at).total_seconds() / 3600
+        if age_hours > _MAX_SNAPSHOT_AGE_HOURS:
+            logger.warning(
+                "Offer snapshot is stale: %.1f hours old (MAX_SNAPSHOT_AGE_HOURS=%d). "
+                "Run ingestion to refresh.",
+                age_hours,
+                _MAX_SNAPSHOT_AGE_HOURS,
+            )
     except Exception as exc:
         logger.error("Offer snapshot failed to load: %s", exc)
     yield
