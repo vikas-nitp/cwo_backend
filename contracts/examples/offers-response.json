@@ -6,12 +6,10 @@
     "card_name": "HDFC Credit Card", "payment_method": "CREDIT", "category": "FLIGHT_DOMESTIC",
     "booking_channel": "WEB_AND_APP", "discount_type": "PERCENT", "discount_value": 10,
     "max_discount": 1500, "min_transaction": 5000, "coupon_code": "MMTHDFC",
-    "valid_from": "2026-07-01", "valid_to": "2027-12-31", "usage_limit": "Once per card",
+    "valid_from": "2026-07-01", "expiry_date": "2027-12-31", "usage_limit": "Once per card",
     "new_user_only": false, "login_required": false, "eligibility_notes": ["Valid on selected HDFC credit cards"],
-    "terms_url": "https://www.makemytrip.com/promos/flight-offers.html",
-    "source_url": "https://www.makemytrip.com/promos/flight-offers.html", "source_type": "official",
-    "evidence_status": "VERIFIED", "last_verified_at": "2026-07-11", "priority_score": 100,
-    "is_active": true, "publish_status": "READY", "extra": {}
+    "terms_url": "https://www.makemytrip.com/promos/flight-offers.html"
   }],
-  "pagination": {"page": 1, "limit": 50, "total": 1, "total_pages": 1}
+  "pagination": {"page": 1, "limit": 50, "total": 1, "total_pages": 1},
+  "facets": null
 }

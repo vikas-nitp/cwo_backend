@@ -15,10 +15,8 @@ from app.domain.models import (
     BookingChannel,
     Category,
     DiscountType,
-    EvidenceStatus,
     PaymentMethod,
     PlatformId,
-    PublishStatus,
 )
 
 
@@ -92,16 +90,11 @@ class SearchOffer(BaseModel):
     savings_label: str
     coupon_code: str | None
     valid_from: date
-    valid_to: date
+    expiry_date: date
+    new_user_only: bool
     eligibility_notes: list[str]
     terms_url: AnyHttpUrl | None
-    source_url: AnyHttpUrl
     booking_url: AnyHttpUrl | None
-    evidence_status: EvidenceStatus
-    last_verified_at: date | None
-    priority_score: int
-    is_active: bool
-    publish_status: PublishStatus
 
     @field_serializer(
         "savings_delta",
@@ -115,7 +108,13 @@ class SearchOffer(BaseModel):
         return None if value is None else float(value)
 
 
+class DateStripItem(BaseModel):
+    date: str
+    display_text: str
+
+
 class SearchResponse(BaseModel):
     data_version: str
     summary: SearchSummary
     offers: list[SearchOffer]
+    date_strip: list[DateStripItem] = Field(default_factory=list)

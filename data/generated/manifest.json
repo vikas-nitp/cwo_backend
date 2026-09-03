@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "data_version": "2026-07-11-3042aa94eb4c",
-  "generated_at": "2026-07-11T00:00:00+00:00",
-  "source_row_count": 6,
-  "accepted_row_count": 6,
+  "data_version": "2026-09-01-eeadfaf4881f",
+  "generated_at": "2026-09-01T00:00:00+00:00",
+  "source_row_count": 25,
+  "accepted_row_count": 25,
   "rejected_row_count": 0,
   "supported_platforms": [
     "MAKEMYTRIP",

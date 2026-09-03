@@ -12,8 +12,8 @@ router = APIRouter(tags=["Offers"])
 @router.get("/offers", response_model=OffersResponse)
 def offers(
     request: Request,
-    bank: str | None = None,
-    platform: str | None = None,
+    bank: list[str] = Query(default_factory=list),
+    platform: list[str] = Query(default_factory=list),
     payment_method: Literal["CREDIT", "DEBIT", "NO_CARD"] | None = None,
     booking_channel: Literal["WEB", "APP", "WEB_AND_APP"] | None = None,
     category: Literal["FLIGHT_DOMESTIC"] | None = None,
@@ -23,8 +23,8 @@ def offers(
 ) -> OffersResponse:
     return OfferCatalogService(request.app.state.offer_repository).list(
         active_on=active_on,
-        bank=bank,
-        platform=platform,
+        banks=bank or None,
+        platforms=platform or None,
         payment_method=payment_method,
         booking_channel=booking_channel,
         category=category,

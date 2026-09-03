@@ -11,11 +11,11 @@ def test_health(client):
 def test_meta_and_flags(client):
     assert client.get("/api/v1/meta").json()["data_version"]
     assert client.get("/api/v1/feature-flags").json() == {
-        "authEnabled": False,
-        "offerLockingEnabled": False,
-        "savedCards": False,
-        "allOffers": True,
-        "dailyVisitorsEnabled": False,
+        "phase2UserFeaturesEnabled": False,
+        "publicAllOffersEnabled": True,
+        "couponCodeEnabled": False,
+        "analyticsEnabled": True,
+        "bookingAmountComparisonEnabled": False,
     }
 
 

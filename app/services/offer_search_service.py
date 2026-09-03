@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from decimal import Decimal
 from typing import cast
 
 from pydantic import AnyHttpUrl
@@ -7,7 +8,13 @@ from app.core.config import BOOKING_WINDOW_DAYS
 from app.domain.calculations import estimate_savings
 from app.domain.ranking import rank_offers
 from app.repositories.base import OfferRepository
-from app.schemas.search import SearchOffer, SearchRequest, SearchResponse, SearchSummary
+from app.schemas.search import (
+    DateStripItem,
+    SearchOffer,
+    SearchRequest,
+    SearchResponse,
+    SearchSummary,
+)
 
 BOOKING_URLS = {
     "MAKEMYTRIP": "https://www.makemytrip.com/flights/",
@@ -22,6 +29,33 @@ class SearchDateError(ValueError):
 class OfferSearchService:
     def __init__(self, repository: OfferRepository):
         self.repository = repository
+
+    def _build_strip(self, start: date, category: str) -> list[DateStripItem]:
+        strip = []
+        for i in range(7):
+            day = start + timedelta(days=i)
+            day_offers = self.repository.list_offers(active_on=day, category=category)
+
+            capped = []
+            for o in day_offers:
+                if o.discount_type == "FLAT" or o.max_discount is not None:
+                    capped.append(o.max_discount if o.max_discount is not None else o.discount_value)
+
+            uncapped_pct = [
+                o.discount_value
+                for o in day_offers
+                if o.discount_type == "PERCENT" and o.max_discount is None
+            ]
+
+            if capped:
+                display_text = f"Up to ₹{int(max(capped)):,}"
+            elif uncapped_pct:
+                display_text = f"Up to {int(max(uncapped_pct))}% off"
+            else:
+                display_text = "No offers"
+
+            strip.append(DateStripItem(date=day.isoformat(), display_text=display_text))
+        return strip
 
     def search(
         self, request: SearchRequest, today: date | None = None
@@ -73,16 +107,11 @@ class OfferSearchService:
                     savings_label=item.estimate.savings_label,
                     coupon_code=offer.coupon_code,
                     valid_from=offer.valid_from,
-                    valid_to=offer.valid_to,
+                    expiry_date=offer.valid_to,
+                    new_user_only=offer.new_user_only,
                     eligibility_notes=offer.eligibility_notes,
                     terms_url=offer.terms_url,
-                    source_url=offer.source_url,
                     booking_url=cast(AnyHttpUrl, BOOKING_URLS.get(offer.platform_id)),
-                    evidence_status=offer.evidence_status,
-                    last_verified_at=offer.last_verified_at,
-                    priority_score=offer.priority_score,
-                    is_active=offer.is_active,
-                    publish_status=offer.publish_status,
                 )
             )
         return SearchResponse(
@@ -96,4 +125,5 @@ class OfferSearchService:
                 }
             ),
             offers=results,
+            date_strip=self._build_strip(request.date, request.category),
         )

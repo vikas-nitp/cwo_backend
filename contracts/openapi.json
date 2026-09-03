@@ -19,6 +19,57 @@
         "title": "BankMetadata",
         "type": "object"
       },
+      "DateStripItem": {
+        "properties": {
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "display_text": {
+            "title": "Display Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "display_text"
+        ],
+        "title": "DateStripItem",
+        "type": "object"
+      },
+      "FeatureFlagsResponse": {
+        "properties": {
+          "analyticsEnabled": {
+            "title": "Analyticsenabled",
+            "type": "boolean"
+          },
+          "bookingAmountComparisonEnabled": {
+            "title": "Bookingamountcomparisonenabled",
+            "type": "boolean"
+          },
+          "couponCodeEnabled": {
+            "title": "Couponcodeenabled",
+            "type": "boolean"
+          },
+          "phase2UserFeaturesEnabled": {
+            "title": "Phase2Userfeaturesenabled",
+            "type": "boolean"
+          },
+          "publicAllOffersEnabled": {
+            "title": "Publicalloffersenabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "phase2UserFeaturesEnabled",
+          "publicAllOffersEnabled",
+          "couponCodeEnabled",
+          "analyticsEnabled",
+          "bookingAmountComparisonEnabled"
+        ],
+        "title": "FeatureFlagsResponse",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -32,7 +83,158 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
-      "Offer": {
+      "OfferMetadata": {
+        "properties": {
+          "airports": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Airports",
+            "type": "array"
+          },
+          "banks": {
+            "items": {
+              "$ref": "#/components/schemas/BankMetadata"
+            },
+            "title": "Banks",
+            "type": "array"
+          },
+          "booking_channels": {
+            "items": {
+              "enum": [
+                "WEB",
+                "APP",
+                "WEB_AND_APP"
+              ],
+              "type": "string"
+            },
+            "title": "Booking Channels",
+            "type": "array"
+          },
+          "categories": {
+            "items": {
+              "const": "FLIGHT_DOMESTIC",
+              "type": "string"
+            },
+            "title": "Categories",
+            "type": "array"
+          },
+          "data_version": {
+            "title": "Data Version",
+            "type": "string"
+          },
+          "payment_methods": {
+            "items": {
+              "enum": [
+                "CREDIT",
+                "DEBIT",
+                "NO_CARD"
+              ],
+              "type": "string"
+            },
+            "title": "Payment Methods",
+            "type": "array"
+          },
+          "platforms": {
+            "items": {
+              "$ref": "#/components/schemas/PlatformMetadata"
+            },
+            "title": "Platforms",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data_version",
+          "banks",
+          "platforms",
+          "payment_methods",
+          "categories",
+          "booking_channels"
+        ],
+        "title": "OfferMetadata",
+        "type": "object"
+      },
+      "OffersResponse": {
+        "properties": {
+          "data_version": {
+            "title": "Data Version",
+            "type": "string"
+          },
+          "facets": {
+            "title": "Facets",
+            "type": "null"
+          },
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/PublicOffer"
+            },
+            "title": "Offers",
+            "type": "array"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        },
+        "required": [
+          "data_version",
+          "offers",
+          "pagination"
+        ],
+        "title": "OffersResponse",
+        "type": "object"
+      },
+      "Pagination": {
+        "properties": {
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "page": {
+            "title": "Page",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "total_pages": {
+            "title": "Total Pages",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "page",
+          "limit",
+          "total",
+          "total_pages"
+        ],
+        "title": "Pagination",
+        "type": "object"
+      },
+      "PlatformMetadata": {
+        "properties": {
+          "id": {
+            "enum": [
+              "MAKEMYTRIP",
+              "CLEARTRIP"
+            ],
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "PlatformMetadata",
+        "type": "object"
+      },
+      "PublicOffer": {
         "properties": {
           "bank_id": {
             "anyOf": [
@@ -118,39 +320,12 @@
             "title": "Eligibility Notes",
             "type": "array"
           },
-          "evidence_status": {
-            "enum": [
-              "VERIFIED",
-              "PARTIAL",
-              "UNVERIFIED"
-            ],
-            "title": "Evidence Status",
+          "expiry_date": {
+            "format": "date",
+            "title": "Expiry Date",
             "type": "string"
           },
-          "extra": {
-            "additionalProperties": true,
-            "title": "Extra",
-            "type": "object"
-          },
-          "is_active": {
-            "default": true,
-            "title": "Is Active",
-            "type": "boolean"
-          },
-          "last_verified_at": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Verified At"
-          },
           "login_required": {
-            "default": false,
             "title": "Login Required",
             "type": "boolean"
           },
@@ -177,17 +352,14 @@
             "title": "Min Transaction"
           },
           "new_user_only": {
-            "default": false,
             "title": "New User Only",
             "type": "boolean"
           },
           "offer_id": {
-            "minLength": 1,
             "title": "Offer Id",
             "type": "string"
           },
           "offer_title": {
-            "minLength": 1,
             "title": "Offer Title",
             "type": "string"
           },
@@ -209,39 +381,7 @@
             "type": "string"
           },
           "platform_name": {
-            "minLength": 1,
             "title": "Platform Name",
-            "type": "string"
-          },
-          "priority_score": {
-            "default": 0,
-            "title": "Priority Score",
-            "type": "integer"
-          },
-          "publish_status": {
-            "enum": [
-              "READY",
-              "DRAFT",
-              "HIDDEN"
-            ],
-            "title": "Publish Status",
-            "type": "string"
-          },
-          "source_type": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Source Type"
-          },
-          "source_url": {
-            "format": "uri",
-            "minLength": 1,
-            "title": "Source Url",
             "type": "string"
           },
           "terms_url": {
@@ -272,11 +412,6 @@
             "format": "date",
             "title": "Valid From",
             "type": "string"
-          },
-          "valid_to": {
-            "format": "date",
-            "title": "Valid To",
-            "type": "string"
           }
         },
         "required": [
@@ -284,165 +419,26 @@
           "platform_id",
           "platform_name",
           "offer_title",
+          "bank_id",
+          "bank_name",
+          "card_name",
           "payment_method",
           "category",
           "booking_channel",
           "discount_type",
           "discount_value",
+          "max_discount",
+          "min_transaction",
+          "coupon_code",
           "valid_from",
-          "valid_to",
-          "source_url",
-          "evidence_status",
-          "publish_status"
+          "expiry_date",
+          "new_user_only",
+          "login_required",
+          "usage_limit",
+          "eligibility_notes",
+          "terms_url"
         ],
-        "title": "Offer",
-        "type": "object"
-      },
-      "OfferMetadata": {
-        "properties": {
-          "airports": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "title": "Airports",
-            "type": "array"
-          },
-          "banks": {
-            "items": {
-              "$ref": "#/components/schemas/BankMetadata"
-            },
-            "title": "Banks",
-            "type": "array"
-          },
-          "booking_channels": {
-            "items": {
-              "enum": [
-                "WEB",
-                "APP",
-                "WEB_AND_APP"
-              ],
-              "type": "string"
-            },
-            "title": "Booking Channels",
-            "type": "array"
-          },
-          "categories": {
-            "items": {
-              "const": "FLIGHT_DOMESTIC",
-              "type": "string"
-            },
-            "title": "Categories",
-            "type": "array"
-          },
-          "data_version": {
-            "title": "Data Version",
-            "type": "string"
-          },
-          "payment_methods": {
-            "items": {
-              "enum": [
-                "CREDIT",
-                "DEBIT",
-                "NO_CARD"
-              ],
-              "type": "string"
-            },
-            "title": "Payment Methods",
-            "type": "array"
-          },
-          "platforms": {
-            "items": {
-              "$ref": "#/components/schemas/PlatformMetadata"
-            },
-            "title": "Platforms",
-            "type": "array"
-          }
-        },
-        "required": [
-          "data_version",
-          "banks",
-          "platforms",
-          "payment_methods",
-          "categories",
-          "booking_channels"
-        ],
-        "title": "OfferMetadata",
-        "type": "object"
-      },
-      "OffersResponse": {
-        "properties": {
-          "data_version": {
-            "title": "Data Version",
-            "type": "string"
-          },
-          "offers": {
-            "items": {
-              "$ref": "#/components/schemas/Offer"
-            },
-            "title": "Offers",
-            "type": "array"
-          },
-          "pagination": {
-            "$ref": "#/components/schemas/Pagination"
-          }
-        },
-        "required": [
-          "data_version",
-          "offers",
-          "pagination"
-        ],
-        "title": "OffersResponse",
-        "type": "object"
-      },
-      "Pagination": {
-        "properties": {
-          "limit": {
-            "title": "Limit",
-            "type": "integer"
-          },
-          "page": {
-            "title": "Page",
-            "type": "integer"
-          },
-          "total": {
-            "title": "Total",
-            "type": "integer"
-          },
-          "total_pages": {
-            "title": "Total Pages",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "page",
-          "limit",
-          "total",
-          "total_pages"
-        ],
-        "title": "Pagination",
-        "type": "object"
-      },
-      "PlatformMetadata": {
-        "properties": {
-          "id": {
-            "enum": [
-              "MAKEMYTRIP",
-              "CLEARTRIP"
-            ],
-            "title": "Id",
-            "type": "string"
-          },
-          "name": {
-            "title": "Name",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "name"
-        ],
-        "title": "PlatformMetadata",
+        "title": "PublicOffer",
         "type": "object"
       },
       "SearchOffer": {
@@ -574,30 +570,10 @@
             ],
             "title": "Estimated Savings"
           },
-          "evidence_status": {
-            "enum": [
-              "VERIFIED",
-              "PARTIAL",
-              "UNVERIFIED"
-            ],
-            "title": "Evidence Status",
+          "expiry_date": {
+            "format": "date",
+            "title": "Expiry Date",
             "type": "string"
-          },
-          "is_active": {
-            "title": "Is Active",
-            "type": "boolean"
-          },
-          "last_verified_at": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Verified At"
           },
           "max_discount": {
             "anyOf": [
@@ -620,6 +596,10 @@
               }
             ],
             "title": "Min Transaction"
+          },
+          "new_user_only": {
+            "title": "New User Only",
+            "type": "boolean"
           },
           "offer_id": {
             "title": "Offer Id",
@@ -650,19 +630,6 @@
             "title": "Platform Name",
             "type": "string"
           },
-          "priority_score": {
-            "title": "Priority Score",
-            "type": "integer"
-          },
-          "publish_status": {
-            "enum": [
-              "READY",
-              "DRAFT",
-              "HIDDEN"
-            ],
-            "title": "Publish Status",
-            "type": "string"
-          },
           "savings_delta": {
             "anyOf": [
               {
@@ -676,12 +643,6 @@
           },
           "savings_label": {
             "title": "Savings Label",
-            "type": "string"
-          },
-          "source_url": {
-            "format": "uri",
-            "minLength": 1,
-            "title": "Source Url",
             "type": "string"
           },
           "terms_url": {
@@ -700,11 +661,6 @@
           "valid_from": {
             "format": "date",
             "title": "Valid From",
-            "type": "string"
-          },
-          "valid_to": {
-            "format": "date",
-            "title": "Valid To",
             "type": "string"
           }
         },
@@ -731,16 +687,11 @@
           "savings_label",
           "coupon_code",
           "valid_from",
-          "valid_to",
+          "expiry_date",
+          "new_user_only",
           "eligibility_notes",
           "terms_url",
-          "source_url",
-          "booking_url",
-          "evidence_status",
-          "last_verified_at",
-          "priority_score",
-          "is_active",
-          "publish_status"
+          "booking_url"
         ],
         "title": "SearchOffer",
         "type": "object"
@@ -815,6 +766,13 @@
           "data_version": {
             "title": "Data Version",
             "type": "string"
+          },
+          "date_strip": {
+            "items": {
+              "$ref": "#/components/schemas/DateStripItem"
+            },
+            "title": "Date Strip",
+            "type": "array"
           },
           "offers": {
             "items": {
@@ -928,11 +886,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": {
-                    "type": "boolean"
-                  },
-                  "title": "Response Feature Flags Api V1 Feature Flags Get",
-                  "type": "object"
+                  "$ref": "#/components/schemas/FeatureFlagsResponse"
                 }
               }
             },
@@ -975,15 +929,11 @@
             "name": "bank",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Bank"
+              "items": {
+                "type": "string"
+              },
+              "title": "Bank",
+              "type": "array"
             }
           },
           {
@@ -991,15 +941,11 @@
             "name": "platform",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Platform"
+              "items": {
+                "type": "string"
+              },
+              "title": "Platform",
+              "type": "array"
             }
           },
           {

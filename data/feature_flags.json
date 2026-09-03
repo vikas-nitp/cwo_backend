@@ -1,9 +1,7 @@
 {
-  "authEnabled": false,
-  "offerLockingEnabled": false,
-  "allOffers": true,
-  "savedCards": false,
-  "dailyVisitorsEnabled": false,
-  "supported_banks": ["HDFC", "ICICI", "SBI"],
-  "supported_platforms": ["MAKEMYTRIP", "CLEARTRIP"]
+  "phase2UserFeaturesEnabled": false,
+  "publicAllOffersEnabled": true,
+  "couponCodeEnabled": false,
+  "analyticsEnabled": true,
+  "bookingAmountComparisonEnabled": false
 }

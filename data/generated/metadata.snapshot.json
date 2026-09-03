@@ -1,6 +1,22 @@
 {
-  "data_version": "2026-07-11-3042aa94eb4c",
+  "data_version": "2026-09-01-eeadfaf4881f",
   "banks": [
+    {
+      "id": "AMEX",
+      "name": "American Express"
+    },
+    {
+      "id": "AXIS",
+      "name": "Axis Bank"
+    },
+    {
+      "id": "BOB",
+      "name": "Bank of Baroda"
+    },
+    {
+      "id": "FEDERAL",
+      "name": "Federal Bank"
+    },
     {
       "id": "HDFC",
       "name": "HDFC Bank"
@@ -10,8 +26,32 @@
       "name": "ICICI Bank"
     },
     {
+      "id": "IDFC",
+      "name": "IDFC First Bank"
+    },
+    {
+      "id": "INDUSIND",
+      "name": "IndusInd Bank"
+    },
+    {
+      "id": "KOTAK",
+      "name": "Kotak Mahindra Bank"
+    },
+    {
+      "id": "PNB",
+      "name": "Punjab National Bank"
+    },
+    {
+      "id": "RBL",
+      "name": "RBL Bank"
+    },
+    {
       "id": "SBI",
       "name": "State Bank of India"
+    },
+    {
+      "id": "YES",
+      "name": "Yes Bank"
     }
   ],
   "platforms": [
