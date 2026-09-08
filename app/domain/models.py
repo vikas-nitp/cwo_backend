@@ -44,6 +44,8 @@ class Offer(BaseModel):
     coupon_code: str | None = None
     valid_from: date
     expiry_date: date = Field(validation_alias=AliasChoices("expiry_date", "valid_to"))
+    # 0=Monday … 6=Sunday (Python weekday convention). None means valid every day.
+    valid_days: list[int] | None = Field(default=None)
     updated_at: date
     usage_limit: str | None = None
     new_user_only: bool = False
