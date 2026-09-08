@@ -101,7 +101,7 @@ app.add_middleware(BodySizeLimitMiddleware)
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS if APP_ENV == "dev" else CORS_ORIGINS,
+    allow_origins=CORS_ORIGINS,
     allow_credentials=False,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "X-Request-ID"],
