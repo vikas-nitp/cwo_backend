@@ -9,11 +9,12 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    AliasChoices,
     field_serializer,
     model_validator,
 )
 
-PlatformId = Literal["MAKEMYTRIP", "CLEARTRIP"]
+PlatformId = str
 PaymentMethod = Literal["CREDIT", "DEBIT", "NO_CARD"]
 Category = Literal["FLIGHT_DOMESTIC"]
 BookingChannel = Literal["WEB", "APP", "WEB_AND_APP"]
@@ -32,6 +33,7 @@ class Offer(BaseModel):
     bank_id: str | None = None
     bank_name: str | None = None
     card_name: str | None = None
+    supported_cards: list[str] = Field(default_factory=list)
     payment_method: PaymentMethod
     category: Category
     booking_channel: BookingChannel
@@ -41,13 +43,15 @@ class Offer(BaseModel):
     min_transaction: Decimal | None = Field(default=None, ge=0)
     coupon_code: str | None = None
     valid_from: date
-    valid_to: date
+    expiry_date: date = Field(validation_alias=AliasChoices("expiry_date", "valid_to"))
+    updated_at: date
     usage_limit: str | None = None
     new_user_only: bool = False
     login_required: bool = False
     eligibility_notes: list[str] = Field(default_factory=list)
     terms_url: AnyHttpUrl | None = None
     source_url: AnyHttpUrl
+    booking_url: AnyHttpUrl | None = None
     source_type: str | None = None
     evidence_status: EvidenceStatus
     last_verified_at: date | None = None
@@ -56,16 +60,33 @@ class Offer(BaseModel):
     publish_status: PublishStatus
     extra: dict[str, Any] = Field(default_factory=dict)
 
+    @model_validator(mode="before")
+    @classmethod
+    def migrate_supported_cards(cls, value):
+        if isinstance(value, dict):
+            value = dict(value)
+            if not value.get("supported_cards") and value.get("card_name"):
+                value["supported_cards"] = [value["card_name"]]
+            if not value.get("updated_at"):
+                value["updated_at"] = value.get("last_verified_at") or value.get(
+                    "valid_from"
+                )
+        return value
+
     @model_validator(mode="after")
     def validate_dates(self) -> "Offer":
-        if self.valid_from > self.valid_to:
-            raise ValueError("valid_from must be on or before valid_to")
+        if self.valid_from > self.expiry_date:
+            raise ValueError("valid_from must be on or before expiry_date")
         if self.payment_method == "NO_CARD" and self.bank_id:
             raise ValueError("NO_CARD offers cannot specify bank_id")
         return self
 
-    @field_serializer("discount_value", "max_discount", "min_transaction")
-    def serialize_decimal(self, value: Decimal | None) -> float | None:
+    @field_serializer("discount_value")
+    def serialize_required_decimal(self, value: Decimal) -> float:
+        return float(value)
+
+    @field_serializer("max_discount", "min_transaction")
+    def serialize_optional_decimal(self, value: Decimal | None) -> float | None:
         return None if value is None else float(value)
 
 
@@ -79,6 +100,14 @@ class PlatformMetadata(BaseModel):
     name: str
 
 
+class AirportMetadata(BaseModel):
+    code: str
+    city: str
+    name: str
+    country: str
+    is_domestic_default: bool
+
+
 class OfferMetadata(BaseModel):
     data_version: str
     banks: list[BankMetadata]
@@ -86,14 +115,30 @@ class OfferMetadata(BaseModel):
     payment_methods: list[PaymentMethod]
     categories: list[Category]
     booking_channels: list[BookingChannel]
-    airports: list[dict[str, Any]] = Field(default_factory=list)
+    airports: list[AirportMetadata] = Field(default_factory=list)
+    availability_start: date | None = None
+    availability_end: date | None = None
+    dataset_last_updated_at: date
 
 
 class DataManifest(BaseModel):
-    schema_version: str = "1.0"
+    schema_version: str = "1.1"
     data_version: str
     generated_at: datetime
     source_row_count: int
+    source_count: int = 1
     accepted_row_count: int
     rejected_row_count: int
     supported_platforms: list[PlatformId]
+    contract_version: str = "1.1"
+    source_hash: str = ""
+    feature_config_version: str = ""
+    record_count: int = 0
+    dataset_last_updated_at: date
+
+
+class FacetSnapshot(BaseModel):
+    data_version: str
+    active_on: date
+    platforms: dict[str, dict[str, Any]]
+    banks: dict[str, dict[str, Any]]

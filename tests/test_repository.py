@@ -11,6 +11,7 @@ def repository():
         ROOT / "data/generated/offers.snapshot.json",
         ROOT / "data/generated/metadata.snapshot.json",
         ROOT / "data/generated/manifest.json",
+        ROOT / "data/generated/facets.snapshot.json",
     )
     repo.load()
     return repo
@@ -19,7 +20,8 @@ def repository():
 def test_startup_and_metadata_derivation():
     repo = repository()
     assert repo.loaded
-    assert {bank.id for bank in repo.get_metadata().banks} == {"HDFC", "ICICI", "SBI"}
+    assert len(repo.get_metadata().banks) == 8
+    assert repo.get_metadata().availability_end == date(2026, 10, 15)
 
 
 def test_filters():
@@ -28,9 +30,9 @@ def test_filters():
         active_on=date(2026, 7, 12),
         platform_ids=["CLEARTRIP"],
         bank_ids=["HDFC"],
-        payment_method="DEBIT",
+        payment_methods=["DEBIT"],
     )
-    assert [offer.offer_id for offer in offers] == ["CT-HDFC-DEBIT-001"]
+    assert [offer.offer_id for offer in offers] == ["CT-HDFC-D01"]
 
 
 def test_expired_excluded():

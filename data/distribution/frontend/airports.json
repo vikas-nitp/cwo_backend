@@ -1,0 +1,702 @@
+[
+  {
+    "code": "BOM",
+    "city": "Mumbai",
+    "name": "Chhatrapati Shivaji Maharaj International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "DEL",
+    "city": "New Delhi",
+    "name": "Indira Gandhi International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "BLR",
+    "city": "Bengaluru",
+    "name": "Kempegowda International Airport Bengaluru",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "MAA",
+    "city": "Chennai",
+    "name": "Chennai International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "CCU",
+    "city": "Kolkata",
+    "name": "Netaji Subhash Chandra Bose International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "HYD",
+    "city": "Hyderabad",
+    "name": "Rajiv Gandhi International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "TRV",
+    "city": "Thiruvananthapuram",
+    "name": "Thiruvananthapuram International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "GOI",
+    "city": "Vasco da Gama",
+    "name": "Goa Dabolim International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "COK",
+    "city": "Kochi",
+    "name": "Cochin International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "AMD",
+    "city": "Ahmedabad",
+    "name": "Sardar Vallabh Patel International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "JAI",
+    "city": "Jaipur",
+    "name": "Jaipur International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "PNQ",
+    "city": "Pune",
+    "name": "Pune International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "VNS",
+    "city": "Varanasi",
+    "name": "Lal Bahadur Shastri International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "ATQ",
+    "city": "Amritsar",
+    "name": "Sri Guru Ram Das Ji International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "BDQ",
+    "city": "Vadodara",
+    "name": "Vadodara International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "BBI",
+    "city": "Bhubaneswar",
+    "name": "Biju Patnaik International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "LKO",
+    "city": "Lucknow",
+    "name": "Chaudhary Charan Singh International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXE",
+    "city": "Mangaluru",
+    "name": "Mangaluru International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "VTZ",
+    "city": "Visakhapatnam",
+    "name": "Visakhapatnam International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "CCJ",
+    "city": "Calicut",
+    "name": "Calicut International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "CJB",
+    "city": "Coimbatore",
+    "name": "Coimbatore International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXZ",
+    "city": "Port Blair",
+    "name": "Veer Savarkar International Airport / INS Utkrosh",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXC",
+    "city": "Chandigarh",
+    "name": "Shaheed Bhagat Singh International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "GAU",
+    "city": "Guwahati",
+    "name": "Lokpriya Gopinath Bordoloi International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXB",
+    "city": "Siliguri",
+    "name": "Bagdogra Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IDR",
+    "city": "Indore",
+    "name": "Devi Ahilya Bai Holkar International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "SXR",
+    "city": "Srinagar",
+    "name": "Sheikh ul Alam International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "STV",
+    "city": "Surat",
+    "name": "Surat International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "NAG",
+    "city": "Nagpur",
+    "name": "Dr. Babasaheb Ambedkar International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "BHO",
+    "city": "Bhopal",
+    "name": "Raja Bhoj International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "TIR",
+    "city": "Tirupati",
+    "name": "Tirupati International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "VGA",
+    "city": "Vijayawada",
+    "name": "Vijayawada International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IMF",
+    "city": "Imphal",
+    "name": "Bir Tikendrajit International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "CNN",
+    "city": "Kannur",
+    "name": "Kannur International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "ISK",
+    "city": "Nashik",
+    "name": "Nashik International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "TRZ",
+    "city": "Tiruchirappalli",
+    "name": "Tiruchirappalli International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "HSS",
+    "city": "Hisar",
+    "name": "Maharaja Agrasen International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "SAG",
+    "city": "Kakadi",
+    "name": "Shirdi International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "GOX",
+    "city": "Mopa",
+    "name": "Manohar International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "HWR",
+    "city": "Halwara",
+    "name": "Halwara International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "NMI",
+    "city": "Navi Mumbai",
+    "name": "Navi Mumbai International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "JDH",
+    "city": "Jodhpur",
+    "name": "Jodhpur Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXL",
+    "city": "Leh",
+    "name": "Leh Kushok Bakula Rimpochee Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "UDR",
+    "city": "Udaipur",
+    "name": "Maharana Pratap Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXM",
+    "city": "Madurai",
+    "name": "Madurai Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "PAT",
+    "city": "Patna",
+    "name": "Jay Prakash Narayan Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "BHJ",
+    "city": "Bhuj",
+    "name": "Bhuj Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXU",
+    "city": "Aurangabad",
+    "name": "Aurangabad Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXJ",
+    "city": "Jammu",
+    "name": "Jammu Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXR",
+    "city": "Ranchi",
+    "name": "Birsa Munda Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXA",
+    "city": "Agartala",
+    "name": "Agartala - Maharaja Bir Bikram Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "BHU",
+    "city": "Bhavnagar",
+    "name": "Bhavnagar Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "JLR",
+    "city": "Jabalpur",
+    "name": "Jabalpur Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "JRH",
+    "city": "Jorhat",
+    "name": "Jorhat Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "RJA",
+    "city": "Madhurapudi",
+    "name": "Rajahmundry Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "DED",
+    "city": "Dehradun (Jauligrant)",
+    "name": "Dehradun Jolly Grant Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "JGA",
+    "city": "Jamnagar",
+    "name": "Jamnagar Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXS",
+    "city": "Silchar",
+    "name": "Silchar Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "TEZ",
+    "city": "",
+    "name": "Tezpur Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXG",
+    "city": "Belgaum",
+    "name": "Belagavi Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "GAY",
+    "city": "Gaya",
+    "name": "Gaya Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "GWL",
+    "city": "Gwalior",
+    "name": "Gwalior Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "PBD",
+    "city": "Porbandar",
+    "name": "Porbandar Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "KLH",
+    "city": "Kolhapur",
+    "name": "Kolhapur Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "SHL",
+    "city": "Shillong",
+    "name": "Shillong Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "DMU",
+    "city": "Dimapur",
+    "name": "Dimapur Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXI",
+    "city": "Lilabari",
+    "name": "Lilabari North Lakhimpur Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "AGR",
+    "city": "Agra",
+    "name": "Agra Airport / Agra Air Force Station",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "KUU",
+    "city": "Bhuntar",
+    "name": "Kullu Manali Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "DIB",
+    "city": "Dibrugarh",
+    "name": "Dibrugarh Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "HJR",
+    "city": "Khajuraho",
+    "name": "Khajuraho Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "RPR",
+    "city": "Raipur",
+    "name": "Swami Vivekananda Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "AGX",
+    "city": "Agatti",
+    "name": "Agatti Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "AJL",
+    "city": "Aizawl (Lengpui)",
+    "name": "Lengpui Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXD",
+    "city": "Allahabad",
+    "name": "Prayagraj Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "DBR",
+    "city": "Darbhanga",
+    "name": "Darbhanga Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "GDB",
+    "city": "Gondia",
+    "name": "Gondia Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "KNU",
+    "city": "Kanpur",
+    "name": "Kanpur Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXK",
+    "city": "Keshod",
+    "name": "Keshod Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "RDP",
+    "city": "Durgapur",
+    "name": "Kazi Nazrul Islam Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXY",
+    "city": "Kandla",
+    "name": "Kandla Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "MYQ",
+    "city": "Mysore",
+    "name": "Mysore Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "JSA",
+    "city": "",
+    "name": "Jaisalmer Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "KQH",
+    "city": "Ajmer (Kishangarh)",
+    "name": "Kishangarh Airport Ajmer",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "PAB",
+    "city": "Bilaspur",
+    "name": "Bilaspur Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "CDP",
+    "city": "Kadapa",
+    "name": "Kadapa Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "DHM",
+    "city": "Kangra",
+    "name": "Kangra Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "MZS",
+    "city": "Moradabad",
+    "name": "Moradabad Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "IXP",
+    "city": "Pathankot",
+    "name": "Pathankot Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "REW",
+    "city": "Rewa",
+    "name": "Rewa Airport, Chorhata, REWA",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "AHA",
+    "city": "Ambikapur",
+    "name": "Maa Mahamaya Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "BEK",
+    "city": "Bareilly",
+    "name": "Bareilly Air Force Station",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "SDW",
+    "city": "Chipi",
+    "name": "Sindhudurg Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "AYJ",
+    "city": "Faizabad",
+    "name": "Maharshi Valmiki International Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "GOP",
+    "city": "Gorakhpur",
+    "name": "Gorakhpur Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "HGI",
+    "city": "Hollongi",
+    "name": "Itanagar Donyi Polo Hollongi Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "HBX",
+    "city": "Hubballi",
+    "name": "Hubballi Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "LTU",
+    "city": "Latur",
+    "name": "Murod Kond Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "NDC",
+    "city": "Nanded",
+    "name": "Nanded Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  },
+  {
+    "code": "KJB",
+    "city": "Orvakal",
+    "name": "Kurnool Airport",
+    "country": "IN",
+    "is_domestic_default": true
+  }
+]

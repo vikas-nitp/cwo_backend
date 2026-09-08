@@ -3,7 +3,6 @@ from decimal import Decimal
 import re
 
 from pydantic import (
-    AnyHttpUrl,
     BaseModel,
     Field,
     field_serializer,
@@ -11,15 +10,8 @@ from pydantic import (
     model_validator,
 )
 
-from app.domain.models import (
-    BookingChannel,
-    Category,
-    DiscountType,
-    EvidenceStatus,
-    PaymentMethod,
-    PlatformId,
-    PublishStatus,
-)
+from app.domain.models import Category, PlatformId
+from app.schemas.offers import PublicOffer
 
 
 class SearchRequest(BaseModel):
@@ -69,45 +61,18 @@ class SearchSummary(BaseModel):
         return None if value is None else float(value)
 
 
-class SearchOffer(BaseModel):
-    offer_id: str
+class SearchOffer(PublicOffer):
     display_kind: str
     display_rank: int
     savings_delta: Decimal | None
-    platform_id: PlatformId
-    platform_name: str
-    offer_title: str
-    bank_id: str | None
-    bank_name: str | None
-    card_name: str | None
-    payment_method: PaymentMethod
-    category: Category
-    booking_channel: BookingChannel
-    discount_type: DiscountType
-    discount_value: Decimal
-    max_discount: Decimal | None
-    min_transaction: Decimal | None
     estimated_savings: Decimal | None
     estimated_final_amount: Decimal | None
     savings_label: str
-    coupon_code: str | None
-    valid_from: date
-    valid_to: date
-    eligibility_notes: list[str]
-    terms_url: AnyHttpUrl | None
-    source_url: AnyHttpUrl
-    booking_url: AnyHttpUrl | None
-    evidence_status: EvidenceStatus
-    last_verified_at: date | None
-    priority_score: int
-    is_active: bool
-    publish_status: PublishStatus
+    amount_eligible: bool | None = None
+    comparison_text: str | None = None
 
     @field_serializer(
         "savings_delta",
-        "discount_value",
-        "max_discount",
-        "min_transaction",
         "estimated_savings",
         "estimated_final_amount",
     )
@@ -115,7 +80,21 @@ class SearchOffer(BaseModel):
         return None if value is None else float(value)
 
 
+class SearchDateBenefit(BaseModel):
+    date: date
+    benefit_type: str | None
+    benefit_value: Decimal | None
+    display_text: str
+    offer_count: int
+    available: bool
+
+    @field_serializer("benefit_value")
+    def serialize_benefit(self, value: Decimal | None) -> float | None:
+        return None if value is None else float(value)
+
+
 class SearchResponse(BaseModel):
     data_version: str
     summary: SearchSummary
     offers: list[SearchOffer]
+    date_strip: list[SearchDateBenefit] = Field(default_factory=list)

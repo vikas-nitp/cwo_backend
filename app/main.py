@@ -7,6 +7,7 @@ Run with:
 
 from contextlib import asynccontextmanager
 from pathlib import Path
+import re
 import uuid
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,7 +20,10 @@ from app.core.config import (
     OFFERS_SNAPSHOT_PATH,
     METADATA_SNAPSHOT_PATH,
     MANIFEST_PATH,
+    FACETS_SNAPSHOT_PATH,
+    FEATURE_FLAGS_PATH,
 )
+from app.core.feature_flags import load_feature_flags
 from app.core.logging import setup_logging, get_logger
 from app.core.middleware import (
     RateLimitMiddleware,
@@ -33,6 +37,7 @@ from app.api.routes.meta import router as meta_router
 from app.api.routes.offers import router as offers_router
 from app.api.routes.search import router as search_router
 from app.api.routes.feature_flags import router as feature_flags_router
+from app.api.routes.availability import router as availability_router
 from app.repositories.file_offer_repository import FileOfferRepository
 
 # Setup logging first
@@ -48,9 +53,14 @@ _openapi_url = "/openapi.json" if APP_ENV == "dev" else None
 @asynccontextmanager
 async def lifespan(application: FastAPI):
     repository = FileOfferRepository(
-        Path(OFFERS_SNAPSHOT_PATH), Path(METADATA_SNAPSHOT_PATH), Path(MANIFEST_PATH)
+        Path(OFFERS_SNAPSHOT_PATH),
+        Path(METADATA_SNAPSHOT_PATH),
+        Path(MANIFEST_PATH),
+        Path(FACETS_SNAPSHOT_PATH),
     )
     application.state.offer_repository = repository
+    application.state.feature_flags = None
+    application.state.feature_flags_error = None
     try:
         repository.load()
         logger.info(
@@ -59,14 +69,21 @@ async def lifespan(application: FastAPI):
             repository.get_manifest().data_version,
         )
     except Exception as exc:
-        logger.error("Offer snapshot failed to load: %s", exc)
+        logger.exception("Offer snapshot failed to load: %s", exc)
+    try:
+        flags = load_feature_flags(Path(FEATURE_FLAGS_PATH))
+        application.state.feature_flags = flags
+        logger.info("Loaded feature flags (config_version=%s)", flags.version())
+    except Exception as exc:
+        application.state.feature_flags_error = str(exc)
+        logger.exception("Feature flags failed to load: %s", exc)
     yield
 
 
 # Initialize FastAPI app
 app = FastAPI(
     title="CardwiseOffer API",
-    version="1.0.0",
+    version="1.1.0",
     description="API for CardwiseOffer - Find best credit card offers",
     docs_url=_docs_url,
     redoc_url=_redoc_url,
@@ -85,9 +102,9 @@ app.add_middleware(BodySizeLimitMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS if APP_ENV == "dev" else CORS_ORIGINS,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"],
+    allow_headers=["Content-Type", "X-Request-ID"],
 )
 
 logger.info(f"Starting CardwiseOffer API (env={APP_ENV})")
@@ -96,7 +113,12 @@ logger.info(f"CORS origins: {CORS_ORIGINS}")
 
 @app.middleware("http")
 async def request_id(request, call_next):
-    request.state.request_id = request.headers.get("x-request-id") or str(uuid.uuid4())
+    incoming = request.headers.get("x-request-id", "")
+    request.state.request_id = (
+        incoming
+        if re.fullmatch(r"[A-Za-z0-9._:-]{1,64}", incoming)
+        else str(uuid.uuid4())
+    )
     response = await call_next(request)
     response.headers["X-Request-ID"] = request.state.request_id
     return response
@@ -110,6 +132,7 @@ app.include_router(meta_router, prefix=API_PREFIX)
 app.include_router(offers_router, prefix=API_PREFIX)
 app.include_router(search_router, prefix=API_PREFIX)
 app.include_router(feature_flags_router, prefix=API_PREFIX)
+app.include_router(availability_router, prefix=API_PREFIX)
 
 
 # ── Development Server ──────────────────────────────────────

@@ -1,0 +1,101 @@
+{
+  "data_version": "2026-07-12-b3c9bde44ee5",
+  "active_on": "2026-07-12",
+  "platforms": {
+    "CLEARTRIP": {
+      "offer_count": 3,
+      "banks": [
+        "HDFC",
+        "ICICI"
+      ],
+      "payment_methods": [
+        "CREDIT",
+        "DEBIT",
+        "NO_CARD"
+      ],
+      "booking_channels": [
+        "APP",
+        "WEB",
+        "WEB_AND_APP"
+      ]
+    },
+    "GOIBIBO": {
+      "offer_count": 1,
+      "banks": [
+        "INDUSIND"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB"
+      ]
+    },
+    "MAKEMYTRIP": {
+      "offer_count": 2,
+      "banks": [
+        "HDFC",
+        "SBI"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB_AND_APP"
+      ]
+    }
+  },
+  "banks": {
+    "HDFC": {
+      "offer_count": 2,
+      "platforms": [
+        "CLEARTRIP",
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT",
+        "DEBIT"
+      ],
+      "booking_channels": [
+        "WEB",
+        "WEB_AND_APP"
+      ]
+    },
+    "ICICI": {
+      "offer_count": 1,
+      "platforms": [
+        "CLEARTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "APP"
+      ]
+    },
+    "INDUSIND": {
+      "offer_count": 1,
+      "platforms": [
+        "GOIBIBO"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB"
+      ]
+    },
+    "SBI": {
+      "offer_count": 1,
+      "platforms": [
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB_AND_APP"
+      ]
+    }
+  }
+}

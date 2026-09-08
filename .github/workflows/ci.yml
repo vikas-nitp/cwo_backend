@@ -13,13 +13,14 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install -r requirements.txt
-      - run: python scripts/build_offer_snapshot.py
-      - run: git diff --exit-code -- data/generated
-      - run: ruff format --check app/api app/domain app/repositories app/schemas app/services/offer_catalog_service.py app/services/offer_search_service.py scripts tests
-      - run: ruff check app/api app/domain app/repositories app/schemas app/services/offer_catalog_service.py app/services/offer_search_service.py scripts tests
-      - run: mypy app/domain app/repositories app/schemas app/services/offer_catalog_service.py app/services/offer_search_service.py app/api
+      - run: pip install -r requirements-dev.txt
+      - run: python scripts/build_data_bundle.py
+      - run: git diff --exit-code -- data/generated data/distribution/frontend
+      - run: ruff format --check app scripts tests
+      - run: ruff check app scripts tests
+      - run: mypy app
       - run: python -m pytest
       - run: python scripts/export_openapi.py
       - run: git diff --exit-code -- contracts/openapi.json
+      - run: python scripts/check_frontend_contract_sync.py
       - run: docker build -t cwo-backend:test .

@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import csv
 import hashlib
 import json
 import sys
@@ -14,15 +13,29 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from pydantic import ValidationError  # noqa: E402
+
 from app.domain.models import Offer  # noqa: E402
+from app.core.dates import today_ist  # noqa: E402
+from app.core.feature_flags import load_feature_flags  # noqa: E402
+from app.ingestion.sources import (  # noqa: E402
+    SourceRecord,
+    SourceSpec,
+    load_catalogue,
+    read_source,
+)
 
 ALIASES = {
     "bank": "bank_id",
     "platform": "platform_id",
     "min_txn": "min_transaction",
-    "valid_till": "valid_to",
+    "valid_till": "expiry_date",
+    "valid_to": "expiry_date",
     "coupon": "coupon_code",
     "active": "is_active",
+    "channels": "booking_channel",
+    "card_names": "supported_cards",
+    "supported_card": "supported_cards",
+    "eligible_cards": "supported_cards",
 }
 CANONICAL_FIELDS = set(Offer.model_fields) - {"extra"}
 REQUIRED = {
@@ -36,7 +49,7 @@ REQUIRED = {
     "discount_type",
     "discount_value",
     "valid_from",
-    "valid_to",
+    "expiry_date",
     "source_url",
     "evidence_status",
     "publish_status",
@@ -48,8 +61,10 @@ NULLABLE = {
 }
 
 
-def parse_bool(value: str) -> bool:
-    normalized = value.strip().lower()
+def parse_bool(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    normalized = str(value).strip().lower()
     if normalized in {"1", "true", "yes", "y"}:
         return True
     if normalized in {"0", "false", "no", "n"}:
@@ -57,67 +72,207 @@ def parse_bool(value: str) -> bool:
     raise ValueError(f"invalid boolean: {value}")
 
 
-def normalize_row(row: dict[str, str]) -> dict[str, Any]:
-    aliased: dict[str, str] = {}
-    for key, value in row.items():
-        target = ALIASES.get(key.strip(), key.strip())
-        if target not in aliased or not aliased[target].strip():
-            aliased[target] = value.strip() if isinstance(value, str) else value
-    missing = sorted(name for name in REQUIRED if not aliased.get(name, ""))
+def normalize_row(
+    row: dict[str, Any], spec: SourceSpec | None = None
+) -> dict[str, Any]:
+    aliased: dict[str, Any] = {}
+    for raw_key, raw_value in row.items():
+        key = str(raw_key).strip()
+        target = ALIASES.get(key, key)
+        value = raw_value.strip() if isinstance(raw_value, str) else raw_value
+        if target not in aliased or aliased[target] in (None, ""):
+            aliased[target] = value
+
+    if spec:
+        for field, default in (
+            ("platform_id", spec.platform_id),
+            ("platform_name", spec.platform_name),
+        ):
+            if not default:
+                continue
+            explicit = aliased.get(field)
+            if explicit not in (None, "") and str(explicit).upper().replace(
+                " ", ""
+            ) != default.upper().replace(" ", ""):
+                raise ValueError(f"{field} conflicts with catalogue default {default}")
+            aliased[field] = default
+
+    missing = sorted(name for name in REQUIRED if aliased.get(name) in (None, ""))
     if missing:
         raise ValueError(f"missing required field(s): {', '.join(missing)}")
+
     output: dict[str, Any] = {}
     extra: dict[str, Any] = {}
     for key, value in aliased.items():
         if key not in CANONICAL_FIELDS:
-            if value != "":
+            if value not in (None, ""):
                 extra[key] = value
             continue
-        if value == "" and key in NULLABLE:
+        if value in (None, "") and key in NULLABLE:
             output[key] = None
         elif key in BOOL_FIELDS:
             output[key] = parse_bool(value)
-        elif key in NUMBER_FIELDS:
-            output[key] = value
-        elif key == "eligibility_notes":
-            output[key] = [item.strip() for item in value.split("|") if item.strip()]
+        elif key in {"eligibility_notes", "supported_cards"}:
+            output[key] = (
+                value
+                if isinstance(value, list)
+                else [item.strip() for item in str(value).split("|") if item.strip()]
+            )
         else:
             output[key] = value
-    output["platform_id"] = output["platform_id"].upper().replace(" ", "")
-    output["bank_id"] = output.get("bank_id").upper() if output.get("bank_id") else None
-    output["payment_method"] = output["payment_method"].upper()
-    output["category"] = output["category"].upper()
-    output["booking_channel"] = output["booking_channel"].upper()
-    output["discount_type"] = output["discount_type"].upper()
-    output["evidence_status"] = output["evidence_status"].upper()
-    output["publish_status"] = output["publish_status"].upper()
+    for field in (
+        "platform_id",
+        "bank_id",
+        "payment_method",
+        "category",
+        "booking_channel",
+        "discount_type",
+        "evidence_status",
+        "publish_status",
+    ):
+        if output.get(field):
+            output[field] = str(output[field]).upper().replace(" ", "")
+    if output.get("booking_channel"):
+        output["booking_channel"] = output["booking_channel"].replace("+", "_AND_")
+    extra.setdefault("data_classification", "PRODUCTION")
+    extra.setdefault("is_test_data", False)
     output["extra"] = extra
     return output
 
 
-def build(source: Path, output_dir: Path) -> int:
-    rows = list(csv.DictReader(source.open(newline="", encoding="utf-8-sig")))
+def _facets(offers: list[Offer], active_on, data_version: str) -> dict[str, Any]:
+    active = [
+        o
+        for o in offers
+        if o.is_active
+        and o.publish_status == "READY"
+        and o.evidence_status == "VERIFIED"
+        and o.valid_from <= active_on <= o.expiry_date
+    ]
+    platforms: dict[str, dict[str, Any]] = {}
+    banks: dict[str, dict[str, Any]] = {}
+    for offer in active:
+        platform = platforms.setdefault(
+            offer.platform_id,
+            {
+                "offer_count": 0,
+                "banks": set(),
+                "payment_methods": set(),
+                "booking_channels": set(),
+            },
+        )
+        platform["offer_count"] += 1
+        if offer.bank_id:
+            platform["banks"].add(offer.bank_id)
+        platform["payment_methods"].add(offer.payment_method)
+        platform["booking_channels"].add(offer.booking_channel)
+        if offer.bank_id:
+            bank = banks.setdefault(
+                offer.bank_id,
+                {
+                    "offer_count": 0,
+                    "platforms": set(),
+                    "payment_methods": set(),
+                    "booking_channels": set(),
+                },
+            )
+            bank["offer_count"] += 1
+            bank["platforms"].add(offer.platform_id)
+            bank["payment_methods"].add(offer.payment_method)
+            bank["booking_channels"].add(offer.booking_channel)
+
+    def serializable(mapping):
+        return {
+            key: {
+                field: sorted(value) if isinstance(value, set) else value
+                for field, value in item.items()
+            }
+            for key, item in sorted(mapping.items())
+        }
+
+    return {
+        "data_version": data_version,
+        "active_on": active_on.isoformat(),
+        "platforms": serializable(platforms),
+        "banks": serializable(banks),
+    }
+
+
+def build_records(
+    records: list[tuple[SourceRecord, SourceSpec]],
+    output_dir: Path,
+    source_count: int,
+    source_metadata: dict[str, str] | None = None,
+) -> int:
     accepted: list[Offer] = []
     errors: list[dict[str, Any]] = []
-    seen: set[str] = set()
-    for number, row in enumerate(rows, 2):
+    seen: dict[str, str] = {}
+    source_summaries: dict[str, dict[str, Any]] = {}
+    if not records:
+        errors.append(
+            {
+                "source": None,
+                "sheet": None,
+                "location": None,
+                "offer_id": None,
+                "code": "SOURCE_VALIDATION_FAILED",
+                "message": "no offer rows were found in configured sources",
+            }
+        )
+    for record, spec in records:
+        summary = source_summaries.setdefault(
+            record.source,
+            {
+                "path": record.source,
+                "format": spec.format,
+                "row_count": 0,
+                "accepted_count": 0,
+                "rejected_count": 0,
+            },
+        )
+        summary["row_count"] += 1
         try:
-            data = normalize_row(row)
-            if data["offer_id"] in seen:
-                raise ValueError(f"duplicate offer_id: {data['offer_id']}")
+            data = normalize_row(record.data, spec)
+            offer_id = str(data["offer_id"])
+            if offer_id in seen:
+                raise ValueError(
+                    f"duplicate offer_id {offer_id}; first seen in {seen[offer_id]}"
+                )
             offer = Offer.model_validate(data)
-            seen.add(offer.offer_id)
-            accepted.append(offer)
-        except (ValueError, ValidationError) as exc:
-            errors.append(
-                {"row": number, "offer_id": row.get("offer_id"), "error": str(exc)}
+            is_synthetic = (
+                str(offer.extra.get("data_classification", "PRODUCTION")).upper()
+                == "SYNTHETIC_TEST"
+                or str(offer.extra.get("is_test_data", "false")).lower() == "true"
             )
+            if is_synthetic:
+                raise ValueError(
+                    "synthetic test rows are forbidden in production snapshots"
+                )
+            seen[offer.offer_id] = record.source
+            accepted.append(offer)
+            summary["accepted_count"] += 1
+        except (ValueError, ValidationError) as exc:
+            summary["rejected_count"] += 1
+            message = str(exc)
+            errors.append(
+                {
+                    "source": record.source,
+                    "sheet": record.sheet,
+                    "location": record.location,
+                    "offer_id": record.data.get("offer_id"),
+                    "code": "DUPLICATE_OFFER_ID"
+                    if "duplicate offer_id" in message
+                    else "SOURCE_VALIDATION_FAILED",
+                    "message": message,
+                }
+            )
+
     canonical = [offer.model_dump(mode="json") for offer in accepted]
     digest = hashlib.sha256(
         json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()[:12]
     version_date = max(
-        (o.last_verified_at or o.valid_from for o in accepted),
+        (o.updated_at for o in accepted),
         default=datetime.now(timezone.utc).date(),
     )
     generated_at = datetime.combine(
@@ -131,6 +286,16 @@ def build(source: Path, output_dir: Path) -> int:
         and o.publish_status == "READY"
         and o.evidence_status == "VERIFIED"
     ]
+    today = today_ist()
+    non_expired = [offer for offer in publishable if offer.expiry_date >= today]
+    availability_start = (
+        max(today, min(offer.valid_from for offer in non_expired))
+        if non_expired
+        else None
+    )
+    availability_end = (
+        max(offer.expiry_date for offer in non_expired) if non_expired else None
+    )
     banks = sorted(
         {(o.bank_id, o.bank_name or o.bank_id) for o in publishable if o.bank_id}
     )
@@ -143,50 +308,149 @@ def build(source: Path, output_dir: Path) -> int:
         "categories": sorted({o.category for o in publishable}),
         "booking_channels": sorted({o.booking_channel for o in publishable}),
         "airports": json.loads((ROOT / "data/airports.json").read_text()),
+        "availability_start": availability_start.isoformat()
+        if availability_start
+        else None,
+        "availability_end": availability_end.isoformat() if availability_end else None,
+        "dataset_last_updated_at": version_date.isoformat(),
     }
+    feature_config_version = load_feature_flags(
+        ROOT / "data/config/feature_flags.json"
+    ).version()
     manifest = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "data_version": data_version,
         "generated_at": generated_at,
-        "source_row_count": len(rows),
+        "source_count": source_count,
+        "source_row_count": len(records),
         "accepted_row_count": len(accepted),
         "rejected_row_count": len(errors),
-        "supported_platforms": ["MAKEMYTRIP", "CLEARTRIP"],
+        "supported_platforms": [platform_id for platform_id, _ in platforms],
+        "feature_config_version": feature_config_version,
+        "record_count": len(accepted),
+        "dataset_last_updated_at": version_date.isoformat(),
+        **(source_metadata or {}),
     }
-    try:
-        report_source = source.resolve().relative_to(ROOT.resolve()).as_posix()
-    except ValueError:
-        # Temporary/external catalogues still need deterministic reports.
-        report_source = source.name
     report = {
         "valid": not errors,
+        "source_count": source_count,
+        "source_row_count": len(records),
+        "accepted_row_count": len(accepted),
+        "rejected_row_count": len(errors),
+        "warning_count": 0,
         "generated_at": generated_at,
-        "source": report_source,
+        "sources": list(source_summaries.values()),
         "errors": errors,
+        "warnings": [],
+    }
+    outputs = {
+        "offers.snapshot.json": canonical,
+        "metadata.snapshot.json": metadata,
+        "facets.snapshot.json": _facets(accepted, version_date, data_version),
+        "manifest.json": manifest,
+        "validation-report.json": report,
     }
     output_dir.mkdir(parents=True, exist_ok=True)
-    for name, value in (
-        ("offers.snapshot.json", canonical),
-        ("metadata.snapshot.json", metadata),
-        ("manifest.json", manifest),
-        ("validation-report.json", report),
-    ):
+    for name, value in outputs.items():
         (output_dir / name).write_text(
             json.dumps(value, indent=2, ensure_ascii=False) + "\n"
         )
     if errors:
         print(
-            f"Rejected {len(errors)} of {len(rows)} rows; see validation-report.json",
+            f"Rejected {len(errors)} of {len(records)} rows; see validation-report.json",
             file=sys.stderr,
         )
         return 1
-    print(f"Built {len(accepted)} offers ({data_version})")
+    print(f"Built {len(accepted)} offers from {source_count} sources ({data_version})")
     return 0
+
+
+def build_catalogue(catalogue: Path, output_dir: Path) -> int:
+    specs = load_catalogue(catalogue)
+    source_digest = source_hash(specs, catalogue.parent)
+    records: list[tuple[SourceRecord, SourceSpec]] = []
+    adapter_errors: list[str] = []
+    for spec in specs:
+        try:
+            records.extend(
+                (record, spec) for record in read_source(spec, catalogue.parent)
+            )
+        except Exception as exc:
+            adapter_errors.append(f"{spec.path.name}: {exc}")
+    if adapter_errors:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        report = {
+            "valid": False,
+            "source_count": len(specs),
+            "source_row_count": len(records),
+            "accepted_row_count": 0,
+            "rejected_row_count": len(adapter_errors),
+            "warning_count": 0,
+            "sources": [],
+            "errors": [
+                {"code": "SOURCE_VALIDATION_FAILED", "message": message}
+                for message in adapter_errors
+            ],
+            "warnings": [],
+        }
+        (output_dir / "validation-report.json").write_text(
+            json.dumps(report, indent=2) + "\n"
+        )
+        return 1
+    return build_records(
+        records,
+        output_dir,
+        len(specs),
+        {
+            "source_owner": "backend",
+            "source_file": "data/source/catalogue.yml",
+            "source_hash": f"sha256:{source_digest}",
+            "contract_version": "1.1",
+        },
+    )
+
+
+def source_hash(specs: list[SourceSpec], catalogue_dir: Path) -> str:
+    """Hash source identity and content without checkout-specific absolute paths."""
+    digest = hashlib.sha256()
+    identified = [
+        (spec.path.relative_to(catalogue_dir).as_posix(), spec) for spec in specs
+    ]
+    for relative_path, spec in sorted(identified, key=lambda item: item[0]):
+        digest.update(relative_path.encode())
+        digest.update(b"\0")
+        digest.update(spec.path.read_bytes())
+        digest.update(b"\0")
+    return digest.hexdigest()
+
+
+def build(source: Path, output_dir: Path) -> int:
+    spec = SourceSpec(source.resolve(), "csv", "", "")
+    records = [
+        (
+            record,
+            SourceSpec(
+                spec.path,
+                "csv",
+                str(record.data.get("platform_id", "")),
+                str(record.data.get("platform_name", "")),
+            ),
+        )
+        for record in read_source(spec, source.parent)
+    ]
+    return build_records(records, output_dir, 1)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source", type=Path, default=ROOT / "data/source/offers.csv")
+    parser.add_argument(
+        "--catalogue", type=Path, default=ROOT / "data/source/catalogue.yml"
+    )
+    parser.add_argument("--source", type=Path)
     parser.add_argument("--output-dir", type=Path, default=ROOT / "data/generated")
     args = parser.parse_args()
-    raise SystemExit(build(args.source, args.output_dir))
+    raise SystemExit(
+        build(args.source, args.output_dir)
+        if args.source
+        else build_catalogue(args.catalogue, args.output_dir)
+    )

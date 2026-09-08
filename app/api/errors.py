@@ -20,6 +20,7 @@ def error_response(
                 "request_id": request_id,
             }
         },
+        headers={"Cache-Control": "no-store"},
     )
 
 

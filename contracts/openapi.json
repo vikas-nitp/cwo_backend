@@ -1,6 +1,144 @@
 {
   "components": {
     "schemas": {
+      "AirportMetadata": {
+        "properties": {
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "is_domestic_default": {
+            "title": "Is Domestic Default",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "city",
+          "name",
+          "country",
+          "is_domestic_default"
+        ],
+        "title": "AirportMetadata",
+        "type": "object"
+      },
+      "AvailabilityDay": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "benefit_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Benefit Type"
+          },
+          "benefit_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Benefit Value"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "display_text": {
+            "title": "Display Text",
+            "type": "string"
+          },
+          "offer_count": {
+            "title": "Offer Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "date",
+          "offer_count",
+          "benefit_type",
+          "benefit_value",
+          "display_text",
+          "available"
+        ],
+        "title": "AvailabilityDay",
+        "type": "object"
+      },
+      "AvailabilityResponse": {
+        "properties": {
+          "availability_end": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability End"
+          },
+          "availability_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability Start"
+          },
+          "data_version": {
+            "title": "Data Version",
+            "type": "string"
+          },
+          "dataset_last_updated_at": {
+            "format": "date",
+            "title": "Dataset Last Updated At",
+            "type": "string"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/AvailabilityDay"
+            },
+            "title": "Days",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data_version",
+          "availability_start",
+          "availability_end",
+          "dataset_last_updated_at"
+        ],
+        "title": "AvailabilityResponse",
+        "type": "object"
+      },
       "BankMetadata": {
         "properties": {
           "id": {
@@ -19,6 +157,118 @@
         "title": "BankMetadata",
         "type": "object"
       },
+      "CatalogueFacets": {
+        "properties": {
+          "banks": {
+            "items": {
+              "$ref": "#/components/schemas/FacetOption"
+            },
+            "title": "Banks",
+            "type": "array"
+          },
+          "booking_channels": {
+            "items": {
+              "$ref": "#/components/schemas/FacetOption"
+            },
+            "title": "Booking Channels",
+            "type": "array"
+          },
+          "payment_methods": {
+            "items": {
+              "$ref": "#/components/schemas/FacetOption"
+            },
+            "title": "Payment Methods",
+            "type": "array"
+          },
+          "platforms": {
+            "items": {
+              "$ref": "#/components/schemas/FacetOption"
+            },
+            "title": "Platforms",
+            "type": "array"
+          }
+        },
+        "required": [
+          "platforms",
+          "banks",
+          "payment_methods",
+          "booking_channels"
+        ],
+        "title": "CatalogueFacets",
+        "type": "object"
+      },
+      "FacetOption": {
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "disabled": {
+            "title": "Disabled",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "selected": {
+            "title": "Selected",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "count",
+          "selected",
+          "disabled"
+        ],
+        "title": "FacetOption",
+        "type": "object"
+      },
+      "FeatureFlagsResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "analyticsEnabled": {
+            "default": true,
+            "title": "Analyticsenabled",
+            "type": "boolean"
+          },
+          "bookingAmountComparisonEnabled": {
+            "default": false,
+            "title": "Bookingamountcomparisonenabled",
+            "type": "boolean"
+          },
+          "config_version": {
+            "title": "Config Version",
+            "type": "string"
+          },
+          "couponCodeEnabled": {
+            "default": false,
+            "title": "Couponcodeenabled",
+            "type": "boolean"
+          },
+          "phase2UserFeaturesEnabled": {
+            "default": false,
+            "title": "Phase2Userfeaturesenabled",
+            "type": "boolean"
+          },
+          "publicAllOffersEnabled": {
+            "default": true,
+            "title": "Publicalloffersenabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "config_version"
+        ],
+        "title": "FeatureFlagsResponse",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -32,112 +282,16 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
-      "Offer": {
+      "OfferMetadata": {
         "properties": {
-          "bank_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Bank Id"
-          },
-          "bank_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Bank Name"
-          },
-          "booking_channel": {
-            "enum": [
-              "WEB",
-              "APP",
-              "WEB_AND_APP"
-            ],
-            "title": "Booking Channel",
-            "type": "string"
-          },
-          "card_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Card Name"
-          },
-          "category": {
-            "const": "FLIGHT_DOMESTIC",
-            "title": "Category",
-            "type": "string"
-          },
-          "coupon_code": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Coupon Code"
-          },
-          "discount_type": {
-            "enum": [
-              "PERCENT",
-              "FLAT"
-            ],
-            "title": "Discount Type",
-            "type": "string"
-          },
-          "discount_value": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Discount Value"
-          },
-          "eligibility_notes": {
+          "airports": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/AirportMetadata"
             },
-            "title": "Eligibility Notes",
+            "title": "Airports",
             "type": "array"
           },
-          "evidence_status": {
-            "enum": [
-              "VERIFIED",
-              "PARTIAL",
-              "UNVERIFIED"
-            ],
-            "title": "Evidence Status",
-            "type": "string"
-          },
-          "extra": {
-            "additionalProperties": true,
-            "title": "Extra",
-            "type": "object"
-          },
-          "is_active": {
-            "default": true,
-            "title": "Is Active",
-            "type": "boolean"
-          },
-          "last_verified_at": {
+          "availability_end": {
             "anyOf": [
               {
                 "format": "date",
@@ -147,166 +301,19 @@
                 "type": "null"
               }
             ],
-            "title": "Last Verified At"
+            "title": "Availability End"
           },
-          "login_required": {
-            "default": false,
-            "title": "Login Required",
-            "type": "boolean"
-          },
-          "max_discount": {
+          "availability_start": {
             "anyOf": [
               {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Max Discount"
-          },
-          "min_transaction": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Min Transaction"
-          },
-          "new_user_only": {
-            "default": false,
-            "title": "New User Only",
-            "type": "boolean"
-          },
-          "offer_id": {
-            "minLength": 1,
-            "title": "Offer Id",
-            "type": "string"
-          },
-          "offer_title": {
-            "minLength": 1,
-            "title": "Offer Title",
-            "type": "string"
-          },
-          "payment_method": {
-            "enum": [
-              "CREDIT",
-              "DEBIT",
-              "NO_CARD"
-            ],
-            "title": "Payment Method",
-            "type": "string"
-          },
-          "platform_id": {
-            "enum": [
-              "MAKEMYTRIP",
-              "CLEARTRIP"
-            ],
-            "title": "Platform Id",
-            "type": "string"
-          },
-          "platform_name": {
-            "minLength": 1,
-            "title": "Platform Name",
-            "type": "string"
-          },
-          "priority_score": {
-            "default": 0,
-            "title": "Priority Score",
-            "type": "integer"
-          },
-          "publish_status": {
-            "enum": [
-              "READY",
-              "DRAFT",
-              "HIDDEN"
-            ],
-            "title": "Publish Status",
-            "type": "string"
-          },
-          "source_type": {
-            "anyOf": [
-              {
+                "format": "date",
                 "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Source Type"
-          },
-          "source_url": {
-            "format": "uri",
-            "minLength": 1,
-            "title": "Source Url",
-            "type": "string"
-          },
-          "terms_url": {
-            "anyOf": [
-              {
-                "format": "uri",
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Terms Url"
-          },
-          "usage_limit": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Usage Limit"
-          },
-          "valid_from": {
-            "format": "date",
-            "title": "Valid From",
-            "type": "string"
-          },
-          "valid_to": {
-            "format": "date",
-            "title": "Valid To",
-            "type": "string"
-          }
-        },
-        "required": [
-          "offer_id",
-          "platform_id",
-          "platform_name",
-          "offer_title",
-          "payment_method",
-          "category",
-          "booking_channel",
-          "discount_type",
-          "discount_value",
-          "valid_from",
-          "valid_to",
-          "source_url",
-          "evidence_status",
-          "publish_status"
-        ],
-        "title": "Offer",
-        "type": "object"
-      },
-      "OfferMetadata": {
-        "properties": {
-          "airports": {
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "title": "Airports",
-            "type": "array"
+            "title": "Availability Start"
           },
           "banks": {
             "items": {
@@ -339,6 +346,11 @@
             "title": "Data Version",
             "type": "string"
           },
+          "dataset_last_updated_at": {
+            "format": "date",
+            "title": "Dataset Last Updated At",
+            "type": "string"
+          },
           "payment_methods": {
             "items": {
               "enum": [
@@ -365,7 +377,8 @@
           "platforms",
           "payment_methods",
           "categories",
-          "booking_channels"
+          "booking_channels",
+          "dataset_last_updated_at"
         ],
         "title": "OfferMetadata",
         "type": "object"
@@ -376,9 +389,12 @@
             "title": "Data Version",
             "type": "string"
           },
+          "facets": {
+            "$ref": "#/components/schemas/CatalogueFacets"
+          },
           "offers": {
             "items": {
-              "$ref": "#/components/schemas/Offer"
+              "$ref": "#/components/schemas/PublicOffer"
             },
             "title": "Offers",
             "type": "array"
@@ -390,7 +406,8 @@
         "required": [
           "data_version",
           "offers",
-          "pagination"
+          "pagination",
+          "facets"
         ],
         "title": "OffersResponse",
         "type": "object"
@@ -426,10 +443,6 @@
       "PlatformMetadata": {
         "properties": {
           "id": {
-            "enum": [
-              "MAKEMYTRIP",
-              "CLEARTRIP"
-            ],
             "title": "Id",
             "type": "string"
           },
@@ -445,7 +458,7 @@
         "title": "PlatformMetadata",
         "type": "object"
       },
-      "SearchOffer": {
+      "PublicOffer": {
         "properties": {
           "bank_id": {
             "anyOf": [
@@ -527,6 +540,154 @@
             "type": "string"
           },
           "discount_value": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Discount Value",
+            "type": "string"
+          },
+          "eligibility_notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Eligibility Notes",
+            "type": "array"
+          },
+          "expiry_date": {
+            "format": "date",
+            "title": "Expiry Date",
+            "type": "string"
+          },
+          "max_discount": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Discount"
+          },
+          "min_transaction": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Transaction"
+          },
+          "new_user_only": {
+            "title": "New User Only",
+            "type": "boolean"
+          },
+          "offer_id": {
+            "title": "Offer Id",
+            "type": "string"
+          },
+          "offer_title": {
+            "title": "Offer Title",
+            "type": "string"
+          },
+          "payment_method": {
+            "enum": [
+              "CREDIT",
+              "DEBIT",
+              "NO_CARD"
+            ],
+            "title": "Payment Method",
+            "type": "string"
+          },
+          "platform_id": {
+            "title": "Platform Id",
+            "type": "string"
+          },
+          "platform_name": {
+            "title": "Platform Name",
+            "type": "string"
+          },
+          "supported_cards": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Supported Cards",
+            "type": "array"
+          },
+          "terms_url": {
+            "anyOf": [
+              {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Terms Url"
+          },
+          "updated_at": {
+            "format": "date",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "usage_limit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage Limit"
+          },
+          "valid_from": {
+            "format": "date",
+            "title": "Valid From",
+            "type": "string"
+          }
+        },
+        "required": [
+          "offer_id",
+          "platform_id",
+          "platform_name",
+          "offer_title",
+          "payment_method",
+          "category",
+          "booking_channel",
+          "discount_type",
+          "discount_value",
+          "valid_from",
+          "expiry_date",
+          "updated_at",
+          "new_user_only",
+          "eligibility_notes"
+        ],
+        "title": "PublicOffer",
+        "type": "object"
+      },
+      "SearchDateBenefit": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "benefit_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Benefit Type"
+          },
+          "benefit_value": {
             "anyOf": [
               {
                 "type": "number"
@@ -535,7 +696,140 @@
                 "type": "null"
               }
             ],
-            "title": "Discount Value"
+            "title": "Benefit Value"
+          },
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "display_text": {
+            "title": "Display Text",
+            "type": "string"
+          },
+          "offer_count": {
+            "title": "Offer Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "date",
+          "benefit_type",
+          "benefit_value",
+          "display_text",
+          "offer_count",
+          "available"
+        ],
+        "title": "SearchDateBenefit",
+        "type": "object"
+      },
+      "SearchOffer": {
+        "properties": {
+          "amount_eligible": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Eligible"
+          },
+          "bank_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bank Id"
+          },
+          "bank_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bank Name"
+          },
+          "booking_channel": {
+            "enum": [
+              "WEB",
+              "APP",
+              "WEB_AND_APP"
+            ],
+            "title": "Booking Channel",
+            "type": "string"
+          },
+          "booking_url": {
+            "anyOf": [
+              {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booking Url"
+          },
+          "card_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Card Name"
+          },
+          "category": {
+            "const": "FLIGHT_DOMESTIC",
+            "title": "Category",
+            "type": "string"
+          },
+          "comparison_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comparison Text"
+          },
+          "coupon_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coupon Code"
+          },
+          "discount_type": {
+            "enum": [
+              "PERCENT",
+              "FLAT"
+            ],
+            "title": "Discount Type",
+            "type": "string"
+          },
+          "discount_value": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Discount Value",
+            "type": "string"
           },
           "display_kind": {
             "title": "Display Kind",
@@ -574,35 +868,16 @@
             ],
             "title": "Estimated Savings"
           },
-          "evidence_status": {
-            "enum": [
-              "VERIFIED",
-              "PARTIAL",
-              "UNVERIFIED"
-            ],
-            "title": "Evidence Status",
+          "expiry_date": {
+            "format": "date",
+            "title": "Expiry Date",
             "type": "string"
-          },
-          "is_active": {
-            "title": "Is Active",
-            "type": "boolean"
-          },
-          "last_verified_at": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Verified At"
           },
           "max_discount": {
             "anyOf": [
               {
-                "type": "number"
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
               },
               {
                 "type": "null"
@@ -613,13 +888,18 @@
           "min_transaction": {
             "anyOf": [
               {
-                "type": "number"
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
             "title": "Min Transaction"
+          },
+          "new_user_only": {
+            "title": "New User Only",
+            "type": "boolean"
           },
           "offer_id": {
             "title": "Offer Id",
@@ -639,28 +919,11 @@
             "type": "string"
           },
           "platform_id": {
-            "enum": [
-              "MAKEMYTRIP",
-              "CLEARTRIP"
-            ],
             "title": "Platform Id",
             "type": "string"
           },
           "platform_name": {
             "title": "Platform Name",
-            "type": "string"
-          },
-          "priority_score": {
-            "title": "Priority Score",
-            "type": "integer"
-          },
-          "publish_status": {
-            "enum": [
-              "READY",
-              "DRAFT",
-              "HIDDEN"
-            ],
-            "title": "Publish Status",
             "type": "string"
           },
           "savings_delta": {
@@ -678,11 +941,12 @@
             "title": "Savings Label",
             "type": "string"
           },
-          "source_url": {
-            "format": "uri",
-            "minLength": 1,
-            "title": "Source Url",
-            "type": "string"
+          "supported_cards": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Supported Cards",
+            "type": "array"
           },
           "terms_url": {
             "anyOf": [
@@ -697,50 +961,49 @@
             ],
             "title": "Terms Url"
           },
+          "updated_at": {
+            "format": "date",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "usage_limit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Usage Limit"
+          },
           "valid_from": {
             "format": "date",
             "title": "Valid From",
-            "type": "string"
-          },
-          "valid_to": {
-            "format": "date",
-            "title": "Valid To",
             "type": "string"
           }
         },
         "required": [
           "offer_id",
-          "display_kind",
-          "display_rank",
-          "savings_delta",
           "platform_id",
           "platform_name",
           "offer_title",
-          "bank_id",
-          "bank_name",
-          "card_name",
           "payment_method",
           "category",
           "booking_channel",
           "discount_type",
           "discount_value",
-          "max_discount",
-          "min_transaction",
+          "valid_from",
+          "expiry_date",
+          "updated_at",
+          "new_user_only",
+          "eligibility_notes",
+          "display_kind",
+          "display_rank",
+          "savings_delta",
           "estimated_savings",
           "estimated_final_amount",
-          "savings_label",
-          "coupon_code",
-          "valid_from",
-          "valid_to",
-          "eligibility_notes",
-          "terms_url",
-          "source_url",
-          "booking_url",
-          "evidence_status",
-          "last_verified_at",
-          "priority_score",
-          "is_active",
-          "publish_status"
+          "savings_label"
         ],
         "title": "SearchOffer",
         "type": "object"
@@ -788,10 +1051,6 @@
           },
           "platforms": {
             "items": {
-              "enum": [
-                "MAKEMYTRIP",
-                "CLEARTRIP"
-              ],
               "type": "string"
             },
             "title": "Platforms",
@@ -815,6 +1074,13 @@
           "data_version": {
             "title": "Data Version",
             "type": "string"
+          },
+          "date_strip": {
+            "items": {
+              "$ref": "#/components/schemas/SearchDateBenefit"
+            },
+            "title": "Date Strip",
+            "type": "array"
           },
           "offers": {
             "items": {
@@ -916,10 +1182,63 @@
   "info": {
     "description": "API for CardwiseOffer - Find best credit card offers",
     "title": "CardwiseOffer API",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/availability": {
+      "get": {
+        "operationId": "availability_api_v1_availability_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "From",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "format": "date",
+              "title": "To",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Availability",
+        "tags": [
+          "Availability"
+        ]
+      }
+    },
     "/api/v1/feature-flags": {
       "get": {
         "operationId": "feature_flags_api_v1_feature_flags_get",
@@ -928,11 +1247,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": {
-                    "type": "boolean"
-                  },
-                  "title": "Response Feature Flags Api V1 Feature Flags Get",
-                  "type": "object"
+                  "$ref": "#/components/schemas/FeatureFlagsResponse"
                 }
               }
             },
@@ -975,15 +1290,12 @@
             "name": "bank",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Bank"
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Bank",
+              "type": "array"
             }
           },
           {
@@ -991,15 +1303,12 @@
             "name": "platform",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Platform"
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Platform",
+              "type": "array"
             }
           },
           {
@@ -1007,20 +1316,12 @@
             "name": "payment_method",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "enum": [
-                    "CREDIT",
-                    "DEBIT",
-                    "NO_CARD"
-                  ],
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Payment Method"
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Payment Method",
+              "type": "array"
             }
           },
           {
@@ -1028,20 +1329,12 @@
             "name": "booking_channel",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "enum": [
-                    "WEB",
-                    "APP",
-                    "WEB_AND_APP"
-                  ],
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Booking Channel"
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Booking Channel",
+              "type": "array"
             }
           },
           {
@@ -1049,16 +1342,12 @@
             "name": "category",
             "required": false,
             "schema": {
-              "anyOf": [
-                {
-                  "const": "FLIGHT_DOMESTIC",
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Category"
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Category",
+              "type": "array"
             }
           },
           {
@@ -1087,7 +1376,7 @@
             "name": "limit",
             "required": false,
             "schema": {
-              "default": 50,
+              "default": 20,
               "maximum": 100,
               "minimum": 1,
               "title": "Limit",

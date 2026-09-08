@@ -7,14 +7,13 @@ import hashlib
 import time
 import uuid
 from collections import defaultdict
-from datetime import date
-from typing import Callable, Dict, Set
+from typing import Callable, Dict
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
-from app.core.config import APP_ENV, RateLimitConfig
+from app.core.config import APP_ENV, RateLimitConfig, SETTINGS
 from app.core.logging import get_logger
 
 logger = get_logger("app.middleware")
@@ -38,6 +37,7 @@ def _middleware_error(
                 "request_id": request_id,
             }
         },
+        headers={"Cache-Control": "no-store"},
     )
 
 
@@ -62,7 +62,11 @@ class InMemoryRateLimiter:
     def _get_client_key(self, request: Request) -> str:
         """Get client identifier (IP-based, privacy-safe)."""
         # Railway sets X-Forwarded-For
-        forwarded = request.headers.get("x-forwarded-for", "")
+        forwarded = (
+            request.headers.get("x-forwarded-for", "")
+            if SETTINGS.trust_proxy_headers
+            else ""
+        )
         if forwarded:
             ip = forwarded.split(",")[0].strip()
         else:
@@ -160,62 +164,6 @@ rate_limiter = InMemoryRateLimiter()
 
 
 # ────────────────────────────────────────────────────────────────────
-# Daily Visitors Tracker (Privacy-safe, in-memory)
-# ────────────────────────────────────────────────────────────────────
-
-
-class DailyVisitorsTracker:
-    """
-    Track unique daily visitors using hashed IP+UA (no PII stored).
-    Resets daily. In-memory for MVP.
-    """
-
-    def __init__(self):
-        self._current_date: str = ""
-        self._visitor_hashes: Set[str] = set()
-        self._salt = "cwo2026"  # Simple salt
-
-    def _get_visitor_hash(self, request: Request) -> str:
-        """Generate privacy-safe visitor identifier."""
-        forwarded = request.headers.get("x-forwarded-for", "")
-        if forwarded:
-            ip = forwarded.split(",")[0].strip()
-        else:
-            ip = request.client.host if request.client else "unknown"
-
-        ua = request.headers.get("user-agent", "")[:50]  # Truncate UA
-        raw = f"{ip}:{ua}:{self._salt}"
-        return hashlib.sha256(raw.encode()).hexdigest()[:24]
-
-    def record_visit(self, request: Request) -> None:
-        """Record a visit (deduplicated by hash)."""
-        try:
-            today = date.today().isoformat()
-
-            # Reset on new day
-            if today != self._current_date:
-                self._current_date = today
-                self._visitor_hashes.clear()
-
-            visitor_hash = self._get_visitor_hash(request)
-            self._visitor_hashes.add(visitor_hash)
-
-        except Exception as e:
-            logger.warning(f"Visitor tracking error: {e}")
-
-    def get_count(self) -> tuple[str, int]:
-        """Get today's visitor count."""
-        today = date.today().isoformat()
-        if today != self._current_date:
-            return today, 0
-        return self._current_date, len(self._visitor_hashes)
-
-
-# Global visitor tracker
-visitor_tracker = DailyVisitorsTracker()
-
-
-# ────────────────────────────────────────────────────────────────────
 # Rate Limiting Middleware
 # ────────────────────────────────────────────────────────────────────
 
@@ -274,10 +222,6 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         start_time = time.time()
 
-        # Record visitor for stats (on main pages)
-        if request.url.path in ("/", "/api/v1/search", "/api/v1/meta"):
-            visitor_tracker.record_visit(request)
-
         response = await call_next(request)
 
         latency_ms = int((time.time() - start_time) * 1000)
@@ -285,8 +229,12 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         # Log non-health requests
         if request.url.path != "/health":
             logger.info(
-                f"{request.method} {request.url.path} "
-                f"status={response.status_code} latency={latency_ms}ms"
+                "%s %s status=%s latency=%sms request_id=%s",
+                request.method,
+                request.url.path,
+                response.status_code,
+                latency_ms,
+                getattr(request.state, "request_id", "unknown"),
             )
 
         return response
@@ -334,10 +282,9 @@ class CacheHeadersMiddleware(BaseHTTPMiddleware):
     """
 
     CACHE_RULES = {
-        "/api/v1/meta": "public, max-age=86400",  # 24 hours
-        "/api/v1/feature-flags": "public, max-age=300",  # 5 minutes
-        "/api/v1/offers": "public, max-age=600",  # 10 minutes
-        "/api/v1/stats/daily-visitors": "public, max-age=60",  # 1 minute
+        "/api/v1/meta": f"public, max-age={SETTINGS.meta_cache_ttl}",
+        "/api/v1/feature-flags": f"public, max-age={SETTINGS.flags_cache_ttl}",
+        "/api/v1/offers": f"public, max-age={SETTINGS.offers_cache_ttl}",
     }
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
