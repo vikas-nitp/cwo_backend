@@ -1,19 +1,17 @@
 {
   "schema_version": "1.1",
-  "data_version": "2026-09-09-836dfecbfaf1",
+  "data_version": "2026-09-09-f47e7cf6e922",
   "generated_at": "2026-09-09T00:00:00+00:00",
   "source_count": 1,
   "source_row_count": 2,
   "accepted_row_count": 2,
   "rejected_row_count": 0,
-  "supported_platforms": [
-    "CLEARTRIP"
-  ],
+  "supported_platforms": [],
   "feature_config_version": "81c3170a",
   "record_count": 2,
   "dataset_last_updated_at": "2026-09-09",
   "source_owner": "backend",
   "source_file": "data/source/catalogue.yml",
-  "source_hash": "sha256:6055212b7c2b459dd8b0f2fd685dff57cb0f62d129edf85b2d7abba856386e20",
+  "source_hash": "sha256:c4d0257947be9da4e52402be79e99d8ced552973b418aed71bc61db1fb6f196a",
   "contract_version": "1.1"
 }

@@ -1,70 +1,10 @@
 {
-  "data_version": "2026-07-12-b3c9bde44ee5",
-  "banks": [
-    {
-      "id": "AMEX",
-      "name": "American Express"
-    },
-    {
-      "id": "AXIS",
-      "name": "Axis Bank"
-    },
-    {
-      "id": "HDFC",
-      "name": "HDFC Bank"
-    },
-    {
-      "id": "HSBC",
-      "name": "HSBC Bank"
-    },
-    {
-      "id": "ICICI",
-      "name": "ICICI Bank"
-    },
-    {
-      "id": "INDUSIND",
-      "name": "IndusInd Bank"
-    },
-    {
-      "id": "KOTAK",
-      "name": "Kotak Bank"
-    },
-    {
-      "id": "SBI",
-      "name": "State Bank of India"
-    }
-  ],
-  "platforms": [
-    {
-      "id": "CLEARTRIP",
-      "name": "Cleartrip"
-    },
-    {
-      "id": "EASEMYTRIP",
-      "name": "EaseMyTrip"
-    },
-    {
-      "id": "GOIBIBO",
-      "name": "Goibibo"
-    },
-    {
-      "id": "MAKEMYTRIP",
-      "name": "MakeMyTrip"
-    }
-  ],
-  "payment_methods": [
-    "CREDIT",
-    "DEBIT",
-    "NO_CARD"
-  ],
-  "categories": [
-    "FLIGHT_DOMESTIC"
-  ],
-  "booking_channels": [
-    "APP",
-    "WEB",
-    "WEB_AND_APP"
-  ],
+  "data_version": "2026-09-09-f47e7cf6e922",
+  "banks": [],
+  "platforms": [],
+  "payment_methods": [],
+  "categories": [],
+  "booking_channels": [],
   "airports": [
     {
       "code": "BOM",
@@ -767,7 +707,7 @@
       "is_domestic_default": true
     }
   ],
-  "availability_start": "2026-07-13",
-  "availability_end": "2026-10-15",
-  "dataset_last_updated_at": "2026-07-12"
+  "availability_start": null,
+  "availability_end": null,
+  "dataset_last_updated_at": "2026-09-09"
 }

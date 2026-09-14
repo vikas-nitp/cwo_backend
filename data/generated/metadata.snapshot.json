@@ -1,21 +1,10 @@
 {
-  "data_version": "2026-09-09-836dfecbfaf1",
+  "data_version": "2026-09-09-f47e7cf6e922",
   "banks": [],
-  "platforms": [
-    {
-      "id": "CLEARTRIP",
-      "name": "Cleartrip"
-    }
-  ],
-  "payment_methods": [
-    "CREDIT"
-  ],
-  "categories": [
-    "FLIGHT_DOMESTIC"
-  ],
-  "booking_channels": [
-    "WEB_AND_APP"
-  ],
+  "platforms": [],
+  "payment_methods": [],
+  "categories": [],
+  "booking_channels": [],
   "airports": [
     {
       "code": "BOM",
@@ -718,7 +707,7 @@
       "is_domestic_default": true
     }
   ],
-  "availability_start": "2026-09-09",
-  "availability_end": "2026-12-31",
+  "availability_start": null,
+  "availability_end": null,
   "dataset_last_updated_at": "2026-09-09"
 }

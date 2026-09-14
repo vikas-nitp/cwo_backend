@@ -1,17 +1,6 @@
 {
-  "data_version": "2026-09-09-836dfecbfaf1",
+  "data_version": "2026-09-09-f47e7cf6e922",
   "active_on": "2026-09-09",
-  "platforms": {
-    "CLEARTRIP": {
-      "offer_count": 1,
-      "banks": [],
-      "payment_methods": [
-        "CREDIT"
-      ],
-      "booking_channels": [
-        "WEB_AND_APP"
-      ]
-    }
-  },
+  "platforms": {},
   "banks": {}
 }
