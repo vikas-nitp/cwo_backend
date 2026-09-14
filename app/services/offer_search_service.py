@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+
 from app.core.dates import today_ist
 from app.domain.calculations import estimate_savings
 from app.domain.ranking import rank_offers
@@ -25,9 +26,7 @@ class OfferSearchService:
     def __init__(self, repository: OfferRepository):
         self.repository = repository
 
-    def search(
-        self, request: SearchRequest, today: date | None = None
-    ) -> SearchResponse:
+    def search(self, request: SearchRequest, today: date | None = None) -> SearchResponse:
         today = today or today_ist()
         metadata = self.repository.get_metadata()
         known_banks = {bank.id for bank in metadata.banks}
@@ -39,9 +38,7 @@ class OfferSearchService:
         if (
             metadata.availability_start is None
             or metadata.availability_end is None
-            or not metadata.availability_start
-            <= request.date
-            <= metadata.availability_end
+            or not metadata.availability_start <= request.date <= metadata.availability_end
         ):
             raise SearchDateError("Travel date is outside offer availability.")
         offers = self.repository.list_offers(
@@ -50,10 +47,7 @@ class OfferSearchService:
             categories=[request.category],
         )
         ranked = rank_offers(
-            [
-                (offer, estimate_savings(offer, request.booking_amount))
-                for offer in offers
-            ],
+            [(offer, estimate_savings(offer, request.booking_amount)) for offer in offers],
             request.banks,
             request.date,
         )
@@ -70,9 +64,7 @@ class OfferSearchService:
                         "estimated_savings": item.estimate.estimated_savings,
                         "estimated_final_amount": item.estimate.estimated_final_amount,
                         "savings_label": item.estimate.savings_label,
-                        "amount_eligible": item.estimate.eligible
-                        if request.booking_amount is not None
-                        else None,
+                        "amount_eligible": item.estimate.eligible if request.booking_amount is not None else None,
                         "comparison_text": (
                             f"Save ₹{item.savings_delta:,.0f} more"
                             if request.booking_amount is not None
@@ -80,8 +72,7 @@ class OfferSearchService:
                             and item.savings_delta > 0
                             else None
                         ),
-                        "booking_url": offer.booking_url
-                        or BOOKING_URLS.get(offer.platform_id),
+                        "booking_url": offer.booking_url or BOOKING_URLS.get(offer.platform_id),
                     }
                 )
             )
@@ -97,9 +88,7 @@ class OfferSearchService:
                 categories=[request.category],
             )
             amounts = [
-                offer.max_discount
-                if offer.max_discount is not None
-                else offer.discount_value
+                offer.max_discount if offer.max_discount is not None else offer.discount_value
                 for offer in strip_offers
                 if offer.discount_type == "FLAT" or offer.max_discount is not None
             ]

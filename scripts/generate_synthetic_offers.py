@@ -10,12 +10,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CSV_TARGET = ROOT / "tests/fixtures/synthetic/offers.synthetic.1000.csv"
-FRONTEND_TARGET = (
-    ROOT.parent / "cardwiseoffer/src/test/fixtures/synthetic/offers.synthetic.1000.json"
-)
-PLATFORMS = [
-    (f"TEST_PLATFORM_{letter}", f"Test Platform {letter}") for letter in "ABCDE"
-]
+FRONTEND_TARGET = ROOT.parent / "cardwiseoffer/src/test/fixtures/synthetic/offers.synthetic.1000.json"
+PLATFORMS = [(f"TEST_PLATFORM_{letter}", f"Test Platform {letter}") for letter in "ABCDE"]
 BANKS = [(f"TEST_BANK_{index:02d}", f"Test Bank {index:02d}") for index in range(1, 11)]
 CARDS = [
     "Test Regalia",
@@ -162,6 +158,4 @@ if __name__ == "__main__":
         writer.writerows(generated)
     FRONTEND_TARGET.parent.mkdir(parents=True, exist_ok=True)
     FRONTEND_TARGET.write_text(json.dumps(generated, indent=2) + "\n")
-    print(
-        f"Generated {len(generated)} synthetic offers across {len(PLATFORMS)} platforms and {len(BANKS)} banks"
-    )
+    print(f"Generated {len(generated)} synthetic offers across {len(PLATFORMS)} platforms and {len(BANKS)} banks")

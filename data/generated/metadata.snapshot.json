@@ -1,5 +1,5 @@
 {
-  "data_version": "2026-09-04-2947efaf61df",
+  "data_version": "2026-09-04-b68e8bce82da",
   "banks": [
     {
       "id": "AMEX",
@@ -782,5 +782,8 @@
       "country": "IN",
       "is_domestic_default": true
     }
-  ]
+  ],
+  "availability_start": "2026-07-01",
+  "availability_end": "2027-12-31",
+  "dataset_last_updated_at": "2026-09-04"
 }

@@ -35,12 +35,8 @@ def load_feature_flags(path: Path) -> FeatureFlags:
     except FileNotFoundError as exc:
         raise FeatureFlagConfigError(f"feature flag file not found: {path}") from exc
     except json.JSONDecodeError as exc:
-        raise FeatureFlagConfigError(
-            f"feature flag file is malformed: {exc.msg}"
-        ) from exc
+        raise FeatureFlagConfigError(f"feature flag file is malformed: {exc.msg}") from exc
     try:
         return FeatureFlags.model_validate(payload)
     except Exception as exc:
-        raise FeatureFlagConfigError(
-            f"feature flag configuration is invalid: {exc}"
-        ) from exc
+        raise FeatureFlagConfigError(f"feature flag configuration is invalid: {exc}") from exc

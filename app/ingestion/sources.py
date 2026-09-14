@@ -33,10 +33,7 @@ class OfferSource(Protocol):
 class CsvOfferSource:
     def read(self, spec: SourceSpec, display_path: str) -> list[SourceRecord]:
         with spec.path.open(newline="", encoding="utf-8-sig") as handle:
-            return [
-                SourceRecord(dict(row), display_path, index)
-                for index, row in enumerate(csv.DictReader(handle), 2)
-            ]
+            return [SourceRecord(dict(row), display_path, index) for index, row in enumerate(csv.DictReader(handle), 2)]
 
 
 class ExcelOfferSource:
@@ -49,9 +46,7 @@ class ExcelOfferSource:
             raise ValueError(f"sheet '{sheet_name}' not found in {display_path}")
         sheet = workbook[sheet_name]
         rows = sheet.iter_rows(values_only=True)
-        headers = [
-            str(value).strip() if value is not None else "" for value in next(rows, ())
-        ]
+        headers = [str(value).strip() if value is not None else "" for value in next(rows, ())]
         return [
             SourceRecord(
                 dict(zip(headers, values, strict=False)),
@@ -68,16 +63,9 @@ class JsonOfferSource:
         payload = json.loads(spec.path.read_text(encoding="utf-8-sig"))
         if isinstance(payload, dict) and set(payload) == {"offers"}:
             payload = payload["offers"]
-        if not isinstance(payload, list) or not all(
-            isinstance(item, dict) for item in payload
-        ):
-            raise ValueError(
-                f"unsupported JSON shape in {display_path}; expected an array or {{'offers': [...]}}"
-            )
-        return [
-            SourceRecord(dict(item), display_path, index)
-            for index, item in enumerate(payload)
-        ]
+        if not isinstance(payload, list) or not all(isinstance(item, dict) for item in payload):
+            raise ValueError(f"unsupported JSON shape in {display_path}; expected an array or {{'offers': [...]}}")
+        return [SourceRecord(dict(item), display_path, index) for index, item in enumerate(payload)]
 
 
 READERS: dict[str, OfferSource] = {

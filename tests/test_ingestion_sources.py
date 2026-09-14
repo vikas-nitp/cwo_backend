@@ -45,9 +45,7 @@ def test_json_array_and_offers_object(tmp_path):
     for index, payload in enumerate(([canonical()], {"offers": [canonical()]})):
         path = tmp_path / f"offers-{index}.json"
         path.write_text(json.dumps(payload))
-        records = read_source(
-            SourceSpec(path, "json", "MAKEMYTRIP", "MakeMyTrip"), tmp_path
-        )
+        records = read_source(SourceSpec(path, "json", "MAKEMYTRIP", "MakeMyTrip"), tmp_path)
         assert records[0].data["offer_id"] == "X"
 
 
@@ -66,23 +64,17 @@ def test_excel_and_missing_sheet(tmp_path):
     sheet.append(list(canonical()))
     sheet.append(list(canonical().values()))
     workbook.save(path)
-    records = read_source(
-        SourceSpec(path, "xlsx", "MAKEMYTRIP", "MakeMyTrip", "offers"), tmp_path
-    )
+    records = read_source(SourceSpec(path, "xlsx", "MAKEMYTRIP", "MakeMyTrip", "offers"), tmp_path)
     assert records[0].sheet == "offers"
     with pytest.raises(ValueError, match="not found"):
-        read_source(
-            SourceSpec(path, "xlsx", "MAKEMYTRIP", "MakeMyTrip", "missing"), tmp_path
-        )
+        read_source(SourceSpec(path, "xlsx", "MAKEMYTRIP", "MakeMyTrip", "missing"), tmp_path)
 
 
 def test_platform_conflict():
     with pytest.raises(ValueError, match="conflicts"):
         normalize_row(
             {**canonical(), "platform_id": "CLEARTRIP"},
-            SourceSpec(
-                __import__("pathlib").Path("x"), "json", "MAKEMYTRIP", "MakeMyTrip"
-            ),
+            SourceSpec(__import__("pathlib").Path("x"), "json", "MAKEMYTRIP", "MakeMyTrip"),
         )
 
 
@@ -95,9 +87,12 @@ def test_duplicate_ids_across_formats_fail_with_locations(tmp_path):
         writer.writeheader()
         writer.writerow(canonical())
     (source / "b.json").write_text(json.dumps([canonical()]))
-    (source / "catalogue.yml").write_text(
-        """sources:\n  - {path: a.csv, format: csv, platform_id: MAKEMYTRIP, platform_name: MakeMyTrip}\n  - {path: b.json, format: json, platform_id: MAKEMYTRIP, platform_name: MakeMyTrip}\n"""
+    catalogue_yml = (
+        "sources:\n"
+        "  - {path: a.csv, format: csv, platform_id: MAKEMYTRIP, platform_name: MakeMyTrip}\n"
+        "  - {path: b.json, format: json, platform_id: MAKEMYTRIP, platform_name: MakeMyTrip}\n"
     )
+    (source / "catalogue.yml").write_text(catalogue_yml)
     output = tmp_path / "generated"
     assert build_catalogue(source / "catalogue.yml", output) == 1
     report = json.loads((output / "validation-report.json").read_text())

@@ -1,6 +1,20 @@
 {
   "valid": true,
+  "source_count": 1,
+  "source_row_count": 28,
+  "accepted_row_count": 28,
+  "rejected_row_count": 0,
+  "warning_count": 0,
   "generated_at": "2026-09-04T00:00:00+00:00",
-  "source": "data/source/offers.csv",
-  "errors": []
+  "sources": [
+    {
+      "path": "offers.csv",
+      "format": "csv",
+      "row_count": 28,
+      "accepted_count": 28,
+      "rejected_count": 0
+    }
+  ],
+  "errors": [],
+  "warnings": []
 }

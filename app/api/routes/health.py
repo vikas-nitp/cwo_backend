@@ -1,9 +1,8 @@
-from app.core.dates import today_ist
-
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from app.core.config import CONTRACT_VERSION
+from app.core.dates import today_ist
 
 router = APIRouter(tags=["Health"])
 
@@ -28,9 +27,7 @@ def ready(request: Request):
                 "data_version": None,
                 "feature_config_version": None,
                 "contract_version": CONTRACT_VERSION,
-                "error": "FEATURE_CONFIG_INVALID"
-                if flags is None
-                else "DATA_NOT_READY",
+                "error": "FEATURE_CONFIG_INVALID" if flags is None else "DATA_NOT_READY",
             },
             headers={"Cache-Control": "no-store"},
         )

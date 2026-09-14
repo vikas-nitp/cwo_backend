@@ -4,13 +4,13 @@ from fastapi import APIRouter, Query, Request, Response
 
 from app.api.errors import error_response
 from app.api.headers import not_modified, version_headers
+from app.core.config import SETTINGS
+from app.core.dates import today_ist
 from app.schemas.offers import OffersResponse
 from app.services.offer_catalog_service import (
     OfferCatalogService,
     UnsupportedFilterError,
 )
-from app.core.config import SETTINGS
-from app.core.dates import today_ist
 
 router = APIRouter(tags=["Offers"])
 
@@ -49,9 +49,7 @@ def offers(
         )
     repository = request.app.state.offer_repository
     if not repository.loaded:
-        return error_response(
-            request, 503, "DATA_NOT_READY", "Offer data is not ready."
-        )
+        return error_response(request, 503, "DATA_NOT_READY", "Offer data is not ready.")
     version = repository.get_manifest().data_version
     etag = version_headers(
         response,
@@ -74,18 +72,9 @@ def offers(
         )
         if not flags.couponCodeEnabled:
             result = result.model_copy(
-                update={
-                    "offers": [
-                        offer.model_copy(update={"coupon_code": None})
-                        for offer in result.offers
-                    ]
-                }
+                update={"offers": [offer.model_copy(update={"coupon_code": None}) for offer in result.offers]}
             )
         return result
     except UnsupportedFilterError as exc:
-        code = (
-            "UNSUPPORTED_PLATFORM"
-            if str(exc).startswith("Unsupported platform")
-            else "UNSUPPORTED_FILTER"
-        )
+        code = "UNSUPPORTED_PLATFORM" if str(exc).startswith("Unsupported platform") else "UNSUPPORTED_FILTER"
         return error_response(request, 400, code, str(exc))

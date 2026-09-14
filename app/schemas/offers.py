@@ -1,6 +1,8 @@
 from datetime import date
 from decimal import Decimal
 
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field
+
 from app.domain.models import (
     BookingChannel,
     Category,
@@ -9,7 +11,6 @@ from app.domain.models import (
     PlatformId,
 )
 from app.schemas.common import Pagination
-from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field
 
 
 class PublicOffer(BaseModel):

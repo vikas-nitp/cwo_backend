@@ -27,7 +27,20 @@ def by_id(options):
 
 def test_generated_platform_bank_payment_relationships():
     facets = repository().get_facets()
-    assert facets.platforms["MAKEMYTRIP"]["banks"] == ["HDFC", "SBI"]
+    assert facets.platforms["MAKEMYTRIP"]["banks"] == [
+        "AMEX",
+        "AU",
+        "AXIS",
+        "BOB",
+        "HDFC",
+        "ICICI",
+        "IDFC",
+        "INDUSIND",
+        "KOTAK",
+        "PNB",
+        "SBI",
+        "YES",
+    ]
     assert facets.platforms["CLEARTRIP"]["payment_methods"] == [
         "CREDIT",
         "DEBIT",
@@ -44,8 +57,9 @@ def test_or_within_and_and_across_groups():
         payment_methods=["CREDIT"],
     )
     assert {offer.offer_id for offer in result.offers} == {
-        "MMT-HDFC-01",
-        "MMT-SBI-01",
+        "MMT-HDFC-001",
+        "MMT-SBI-001",
+        "CT-SBI-001",
     }
     assert all(offer.bank_id in {"HDFC", "SBI"} for offer in result.offers)
 
@@ -62,8 +76,8 @@ def test_self_excluding_counts_and_zero_disabled_options():
     assert platforms["MAKEMYTRIP"].count == 1
     assert platforms["CLEARTRIP"].count == 1
     assert banks["SBI"].count == 1
-    assert banks["ICICI"].count == 0
-    assert banks["ICICI"].disabled is True
+    assert banks["AXIS"].count == 0
+    assert banks["AXIS"].disabled is True
     assert banks["HDFC"].selected is True
 
 

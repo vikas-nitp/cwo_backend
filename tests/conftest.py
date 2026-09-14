@@ -1,6 +1,6 @@
+import sys
 from datetime import date
 from pathlib import Path
-import sys
 
 import pytest
 from fastapi.testclient import TestClient
@@ -12,9 +12,7 @@ from app.main import app
 
 @pytest.fixture
 def client(monkeypatch):
-    monkeypatch.setattr(
-        "app.services.offer_search_service.today_ist", lambda: date(2026, 7, 13)
-    )
+    monkeypatch.setattr("app.services.offer_search_service.today_ist", lambda: date(2026, 7, 13))
     monkeypatch.setattr("app.api.routes.offers.today_ist", lambda: date(2026, 7, 13))
     monkeypatch.setattr("app.api.routes.health.today_ist", lambda: date(2026, 7, 13))
     with TestClient(app) as value:
