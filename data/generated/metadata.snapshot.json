@@ -1,84 +1,19 @@
 {
-  "data_version": "2026-09-04-2947efaf61df",
-  "banks": [
-    {
-      "id": "AMEX",
-      "name": "American Express"
-    },
-    {
-      "id": "AU",
-      "name": "AU Small Finance Bank"
-    },
-    {
-      "id": "AXIS",
-      "name": "Axis Bank"
-    },
-    {
-      "id": "BOB",
-      "name": "Bank of Baroda"
-    },
-    {
-      "id": "FEDERAL",
-      "name": "Federal Bank"
-    },
-    {
-      "id": "HDFC",
-      "name": "HDFC Bank"
-    },
-    {
-      "id": "ICICI",
-      "name": "ICICI Bank"
-    },
-    {
-      "id": "IDFC",
-      "name": "IDFC First Bank"
-    },
-    {
-      "id": "INDUSIND",
-      "name": "IndusInd Bank"
-    },
-    {
-      "id": "KOTAK",
-      "name": "Kotak Mahindra Bank"
-    },
-    {
-      "id": "PNB",
-      "name": "Punjab National Bank"
-    },
-    {
-      "id": "RBL",
-      "name": "RBL Bank"
-    },
-    {
-      "id": "SBI",
-      "name": "State Bank of India"
-    },
-    {
-      "id": "YES",
-      "name": "Yes Bank"
-    }
-  ],
+  "data_version": "2026-09-09-836dfecbfaf1",
+  "banks": [],
   "platforms": [
     {
       "id": "CLEARTRIP",
       "name": "Cleartrip"
-    },
-    {
-      "id": "MAKEMYTRIP",
-      "name": "MakeMyTrip"
     }
   ],
   "payment_methods": [
-    "CREDIT",
-    "DEBIT",
-    "NO_CARD"
+    "CREDIT"
   ],
   "categories": [
     "FLIGHT_DOMESTIC"
   ],
   "booking_channels": [
-    "APP",
-    "WEB",
     "WEB_AND_APP"
   ],
   "airports": [
@@ -782,5 +717,8 @@
       "country": "IN",
       "is_domestic_default": true
     }
-  ]
+  ],
+  "availability_start": "2026-09-09",
+  "availability_end": "2026-12-31",
+  "dataset_last_updated_at": "2026-09-09"
 }

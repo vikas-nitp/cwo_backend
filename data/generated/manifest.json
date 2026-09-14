@@ -1,12 +1,19 @@
 {
-  "schema_version": "1.0",
-  "data_version": "2026-09-04-2947efaf61df",
-  "generated_at": "2026-09-04T00:00:00+00:00",
-  "source_row_count": 28,
-  "accepted_row_count": 28,
+  "schema_version": "1.1",
+  "data_version": "2026-09-09-836dfecbfaf1",
+  "generated_at": "2026-09-09T00:00:00+00:00",
+  "source_count": 1,
+  "source_row_count": 2,
+  "accepted_row_count": 2,
   "rejected_row_count": 0,
   "supported_platforms": [
-    "MAKEMYTRIP",
     "CLEARTRIP"
-  ]
+  ],
+  "feature_config_version": "81c3170a",
+  "record_count": 2,
+  "dataset_last_updated_at": "2026-09-09",
+  "source_owner": "backend",
+  "source_file": "data/source/catalogue.yml",
+  "source_hash": "sha256:6055212b7c2b459dd8b0f2fd685dff57cb0f62d129edf85b2d7abba856386e20",
+  "contract_version": "1.1"
 }
