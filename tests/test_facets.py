@@ -28,7 +28,18 @@ def by_id(options):
 def test_generated_platform_bank_payment_relationships():
     facets = repository().get_facets()
     assert facets.platforms["MAKEMYTRIP"]["banks"] == [
-        "AMEX", "AU", "AXIS", "BOB", "HDFC", "ICICI", "IDFC", "INDUSIND", "KOTAK", "PNB", "SBI", "YES"
+        "AMEX",
+        "AU",
+        "AXIS",
+        "BOB",
+        "HDFC",
+        "ICICI",
+        "IDFC",
+        "INDUSIND",
+        "KOTAK",
+        "PNB",
+        "SBI",
+        "YES",
     ]
     assert facets.platforms["CLEARTRIP"]["payment_methods"] == [
         "CREDIT",
