@@ -1,4 +1,5 @@
 """Tests for offer validity helpers, including valid_days day-of-week filter."""
+
 from datetime import date
 
 import pytest
@@ -31,6 +32,7 @@ def make_offer(**kwargs) -> Offer:
 
 # ── is_active_on_day ─────────────────────────────────────────────────────────
 
+
 class TestIsActiveOnDay:
     def test_none_means_every_day(self):
         offer = make_offer(valid_days=None)
@@ -41,19 +43,19 @@ class TestIsActiveOnDay:
 
     def test_monday_only(self):
         offer = make_offer(valid_days=[0])  # Monday
-        assert is_active_on_day(offer, date(2026, 1, 5))   # Monday ✓
+        assert is_active_on_day(offer, date(2026, 1, 5))  # Monday ✓
         assert not is_active_on_day(offer, date(2026, 1, 6))  # Tuesday ✗
         assert not is_active_on_day(offer, date(2026, 1, 11))  # Sunday ✗
 
     def test_weekend_offer(self):
         offer = make_offer(valid_days=[5, 6])  # Sat=5, Sun=6
-        assert is_active_on_day(offer, date(2026, 1, 10))   # Saturday ✓
-        assert is_active_on_day(offer, date(2026, 1, 11))   # Sunday ✓
-        assert not is_active_on_day(offer, date(2026, 1, 9))   # Friday ✗
+        assert is_active_on_day(offer, date(2026, 1, 10))  # Saturday ✓
+        assert is_active_on_day(offer, date(2026, 1, 11))  # Sunday ✓
+        assert not is_active_on_day(offer, date(2026, 1, 9))  # Friday ✗
 
     def test_midweek_offer(self):
         offer = make_offer(valid_days=[1, 2, 3])  # Tue, Wed, Thu
-        assert is_active_on_day(offer, date(2026, 1, 6))    # Tuesday ✓
+        assert is_active_on_day(offer, date(2026, 1, 6))  # Tuesday ✓
         assert not is_active_on_day(offer, date(2026, 1, 5))  # Monday ✗
 
     def test_empty_list_never_valid(self):
@@ -66,10 +68,11 @@ class TestIsActiveOnDay:
 
 # ── is_publishable integrates valid_days ─────────────────────────────────────
 
+
 class TestIsPublishableWithValidDays:
     def test_publishable_on_correct_weekday(self):
         offer = make_offer(valid_days=[0])  # Monday only
-        assert is_publishable(offer, date(2026, 1, 5))   # Monday ✓
+        assert is_publishable(offer, date(2026, 1, 5))  # Monday ✓
 
     def test_not_publishable_on_wrong_weekday(self):
         offer = make_offer(valid_days=[0])  # Monday only
@@ -80,7 +83,9 @@ class TestIsPublishableWithValidDays:
         assert is_publishable(offer, date(2026, 6, 15))
 
     def test_not_publishable_if_expired_even_on_valid_day(self):
-        offer = make_offer(valid_days=[0], expiry_date=date(2026, 1, 4))  # expires before Monday
+        offer = make_offer(
+            valid_days=[0], expiry_date=date(2026, 1, 4)
+        )  # expires before Monday
         assert not is_publishable(offer, date(2026, 1, 5))
 
     def test_not_publishable_if_inactive(self):
@@ -89,6 +94,7 @@ class TestIsPublishableWithValidDays:
 
 
 # ── Model field validation ────────────────────────────────────────────────────
+
 
 class TestValidDaysModelField:
     def test_defaults_to_none(self):
