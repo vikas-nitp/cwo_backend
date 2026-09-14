@@ -20,8 +20,8 @@ def repository():
 def test_startup_and_metadata_derivation():
     repo = repository()
     assert repo.loaded
-    assert len(repo.get_metadata().banks) == 8
-    assert repo.get_metadata().availability_end == date(2026, 10, 15)
+    assert len(repo.get_metadata().banks) == 14
+    assert repo.get_metadata().availability_end == date(2027, 12, 31)
 
 
 def test_filters():
@@ -32,7 +32,7 @@ def test_filters():
         bank_ids=["HDFC"],
         payment_methods=["DEBIT"],
     )
-    assert [offer.offer_id for offer in offers] == ["CT-HDFC-D01"]
+    assert [offer.offer_id for offer in offers] == ["CT-HDFC-DEBIT-001"]
 
 
 def test_expired_excluded():

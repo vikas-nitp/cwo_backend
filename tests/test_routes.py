@@ -54,14 +54,14 @@ def test_booking_comparison_is_flag_guarded(client, valid_search):
 def test_same_airport_and_offer_derived_date_range(client, valid_search):
     same = {**valid_search, "to": "DEL"}
     assert client.post("/api/v1/search", json=same).status_code == 422
-    late = {**valid_search, "date": "2026-10-16"}
+    late = {**valid_search, "date": "2028-01-01"}
     response = client.post("/api/v1/search", json=late)
     assert response.status_code == 400
     assert response.json()["error"]["code"] == "INVALID_SEARCH_DATE"
 
 
 def test_dynamic_platform_returns_its_offers(client, valid_search):
-    response = client.post("/api/v1/search", json={**valid_search, "platforms": ["GOIBIBO"]})
+    response = client.post("/api/v1/search", json={**valid_search, "platforms": ["MAKEMYTRIP"]})
     assert response.status_code == 200
     assert response.json()["offers"]
 
@@ -78,7 +78,7 @@ def test_multi_select_filters_and_strict_bank(client):
     )
     assert response.status_code == 200
     offers = response.json()["offers"]
-    assert {offer["offer_id"] for offer in offers} == {"MMT-HDFC-01", "MMT-SBI-01"}
+    assert {offer["offer_id"] for offer in offers} == {"MMT-HDFC-001", "MMT-SBI-001", "CT-SBI-001"}
     assert all(offer["bank_id"] in {"HDFC", "SBI"} for offer in offers)
 
 
@@ -108,5 +108,5 @@ def test_readiness_allows_no_offer_active_today(client, monkeypatch):
     monkeypatch.setattr(repository, "list_offers", lambda **kwargs: [])
     response = client.get("/health/ready")
     assert response.status_code == 200
-    assert response.json()["offer_count"] == 25
+    assert response.json()["offer_count"] == 28
     assert response.json()["active_offer_count"] == 0

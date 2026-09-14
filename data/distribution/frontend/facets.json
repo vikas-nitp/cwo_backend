@@ -1,6 +1,247 @@
 {
-  "data_version": "2026-09-09-f47e7cf6e922",
-  "active_on": "2026-09-09",
-  "platforms": {},
-  "banks": {}
+  "data_version": "2026-09-04-b68e8bce82da",
+  "active_on": "2026-09-04",
+  "platforms": {
+    "CLEARTRIP": {
+      "offer_count": 12,
+      "banks": [
+        "AMEX",
+        "AXIS",
+        "BOB",
+        "FEDERAL",
+        "HDFC",
+        "ICICI",
+        "IDFC",
+        "INDUSIND",
+        "KOTAK",
+        "RBL",
+        "SBI"
+      ],
+      "payment_methods": [
+        "CREDIT",
+        "DEBIT",
+        "NO_CARD"
+      ],
+      "booking_channels": [
+        "APP",
+        "WEB",
+        "WEB_AND_APP"
+      ]
+    },
+    "MAKEMYTRIP": {
+      "offer_count": 16,
+      "banks": [
+        "AMEX",
+        "AU",
+        "AXIS",
+        "BOB",
+        "HDFC",
+        "ICICI",
+        "IDFC",
+        "INDUSIND",
+        "KOTAK",
+        "PNB",
+        "SBI",
+        "YES"
+      ],
+      "payment_methods": [
+        "CREDIT",
+        "DEBIT",
+        "NO_CARD"
+      ],
+      "booking_channels": [
+        "APP",
+        "WEB",
+        "WEB_AND_APP"
+      ]
+    }
+  },
+  "banks": {
+    "AMEX": {
+      "offer_count": 2,
+      "platforms": [
+        "CLEARTRIP",
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB"
+      ]
+    },
+    "AU": {
+      "offer_count": 1,
+      "platforms": [
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB_AND_APP"
+      ]
+    },
+    "AXIS": {
+      "offer_count": 3,
+      "platforms": [
+        "CLEARTRIP",
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT",
+        "DEBIT"
+      ],
+      "booking_channels": [
+        "APP",
+        "WEB_AND_APP"
+      ]
+    },
+    "BOB": {
+      "offer_count": 2,
+      "platforms": [
+        "CLEARTRIP",
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT",
+        "DEBIT"
+      ],
+      "booking_channels": [
+        "WEB",
+        "WEB_AND_APP"
+      ]
+    },
+    "FEDERAL": {
+      "offer_count": 1,
+      "platforms": [
+        "CLEARTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB_AND_APP"
+      ]
+    },
+    "HDFC": {
+      "offer_count": 3,
+      "platforms": [
+        "CLEARTRIP",
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT",
+        "DEBIT"
+      ],
+      "booking_channels": [
+        "APP",
+        "WEB",
+        "WEB_AND_APP"
+      ]
+    },
+    "ICICI": {
+      "offer_count": 2,
+      "platforms": [
+        "CLEARTRIP",
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB_AND_APP"
+      ]
+    },
+    "IDFC": {
+      "offer_count": 2,
+      "platforms": [
+        "CLEARTRIP",
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB_AND_APP"
+      ]
+    },
+    "INDUSIND": {
+      "offer_count": 2,
+      "platforms": [
+        "CLEARTRIP",
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "APP",
+        "WEB_AND_APP"
+      ]
+    },
+    "KOTAK": {
+      "offer_count": 2,
+      "platforms": [
+        "CLEARTRIP",
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB_AND_APP"
+      ]
+    },
+    "PNB": {
+      "offer_count": 1,
+      "platforms": [
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB_AND_APP"
+      ]
+    },
+    "RBL": {
+      "offer_count": 1,
+      "platforms": [
+        "CLEARTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB"
+      ]
+    },
+    "SBI": {
+      "offer_count": 2,
+      "platforms": [
+        "CLEARTRIP",
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "APP",
+        "WEB_AND_APP"
+      ]
+    },
+    "YES": {
+      "offer_count": 1,
+      "platforms": [
+        "MAKEMYTRIP"
+      ],
+      "payment_methods": [
+        "CREDIT"
+      ],
+      "booking_channels": [
+        "WEB_AND_APP"
+      ]
+    }
+  }
 }

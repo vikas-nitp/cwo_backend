@@ -264,7 +264,7 @@ def build_records(
     ]
     today = today_ist()
     non_expired = [offer for offer in publishable if offer.expiry_date >= today]
-    availability_start = max(today, min(offer.valid_from for offer in non_expired)) if non_expired else None
+    availability_start = min(offer.valid_from for offer in non_expired) if non_expired else None
     availability_end = max(offer.expiry_date for offer in non_expired) if non_expired else None
     banks = sorted({(o.bank_id, o.bank_name or o.bank_id) for o in publishable if o.bank_id})
     platforms = sorted({(o.platform_id, o.platform_name) for o in publishable})
