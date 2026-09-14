@@ -13,15 +13,13 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
-from app.core.config import APP_ENV, RateLimitConfig, SETTINGS
+from app.core.config import APP_ENV, SETTINGS, RateLimitConfig
 from app.core.logging import get_logger
 
 logger = get_logger("app.middleware")
 
 
-def _middleware_error(
-    request: Request, status: int, code: str, message: str
-) -> JSONResponse:
+def _middleware_error(request: Request, status: int, code: str, message: str) -> JSONResponse:
     request_id = getattr(
         request.state,
         "request_id",
@@ -62,11 +60,7 @@ class InMemoryRateLimiter:
     def _get_client_key(self, request: Request) -> str:
         """Get client identifier (IP-based, privacy-safe)."""
         # Railway sets X-Forwarded-For
-        forwarded = (
-            request.headers.get("x-forwarded-for", "")
-            if SETTINGS.trust_proxy_headers
-            else ""
-        )
+        forwarded = request.headers.get("x-forwarded-for", "") if SETTINGS.trust_proxy_headers else ""
         if forwarded:
             ip = forwarded.split(",")[0].strip()
         else:
@@ -111,15 +105,11 @@ class InMemoryRateLimiter:
             now = time.time()
 
             # Clean and check
-            bucket = self._cleanup_old_entries(
-                self._global_buckets[client_key], RateLimitConfig.GLOBAL_WINDOW_SEC
-            )
+            bucket = self._cleanup_old_entries(self._global_buckets[client_key], RateLimitConfig.GLOBAL_WINDOW_SEC)
 
             if len(bucket) >= RateLimitConfig.GLOBAL_LIMIT:
                 oldest = min(bucket) if bucket else now
-                retry_after = (
-                    int(RateLimitConfig.GLOBAL_WINDOW_SEC - (now - oldest)) + 1
-                )
+                retry_after = int(RateLimitConfig.GLOBAL_WINDOW_SEC - (now - oldest)) + 1
                 return False, max(1, retry_after)
 
             bucket.append(now)
@@ -139,15 +129,11 @@ class InMemoryRateLimiter:
             client_key = self._get_client_key(request)
             now = time.time()
 
-            bucket = self._cleanup_old_entries(
-                self._search_buckets[client_key], RateLimitConfig.SEARCH_WINDOW_SEC
-            )
+            bucket = self._cleanup_old_entries(self._search_buckets[client_key], RateLimitConfig.SEARCH_WINDOW_SEC)
 
             if len(bucket) >= RateLimitConfig.SEARCH_LIMIT:
                 oldest = min(bucket) if bucket else now
-                retry_after = (
-                    int(RateLimitConfig.SEARCH_WINDOW_SEC - (now - oldest)) + 1
-                )
+                retry_after = int(RateLimitConfig.SEARCH_WINDOW_SEC - (now - oldest)) + 1
                 return False, max(1, retry_after)
 
             bucket.append(now)
@@ -200,9 +186,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             allowed, retry_after = rate_limiter.check_global_limit(request)
             if not allowed:
                 logger.warning(f"Global rate limit exceeded for path={path}")
-                response = _middleware_error(
-                    request, 429, "RATE_LIMITED", "Too many requests. Please slow down."
-                )
+                response = _middleware_error(request, 429, "RATE_LIMITED", "Too many requests. Please slow down.")
                 response.headers["Retry-After"] = str(retry_after)
                 return response
 

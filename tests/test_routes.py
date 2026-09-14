@@ -43,9 +43,7 @@ def test_booking_comparison_is_flag_guarded(client, valid_search):
         disabled = client.post("/api/v1/search", json=payload)
         assert disabled.status_code == 400
         assert disabled.json()["error"]["code"] == "BOOKING_COMPARISON_DISABLED"
-        client.app.state.feature_flags = original.model_copy(
-            update={"bookingAmountComparisonEnabled": True}
-        )
+        client.app.state.feature_flags = original.model_copy(update={"bookingAmountComparisonEnabled": True})
         enabled = client.post("/api/v1/search", json=payload)
         assert enabled.status_code == 200
         assert enabled.json()["offers"][0]["estimated_savings"] is not None
@@ -63,9 +61,7 @@ def test_same_airport_and_offer_derived_date_range(client, valid_search):
 
 
 def test_dynamic_platform_returns_its_offers(client, valid_search):
-    response = client.post(
-        "/api/v1/search", json={**valid_search, "platforms": ["GOIBIBO"]}
-    )
+    response = client.post("/api/v1/search", json={**valid_search, "platforms": ["GOIBIBO"]})
     assert response.status_code == 200
     assert response.json()["offers"]
 
@@ -99,19 +95,9 @@ def test_version_cache_headers_and_conditional_get(client, valid_search):
     meta = client.get("/api/v1/meta")
     assert meta.headers["x-contract-version"] == "1.1"
     assert meta.headers["x-data-version"]
-    assert (
-        client.get(
-            "/api/v1/meta", headers={"If-None-Match": meta.headers["etag"]}
-        ).status_code
-        == 304
-    )
+    assert client.get("/api/v1/meta", headers={"If-None-Match": meta.headers["etag"]}).status_code == 304
     offers = client.get("/api/v1/offers")
-    assert (
-        client.get(
-            "/api/v1/offers", headers={"If-None-Match": offers.headers["etag"]}
-        ).status_code
-        == 304
-    )
+    assert client.get("/api/v1/offers", headers={"If-None-Match": offers.headers["etag"]}).status_code == 304
     search = client.post("/api/v1/search", json=valid_search)
     assert search.headers["cache-control"] == "no-store"
     assert search.headers["x-contract-version"] == "1.1"

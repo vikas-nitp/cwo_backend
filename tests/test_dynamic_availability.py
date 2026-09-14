@@ -34,7 +34,4 @@ def test_metadata_and_bounded_availability_endpoint(client):
     days = response.json()["days"]
     assert len(days) == 4
     assert all({"offer_count", "display_text", "available"} <= set(day) for day in days)
-    assert (
-        client.get("/api/v1/availability?from=2026-07-01&to=2026-08-01").status_code
-        == 422
-    )
+    assert client.get("/api/v1/availability?from=2026-07-01&to=2026-08-01").status_code == 422

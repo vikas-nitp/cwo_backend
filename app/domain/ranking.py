@@ -5,7 +5,6 @@ from decimal import Decimal
 from app.domain.calculations import SavingsEstimate
 from app.domain.models import Offer
 
-
 DisplayKind = str
 
 
@@ -41,9 +40,7 @@ def rank_offers(
     used: set[str] = set()
 
     if not selected:
-        general = next(
-            (item for item in ordered if item[0].payment_method != "NO_CARD"), None
-        )
+        general = next((item for item in ordered if item[0].payment_method != "NO_CARD"), None)
         if general:
             result.append((*general, "GENERAL_BEST"))
             used.add(general[0].offer_id)
@@ -54,9 +51,7 @@ def rank_offers(
             None,
         )
         if match:
-            result.append(
-                (*match, "SELECTED_CARD" if index == 0 else "SECOND_SELECTED_CARD")
-            )
+            result.append((*match, "SELECTED_CARD" if index == 0 else "SECOND_SELECTED_CARD"))
             used.add(match[0].offer_id)
 
     selected_best = max((_benefit(o, e) for o, e, _ in result), default=Decimal("-1"))
@@ -76,11 +71,7 @@ def rank_offers(
         used.add(alternative[0].offer_id)
 
     default = next(
-        (
-            item
-            for item in ordered
-            if item[0].payment_method == "NO_CARD" and item[0].offer_id not in used
-        ),
+        (item for item in ordered if item[0].payment_method == "NO_CARD" and item[0].offer_id not in used),
         None,
     )
     if default:

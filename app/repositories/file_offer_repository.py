@@ -86,9 +86,7 @@ class FileOfferRepository:
         return [
             offer
             for offer in self._offers
-            if offer.is_active
-            and offer.publish_status == "READY"
-            and offer.evidence_status == "VERIFIED"
+            if offer.is_active and offer.publish_status == "READY" and offer.evidence_status == "VERIFIED"
         ]
 
     def get_metadata(self) -> OfferMetadata:

@@ -5,11 +5,11 @@ from decimal import Decimal
 from typing import Any, Literal
 
 from pydantic import (
+    AliasChoices,
     AnyHttpUrl,
     BaseModel,
     ConfigDict,
     Field,
-    AliasChoices,
     field_serializer,
     model_validator,
 )
@@ -70,9 +70,7 @@ class Offer(BaseModel):
             if not value.get("supported_cards") and value.get("card_name"):
                 value["supported_cards"] = [value["card_name"]]
             if not value.get("updated_at"):
-                value["updated_at"] = value.get("last_verified_at") or value.get(
-                    "valid_from"
-                )
+                value["updated_at"] = value.get("last_verified_at") or value.get("valid_from")
         return value
 
     @model_validator(mode="after")

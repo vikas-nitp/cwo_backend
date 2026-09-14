@@ -19,7 +19,6 @@ from typing import Optional
 
 import yaml
 
-
 # ────────────────────────────────────────────────────────────────────
 # Custom JSON Formatter
 # ────────────────────────────────────────────────────────────────────
@@ -150,9 +149,7 @@ def setup_logging(config_path: Optional[str] = None) -> None:
     """
     # Default: logging.yaml in cwo_backend root
     resolved_config_path = (
-        Path(config_path)
-        if config_path is not None
-        else Path(__file__).parent.parent.parent / "logging.yaml"
+        Path(config_path) if config_path is not None else Path(__file__).parent.parent.parent / "logging.yaml"
     )
 
     # Create logs directory
@@ -165,11 +162,9 @@ def setup_logging(config_path: Optional[str] = None) -> None:
             config = yaml.safe_load(f)
 
         # Update file paths to absolute
-        for handler_name, handler_config in config.get("handlers", {}).items():
+        for _handler_name, handler_config in config.get("handlers", {}).items():
             if "filename" in handler_config:
-                handler_config["filename"] = str(
-                    logs_dir / Path(handler_config["filename"]).name
-                )
+                handler_config["filename"] = str(logs_dir / Path(handler_config["filename"]).name)
 
         logging.config.dictConfig(config)
     else:

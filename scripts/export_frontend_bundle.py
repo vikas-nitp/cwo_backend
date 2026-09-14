@@ -22,24 +22,16 @@ FILES = {
 def export_bundle() -> None:
     manifest = json.loads((GENERATED / "manifest.json").read_text())
     if manifest.get("contract_version") != "1.1" or not manifest.get("source_hash"):
-        raise ValueError(
-            "generated manifest is missing contract/source synchronization metadata"
-        )
+        raise ValueError("generated manifest is missing contract/source synchronization metadata")
     DISTRIBUTION.mkdir(parents=True, exist_ok=True)
     for source_name, destination_name in FILES.items():
         value = json.loads((GENERATED / source_name).read_text())
-        (DISTRIBUTION / destination_name).write_text(
-            json.dumps(value, indent=2, ensure_ascii=False) + "\n"
-        )
+        (DISTRIBUTION / destination_name).write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n")
     (DISTRIBUTION / "airports.json").write_text(
-        json.dumps(json.loads((ROOT / "data/airports.json").read_text()), indent=2)
-        + "\n"
+        json.dumps(json.loads((ROOT / "data/airports.json").read_text()), indent=2) + "\n"
     )
     (DISTRIBUTION / "featureFlags.json").write_text(
-        json.dumps(
-            json.loads((ROOT / "data/config/feature_flags.json").read_text()), indent=2
-        )
-        + "\n"
+        json.dumps(json.loads((ROOT / "data/config/feature_flags.json").read_text()), indent=2) + "\n"
     )
     print(f"Exported frontend bundle to {DISTRIBUTION}")
 

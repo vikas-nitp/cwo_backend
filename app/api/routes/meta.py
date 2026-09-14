@@ -12,9 +12,7 @@ router = APIRouter(tags=["Meta"])
 def meta(request: Request, response: Response):
     repository = request.app.state.offer_repository
     if not repository.loaded:
-        return error_response(
-            request, 503, "DATA_NOT_READY", "Offer data is not ready."
-        )
+        return error_response(request, 503, "DATA_NOT_READY", "Offer data is not ready.")
     metadata = repository.get_metadata()
     etag = version_headers(
         response,

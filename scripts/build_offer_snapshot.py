@@ -14,9 +14,9 @@ sys.path.insert(0, str(ROOT))
 
 from pydantic import ValidationError  # noqa: E402
 
-from app.domain.models import Offer  # noqa: E402
 from app.core.dates import today_ist  # noqa: E402
 from app.core.feature_flags import load_feature_flags  # noqa: E402
+from app.domain.models import Offer  # noqa: E402
 from app.ingestion.sources import (  # noqa: E402
     SourceRecord,
     SourceSpec,
@@ -56,9 +56,7 @@ REQUIRED = {
 }
 BOOL_FIELDS = {"new_user_only", "login_required", "is_active"}
 NUMBER_FIELDS = {"discount_value", "max_discount", "min_transaction", "priority_score"}
-NULLABLE = {
-    name for name, field in Offer.model_fields.items() if not field.is_required()
-}
+NULLABLE = {name for name, field in Offer.model_fields.items() if not field.is_required()}
 
 
 def parse_bool(value: Any) -> bool:
@@ -72,9 +70,7 @@ def parse_bool(value: Any) -> bool:
     raise ValueError(f"invalid boolean: {value}")
 
 
-def normalize_row(
-    row: dict[str, Any], spec: SourceSpec | None = None
-) -> dict[str, Any]:
+def normalize_row(row: dict[str, Any], spec: SourceSpec | None = None) -> dict[str, Any]:
     aliased: dict[str, Any] = {}
     for raw_key, raw_value in row.items():
         key = str(raw_key).strip()
@@ -91,9 +87,9 @@ def normalize_row(
             if not default:
                 continue
             explicit = aliased.get(field)
-            if explicit not in (None, "") and str(explicit).upper().replace(
+            if explicit not in (None, "") and str(explicit).upper().replace(" ", "") != default.upper().replace(
                 " ", ""
-            ) != default.upper().replace(" ", ""):
+            ):
                 raise ValueError(f"{field} conflicts with catalogue default {default}")
             aliased[field] = default
 
@@ -114,9 +110,7 @@ def normalize_row(
             output[key] = parse_bool(value)
         elif key in {"eligibility_notes", "supported_cards"}:
             output[key] = (
-                value
-                if isinstance(value, list)
-                else [item.strip() for item in str(value).split("|") if item.strip()]
+                value if isinstance(value, list) else [item.strip() for item in str(value).split("|") if item.strip()]
             )
         else:
             output[key] = value
@@ -183,10 +177,7 @@ def _facets(offers: list[Offer], active_on, data_version: str) -> dict[str, Any]
 
     def serializable(mapping):
         return {
-            key: {
-                field: sorted(value) if isinstance(value, set) else value
-                for field, value in item.items()
-            }
+            key: {field: sorted(value) if isinstance(value, set) else value for field, value in item.items()}
             for key, item in sorted(mapping.items())
         }
 
@@ -235,19 +226,14 @@ def build_records(
             data = normalize_row(record.data, spec)
             offer_id = str(data["offer_id"])
             if offer_id in seen:
-                raise ValueError(
-                    f"duplicate offer_id {offer_id}; first seen in {seen[offer_id]}"
-                )
+                raise ValueError(f"duplicate offer_id {offer_id}; first seen in {seen[offer_id]}")
             offer = Offer.model_validate(data)
             is_synthetic = (
-                str(offer.extra.get("data_classification", "PRODUCTION")).upper()
-                == "SYNTHETIC_TEST"
+                str(offer.extra.get("data_classification", "PRODUCTION")).upper() == "SYNTHETIC_TEST"
                 or str(offer.extra.get("is_test_data", "false")).lower() == "true"
             )
             if is_synthetic:
-                raise ValueError(
-                    "synthetic test rows are forbidden in production snapshots"
-                )
+                raise ValueError("synthetic test rows are forbidden in production snapshots")
             seen[offer.offer_id] = record.source
             accepted.append(offer)
             summary["accepted_count"] += 1
@@ -260,45 +246,27 @@ def build_records(
                     "sheet": record.sheet,
                     "location": record.location,
                     "offer_id": record.data.get("offer_id"),
-                    "code": "DUPLICATE_OFFER_ID"
-                    if "duplicate offer_id" in message
-                    else "SOURCE_VALIDATION_FAILED",
+                    "code": "DUPLICATE_OFFER_ID" if "duplicate offer_id" in message else "SOURCE_VALIDATION_FAILED",
                     "message": message,
                 }
             )
 
     canonical = [offer.model_dump(mode="json") for offer in accepted]
-    digest = hashlib.sha256(
-        json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()[:12]
+    digest = hashlib.sha256(json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode()).hexdigest()[:12]
     version_date = max(
         (o.updated_at for o in accepted),
         default=datetime.now(timezone.utc).date(),
     )
-    generated_at = datetime.combine(
-        version_date, datetime.min.time(), tzinfo=timezone.utc
-    ).isoformat()
+    generated_at = datetime.combine(version_date, datetime.min.time(), tzinfo=timezone.utc).isoformat()
     data_version = f"{version_date.isoformat()}-{digest}"
     publishable = [
-        o
-        for o in accepted
-        if o.is_active
-        and o.publish_status == "READY"
-        and o.evidence_status == "VERIFIED"
+        o for o in accepted if o.is_active and o.publish_status == "READY" and o.evidence_status == "VERIFIED"
     ]
     today = today_ist()
     non_expired = [offer for offer in publishable if offer.expiry_date >= today]
-    availability_start = (
-        max(today, min(offer.valid_from for offer in non_expired))
-        if non_expired
-        else None
-    )
-    availability_end = (
-        max(offer.expiry_date for offer in non_expired) if non_expired else None
-    )
-    banks = sorted(
-        {(o.bank_id, o.bank_name or o.bank_id) for o in publishable if o.bank_id}
-    )
+    availability_start = max(today, min(offer.valid_from for offer in non_expired)) if non_expired else None
+    availability_end = max(offer.expiry_date for offer in non_expired) if non_expired else None
+    banks = sorted({(o.bank_id, o.bank_name or o.bank_id) for o in publishable if o.bank_id})
     platforms = sorted({(o.platform_id, o.platform_name) for o in publishable})
     metadata = {
         "data_version": data_version,
@@ -308,15 +276,11 @@ def build_records(
         "categories": sorted({o.category for o in publishable}),
         "booking_channels": sorted({o.booking_channel for o in publishable}),
         "airports": json.loads((ROOT / "data/airports.json").read_text()),
-        "availability_start": availability_start.isoformat()
-        if availability_start
-        else None,
+        "availability_start": availability_start.isoformat() if availability_start else None,
         "availability_end": availability_end.isoformat() if availability_end else None,
         "dataset_last_updated_at": version_date.isoformat(),
     }
-    feature_config_version = load_feature_flags(
-        ROOT / "data/config/feature_flags.json"
-    ).version()
+    feature_config_version = load_feature_flags(ROOT / "data/config/feature_flags.json").version()
     manifest = {
         "schema_version": "1.1",
         "data_version": data_version,
@@ -352,9 +316,7 @@ def build_records(
     }
     output_dir.mkdir(parents=True, exist_ok=True)
     for name, value in outputs.items():
-        (output_dir / name).write_text(
-            json.dumps(value, indent=2, ensure_ascii=False) + "\n"
-        )
+        (output_dir / name).write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n")
     if errors:
         print(
             f"Rejected {len(errors)} of {len(records)} rows; see validation-report.json",
@@ -372,9 +334,7 @@ def build_catalogue(catalogue: Path, output_dir: Path) -> int:
     adapter_errors: list[str] = []
     for spec in specs:
         try:
-            records.extend(
-                (record, spec) for record in read_source(spec, catalogue.parent)
-            )
+            records.extend((record, spec) for record in read_source(spec, catalogue.parent))
         except Exception as exc:
             adapter_errors.append(f"{spec.path.name}: {exc}")
     if adapter_errors:
@@ -387,15 +347,10 @@ def build_catalogue(catalogue: Path, output_dir: Path) -> int:
             "rejected_row_count": len(adapter_errors),
             "warning_count": 0,
             "sources": [],
-            "errors": [
-                {"code": "SOURCE_VALIDATION_FAILED", "message": message}
-                for message in adapter_errors
-            ],
+            "errors": [{"code": "SOURCE_VALIDATION_FAILED", "message": message} for message in adapter_errors],
             "warnings": [],
         }
-        (output_dir / "validation-report.json").write_text(
-            json.dumps(report, indent=2) + "\n"
-        )
+        (output_dir / "validation-report.json").write_text(json.dumps(report, indent=2) + "\n")
         return 1
     return build_records(
         records,
@@ -413,9 +368,7 @@ def build_catalogue(catalogue: Path, output_dir: Path) -> int:
 def source_hash(specs: list[SourceSpec], catalogue_dir: Path) -> str:
     """Hash source identity and content without checkout-specific absolute paths."""
     digest = hashlib.sha256()
-    identified = [
-        (spec.path.relative_to(catalogue_dir).as_posix(), spec) for spec in specs
-    ]
+    identified = [(spec.path.relative_to(catalogue_dir).as_posix(), spec) for spec in specs]
     for relative_path, spec in sorted(identified, key=lambda item: item[0]):
         digest.update(relative_path.encode())
         digest.update(b"\0")
@@ -443,14 +396,10 @@ def build(source: Path, output_dir: Path) -> int:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--catalogue", type=Path, default=ROOT / "data/source/catalogue.yml"
-    )
+    parser.add_argument("--catalogue", type=Path, default=ROOT / "data/source/catalogue.yml")
     parser.add_argument("--source", type=Path)
     parser.add_argument("--output-dir", type=Path, default=ROOT / "data/generated")
     args = parser.parse_args()
     raise SystemExit(
-        build(args.source, args.output_dir)
-        if args.source
-        else build_catalogue(args.catalogue, args.output_dir)
+        build(args.source, args.output_dir) if args.source else build_catalogue(args.catalogue, args.output_dir)
     )

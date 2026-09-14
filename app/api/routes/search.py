@@ -16,14 +16,9 @@ def search(payload: SearchRequest, request: Request, response: Response):
     try:
         repository = request.app.state.offer_repository
         if not repository.loaded:
-            return error_response(
-                request, 503, "DATA_NOT_READY", "Offer data is not ready."
-            )
+            return error_response(request, 503, "DATA_NOT_READY", "Offer data is not ready.")
         flags = request.app.state.feature_flags
-        if (
-            payload.booking_amount is not None
-            and not flags.bookingAmountComparisonEnabled
-        ):
+        if payload.booking_amount is not None and not flags.bookingAmountComparisonEnabled:
             return error_response(
                 request,
                 400,
@@ -34,12 +29,7 @@ def search(payload: SearchRequest, request: Request, response: Response):
         result = OfferSearchService(repository).search(payload)
         if not flags.couponCodeEnabled:
             result = result.model_copy(
-                update={
-                    "offers": [
-                        offer.model_copy(update={"coupon_code": None})
-                        for offer in result.offers
-                    ]
-                }
+                update={"offers": [offer.model_copy(update={"coupon_code": None}) for offer in result.offers]}
             )
         response.headers["X-Data-Version"] = repository.get_manifest().data_version
         response.headers["X-Contract-Version"] = "1.1"

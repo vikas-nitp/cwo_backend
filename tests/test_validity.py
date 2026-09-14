@@ -2,7 +2,6 @@
 
 from datetime import date
 
-
 from app.domain.models import Offer
 from app.domain.validity import is_active_on_day, is_publishable
 
@@ -82,9 +81,7 @@ class TestIsPublishableWithValidDays:
         assert is_publishable(offer, date(2026, 6, 15))
 
     def test_not_publishable_if_expired_even_on_valid_day(self):
-        offer = make_offer(
-            valid_days=[0], expiry_date=date(2026, 1, 4)
-        )  # expires before Monday
+        offer = make_offer(valid_days=[0], expiry_date=date(2026, 1, 4))  # expires before Monday
         assert not is_publishable(offer, date(2026, 1, 5))
 
     def test_not_publishable_if_inactive(self):

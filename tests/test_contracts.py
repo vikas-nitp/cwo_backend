@@ -1,12 +1,11 @@
 import json
 from pathlib import Path
 
+from app.core.feature_flags import FeatureFlagsResponse
 from app.domain.models import OfferMetadata
 from app.schemas.common import ErrorResponse
 from app.schemas.offers import CatalogueFacets, OffersResponse, PublicOffer
-from app.schemas.search import SearchResponse
-from app.schemas.search import SearchOffer
-from app.core.feature_flags import FeatureFlagsResponse
+from app.schemas.search import SearchOffer, SearchResponse
 
 ROOT = Path(__file__).resolve().parents[1]
 

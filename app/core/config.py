@@ -43,19 +43,14 @@ class RuntimeSettings(BaseModel):
             raise ValueError("contract_version cannot be blank")
         if self.app_env == "production":
             if not self.allowed_origins or any(
-                origin == "*" or "localhost" in origin or "127.0.0.1" in origin
-                for origin in self.allowed_origins
+                origin == "*" or "localhost" in origin or "127.0.0.1" in origin for origin in self.allowed_origins
             ):
-                raise ValueError(
-                    "production ALLOWED_ORIGINS must be an explicit non-local allowlist"
-                )
+                raise ValueError("production ALLOWED_ORIGINS must be an explicit non-local allowlist")
         return self
 
 
 def _csv(name: str, default: str) -> list[str]:
-    return [
-        value.strip() for value in os.getenv(name, default).split(",") if value.strip()
-    ]
+    return [value.strip() for value in os.getenv(name, default).split(",") if value.strip()]
 
 
 def load_runtime_settings() -> RuntimeSettings:
@@ -68,27 +63,13 @@ def load_runtime_settings() -> RuntimeSettings:
     return RuntimeSettings(
         app_env=app_env,
         allowed_origins=_csv("ALLOWED_ORIGINS", origin_default),
-        offers_snapshot_path=Path(
-            os.getenv(
-                "OFFERS_SNAPSHOT_PATH", ROOT / "data/generated/offers.snapshot.json"
-            )
-        ),
+        offers_snapshot_path=Path(os.getenv("OFFERS_SNAPSHOT_PATH", ROOT / "data/generated/offers.snapshot.json")),
         metadata_snapshot_path=Path(
-            os.getenv(
-                "METADATA_SNAPSHOT_PATH", ROOT / "data/generated/metadata.snapshot.json"
-            )
+            os.getenv("METADATA_SNAPSHOT_PATH", ROOT / "data/generated/metadata.snapshot.json")
         ),
-        facets_snapshot_path=Path(
-            os.getenv(
-                "FACETS_SNAPSHOT_PATH", ROOT / "data/generated/facets.snapshot.json"
-            )
-        ),
-        manifest_path=Path(
-            os.getenv("MANIFEST_PATH", ROOT / "data/generated/manifest.json")
-        ),
-        feature_flags_path=Path(
-            os.getenv("FEATURE_FLAGS_PATH", ROOT / "data/config/feature_flags.json")
-        ),
+        facets_snapshot_path=Path(os.getenv("FACETS_SNAPSHOT_PATH", ROOT / "data/generated/facets.snapshot.json")),
+        manifest_path=Path(os.getenv("MANIFEST_PATH", ROOT / "data/generated/manifest.json")),
+        feature_flags_path=Path(os.getenv("FEATURE_FLAGS_PATH", ROOT / "data/config/feature_flags.json")),
         supported_platforms=tuple(_csv("SUPPORTED_PLATFORMS", "MAKEMYTRIP,CLEARTRIP")),
         contract_version=os.getenv("CONTRACT_VERSION", "1.1"),
         default_page_limit=int(os.getenv("DEFAULT_PAGE_LIMIT", "20")),

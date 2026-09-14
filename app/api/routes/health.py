@@ -27,9 +27,7 @@ def ready(request: Request):
                 "data_version": None,
                 "feature_config_version": None,
                 "contract_version": CONTRACT_VERSION,
-                "error": "FEATURE_CONFIG_INVALID"
-                if flags is None
-                else "DATA_NOT_READY",
+                "error": "FEATURE_CONFIG_INVALID" if flags is None else "DATA_NOT_READY",
             },
             headers={"Cache-Control": "no-store"},
         )
