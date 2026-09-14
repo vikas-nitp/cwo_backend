@@ -2,7 +2,6 @@
 
 from datetime import date
 
-import pytest
 
 from app.domain.models import Offer
 from app.domain.validity import is_active_on_day, is_publishable

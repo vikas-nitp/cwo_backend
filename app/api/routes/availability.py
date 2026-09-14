@@ -13,8 +13,8 @@ router = APIRouter(tags=["Availability"])
 @router.get("/availability", response_model=AvailabilityResponse)
 def availability(
     request: Request,
-    from_date: date = Query(alias="from"),
-    to_date: date = Query(alias="to"),
+    from_date: date = Query(alias="from"),  # noqa: B008
+    to_date: date = Query(alias="to"),  # noqa: B008
 ):
     if to_date < from_date or (to_date - from_date).days > 30:
         raise HTTPException(

@@ -1,9 +1,8 @@
-from app.core.dates import today_ist
-
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from app.core.config import CONTRACT_VERSION
+from app.core.dates import today_ist
 
 router = APIRouter(tags=["Health"])
 

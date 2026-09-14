@@ -4,13 +4,13 @@ from fastapi import APIRouter, Query, Request, Response
 
 from app.api.errors import error_response
 from app.api.headers import not_modified, version_headers
+from app.core.config import SETTINGS
+from app.core.dates import today_ist
 from app.schemas.offers import OffersResponse
 from app.services.offer_catalog_service import (
     OfferCatalogService,
     UnsupportedFilterError,
 )
-from app.core.config import SETTINGS
-from app.core.dates import today_ist
 
 router = APIRouter(tags=["Offers"])
 
