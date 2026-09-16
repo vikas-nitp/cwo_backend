@@ -1,7 +1,9 @@
 {
-  "phase2UserFeaturesEnabled": false,
+  "phase2UserFeaturesEnabled": true,
   "publicAllOffersEnabled": true,
-  "couponCodeEnabled": false,
+  "couponCodeEnabled": true,
   "analyticsEnabled": true,
-  "bookingAmountComparisonEnabled": false
+  "bookingAmountComparisonEnabled": true,
+  "visitorCountEnabled": true,
+  "authEnabled": true
 }

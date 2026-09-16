@@ -19,6 +19,8 @@ class FeatureFlags(BaseModel):
     couponCodeEnabled: bool = False
     analyticsEnabled: bool = True
     bookingAmountComparisonEnabled: bool = False
+    visitorCountEnabled: bool = False
+    authEnabled: bool = False
 
     def version(self) -> str:
         payload = json.dumps(self.model_dump(), sort_keys=True, separators=(",", ":"))
