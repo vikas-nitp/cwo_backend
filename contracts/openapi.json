@@ -316,25 +316,6 @@
           }
         }
       }
-    },
-    "/api/v1/visitors/count": {
-      "get": {
-        "tags": [
-          "Visitors"
-        ],
-        "summary": "Visitor Count",
-        "operationId": "visitor_count_api_v1_visitors_count_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
