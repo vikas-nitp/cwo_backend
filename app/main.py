@@ -16,6 +16,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 
 from app.api.errors import install_error_handlers
 from app.api.routes.availability import router as availability_router
+from app.api.routes.visitors import router as visitors_router
 from app.api.routes.feature_flags import router as feature_flags_router
 from app.api.routes.health import router as health_router
 from app.api.routes.meta import router as meta_router
@@ -62,6 +63,7 @@ async def lifespan(application: FastAPI):
     application.state.offer_repository = repository
     application.state.feature_flags = None
     application.state.feature_flags_error = None
+    application.state.visitor_sessions = {}
     try:
         repository.load()
         logger.info(
@@ -130,6 +132,7 @@ app.include_router(offers_router, prefix=API_PREFIX)
 app.include_router(search_router, prefix=API_PREFIX)
 app.include_router(feature_flags_router, prefix=API_PREFIX)
 app.include_router(availability_router, prefix=API_PREFIX)
+app.include_router(visitors_router, prefix=API_PREFIX)
 
 
 # ── Development Server ──────────────────────────────────────
