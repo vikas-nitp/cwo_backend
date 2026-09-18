@@ -9,11 +9,13 @@ def test_meta_and_flags(client):
     assert client.get("/api/v1/meta").json()["data_version"]
     flags = client.get("/api/v1/feature-flags").json()
     assert flags == {
-        "phase2UserFeaturesEnabled": False,
+        "phase2UserFeaturesEnabled": True,
         "publicAllOffersEnabled": True,
-        "couponCodeEnabled": False,
+        "couponCodeEnabled": True,
         "analyticsEnabled": True,
-        "bookingAmountComparisonEnabled": False,
+        "bookingAmountComparisonEnabled": True,
+        "visitorCountEnabled": True,
+        "authEnabled": True,
         "config_version": flags["config_version"],
     }
 
@@ -23,7 +25,6 @@ def test_offers_pagination(client):
     assert len(payload["offers"]) == 2
     assert payload["pagination"]["total"] >= 9
     assert payload["facets"]["platforms"]
-    assert all("coupon_code" not in offer for offer in payload["offers"])
 
 
 def test_search_with_calculated_savings(client, valid_search):
@@ -40,6 +41,7 @@ def test_booking_comparison_is_flag_guarded(client, valid_search):
     original = client.app.state.feature_flags
     payload = {**valid_search, "booking_amount": 6500}
     try:
+        client.app.state.feature_flags = original.model_copy(update={"bookingAmountComparisonEnabled": False})
         disabled = client.post("/api/v1/search", json=payload)
         assert disabled.status_code == 400
         assert disabled.json()["error"]["code"] == "BOOKING_COMPARISON_DISABLED"

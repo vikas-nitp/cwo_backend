@@ -22,6 +22,7 @@ class PublicOffer(BaseModel):
     bank_id: str | None = None
     bank_name: str | None = None
     card_name: str | None = None
+    card_specificity: str | None = None  # "ALL" | "SPECIFIC" — populated by ingestion LLM step
     supported_cards: list[str] = Field(default_factory=list)
     payment_method: PaymentMethod
     category: Category
