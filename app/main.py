@@ -16,12 +16,12 @@ from fastapi.middleware.gzip import GZipMiddleware
 
 from app.api.errors import install_error_handlers
 from app.api.routes.availability import router as availability_router
-from app.api.routes.visitors import router as visitors_router
 from app.api.routes.feature_flags import router as feature_flags_router
 from app.api.routes.health import router as health_router
 from app.api.routes.meta import router as meta_router
 from app.api.routes.offers import router as offers_router
 from app.api.routes.search import router as search_router
+from app.api.routes.visitors import router as visitors_router
 from app.core.config import (
     API_PREFIX,
     APP_ENV,
