@@ -21,6 +21,13 @@ class FeatureFlags(BaseModel):
     bookingAmountComparisonEnabled: bool = False
     visitorCountEnabled: bool = False
     authEnabled: bool = False
+    howItWorksEnabled: bool = True
+    aboutEnabled: bool = True
+    contactEnabled: bool = True
+    privacyPolicyEnabled: bool = True
+    termsOfServiceEnabled: bool = True
+    splashScreenEnabled: bool = False
+    homeEntranceAnimationEnabled: bool = True
 
     def version(self) -> str:
         payload = json.dumps(self.model_dump(), sort_keys=True, separators=(",", ":"))

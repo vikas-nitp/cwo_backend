@@ -6,6 +6,7 @@ from app.api.errors import error_response
 from app.api.headers import not_modified, version_headers
 from app.core.config import SETTINGS
 from app.core.dates import today_ist
+from app.core.logging import get_logger
 from app.schemas.offers import OffersResponse
 from app.services.offer_catalog_service import (
     OfferCatalogService,
@@ -13,6 +14,7 @@ from app.services.offer_catalog_service import (
 )
 
 router = APIRouter(tags=["Offers"])
+logger = get_logger(__name__)
 
 
 @router.get(
@@ -77,4 +79,5 @@ def offers(
         return result
     except UnsupportedFilterError as exc:
         code = "UNSUPPORTED_PLATFORM" if str(exc).startswith("Unsupported platform") else "UNSUPPORTED_FILTER"
+        logger.warning("Unsupported filter in /offers: %s", exc)
         return error_response(request, 400, code, str(exc))

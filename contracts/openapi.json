@@ -233,6 +233,11 @@
       "FeatureFlagsResponse": {
         "additionalProperties": false,
         "properties": {
+          "aboutEnabled": {
+            "default": true,
+            "title": "Aboutenabled",
+            "type": "boolean"
+          },
           "analyticsEnabled": {
             "default": true,
             "title": "Analyticsenabled",
@@ -252,9 +257,24 @@
             "title": "Config Version",
             "type": "string"
           },
+          "contactEnabled": {
+            "default": true,
+            "title": "Contactenabled",
+            "type": "boolean"
+          },
           "couponCodeEnabled": {
             "default": false,
             "title": "Couponcodeenabled",
+            "type": "boolean"
+          },
+          "homeEntranceAnimationEnabled": {
+            "default": true,
+            "title": "Homeentranceanimationenabled",
+            "type": "boolean"
+          },
+          "howItWorksEnabled": {
+            "default": true,
+            "title": "Howitworksenabled",
             "type": "boolean"
           },
           "phase2UserFeaturesEnabled": {
@@ -262,9 +282,24 @@
             "title": "Phase2Userfeaturesenabled",
             "type": "boolean"
           },
+          "privacyPolicyEnabled": {
+            "default": true,
+            "title": "Privacypolicyenabled",
+            "type": "boolean"
+          },
           "publicAllOffersEnabled": {
             "default": true,
             "title": "Publicalloffersenabled",
+            "type": "boolean"
+          },
+          "splashScreenEnabled": {
+            "default": false,
+            "title": "Splashscreenenabled",
+            "type": "boolean"
+          },
+          "termsOfServiceEnabled": {
+            "default": true,
+            "title": "Termsofserviceenabled",
             "type": "boolean"
           },
           "visitorCountEnabled": {
@@ -572,6 +607,21 @@
             "title": "Eligibility Notes",
             "type": "array"
           },
+          "evidence_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Curation confidence level: VERIFIED | UNVERIFIED",
+            "examples": [
+              "VERIFIED"
+            ],
+            "title": "Evidence Status"
+          },
           "expiry_date": {
             "format": "date",
             "title": "Expiry Date",
@@ -630,6 +680,21 @@
             "title": "Platform Name",
             "type": "string"
           },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Attribution URL \u2014 the source promotional page where this offer was curated from",
+            "examples": [
+              "https://www.makemytrip.com/promos/hdfc-offer"
+            ],
+            "title": "Source Url"
+          },
           "supported_cards": {
             "items": {
               "type": "string"
@@ -665,6 +730,30 @@
               }
             ],
             "title": "Usage Limit"
+          },
+          "valid_days": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "JS weekday indices (0=Sun \u2026 6=Sat) on which offer is valid; null = every day",
+            "examples": [
+              [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            ],
+            "title": "Valid Days"
           },
           "valid_from": {
             "format": "date",
@@ -900,6 +989,21 @@
             ],
             "title": "Estimated Savings"
           },
+          "evidence_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Curation confidence level: VERIFIED | UNVERIFIED",
+            "examples": [
+              "VERIFIED"
+            ],
+            "title": "Evidence Status"
+          },
           "expiry_date": {
             "format": "date",
             "title": "Expiry Date",
@@ -973,6 +1077,21 @@
             "title": "Savings Label",
             "type": "string"
           },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Attribution URL \u2014 the source promotional page where this offer was curated from",
+            "examples": [
+              "https://www.makemytrip.com/promos/hdfc-offer"
+            ],
+            "title": "Source Url"
+          },
           "supported_cards": {
             "items": {
               "type": "string"
@@ -1008,6 +1127,30 @@
               }
             ],
             "title": "Usage Limit"
+          },
+          "valid_days": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "JS weekday indices (0=Sun \u2026 6=Sat) on which offer is valid; null = every day",
+            "examples": [
+              [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            ],
+            "title": "Valid Days"
           },
           "valid_from": {
             "format": "date",

@@ -16,6 +16,13 @@ def test_meta_and_flags(client):
         "bookingAmountComparisonEnabled": True,
         "visitorCountEnabled": True,
         "authEnabled": True,
+        "howItWorksEnabled": True,
+        "aboutEnabled": True,
+        "contactEnabled": True,
+        "privacyPolicyEnabled": True,
+        "termsOfServiceEnabled": True,
+        "splashScreenEnabled": False,
+        "homeEntranceAnimationEnabled": True,
         "config_version": flags["config_version"],
     }
 

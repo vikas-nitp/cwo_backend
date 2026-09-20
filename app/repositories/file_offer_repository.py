@@ -2,8 +2,11 @@ import json
 from datetime import date
 from pathlib import Path
 
+from app.core.logging import get_logger
 from app.domain.models import DataManifest, FacetSnapshot, Offer, OfferMetadata
 from app.domain.validity import is_publishable
+
+logger = get_logger(__name__)
 
 
 class FileOfferRepository:
@@ -83,23 +86,30 @@ class FileOfferRepository:
         ]
 
     def list_publishable(self) -> list[Offer]:
+        today = date.today()
         return [
             offer
             for offer in self._offers
-            if offer.is_active and offer.publish_status == "READY" and offer.evidence_status == "VERIFIED"
+            if offer.is_active
+            and offer.publish_status == "READY"
+            and offer.evidence_status == "VERIFIED"
+            and offer.expiry_date >= today
         ]
 
     def get_metadata(self) -> OfferMetadata:
         if self._metadata is None:
+            logger.error("get_metadata called before load(); offer data not ready")
             raise RuntimeError("offer data is not loaded")
         return self._metadata
 
     def get_manifest(self) -> DataManifest:
         if self._manifest is None:
+            logger.error("get_manifest called before load(); offer data not ready")
             raise RuntimeError("offer data is not loaded")
         return self._manifest
 
     def get_facets(self) -> FacetSnapshot:
         if self._facets is None:
+            logger.error("get_facets called before load(); facet data not ready")
             raise RuntimeError("facet data is not loaded")
         return self._facets

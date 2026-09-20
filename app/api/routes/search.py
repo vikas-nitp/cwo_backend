@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Request, Response
 
 from app.api.errors import error_response
+from app.core.logging import get_logger
 from app.schemas.search import SearchRequest, SearchResponse
 from app.services.offer_search_service import OfferSearchService, SearchDateError
 
 router = APIRouter(tags=["Search"])
+logger = get_logger(__name__)
 
 
 @router.post(
@@ -36,6 +38,8 @@ def search(payload: SearchRequest, request: Request, response: Response):
         response.headers["Cache-Control"] = "no-store"
         return result
     except SearchDateError as exc:
+        logger.warning("Invalid search date: %s", exc)
         return error_response(request, 400, "INVALID_SEARCH_DATE", str(exc), "date")
     except ValueError as exc:
+        logger.warning("Invalid search filter: %s", exc)
         return error_response(request, 400, "INVALID_SEARCH_FILTER", str(exc), "banks")

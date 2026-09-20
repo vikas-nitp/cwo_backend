@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 
 from app.core.dates import today_ist
+from app.core.logging import get_logger
 from app.domain.calculations import estimate_savings
 from app.domain.ranking import rank_offers
 from app.repositories.base import OfferRepository
@@ -18,6 +19,9 @@ BOOKING_URLS = {
 }
 
 
+logger = get_logger(__name__)
+
+
 class SearchDateError(ValueError):
     pass
 
@@ -32,14 +36,23 @@ class OfferSearchService:
         known_banks = {bank.id for bank in metadata.banks}
         unknown_banks = set(request.banks) - known_banks
         if unknown_banks:
-            raise ValueError(f"Unknown bank ID: {', '.join(sorted(unknown_banks))}")
+            msg = f"Unknown bank ID: {', '.join(sorted(unknown_banks))}"
+            logger.warning("Search rejected — %s", msg)
+            raise ValueError(msg)
         if request.date < today:
+            logger.warning("Search rejected — travel date in the past: %s", request.date)
             raise SearchDateError("Travel date cannot be in the past.")
         if (
             metadata.availability_start is None
             or metadata.availability_end is None
             or not metadata.availability_start <= request.date <= metadata.availability_end
         ):
+            logger.warning(
+                "Search rejected — date %s outside availability window [%s, %s]",
+                request.date,
+                metadata.availability_start,
+                metadata.availability_end,
+            )
             raise SearchDateError("Travel date is outside offer availability.")
         offers = self.repository.list_offers(
             active_on=request.date,
@@ -77,6 +90,7 @@ class OfferSearchService:
                 )
             )
         if not offers:
+            logger.warning("Search on %s returned no eligible offers", request.date)
             raise SearchDateError("No eligible offers are available on this date.")
         date_strip = []
         strip_end = min(request.date + timedelta(days=6), metadata.availability_end)

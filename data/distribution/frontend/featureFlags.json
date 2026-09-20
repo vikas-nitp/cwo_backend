@@ -5,5 +5,12 @@
   "analyticsEnabled": true,
   "bookingAmountComparisonEnabled": true,
   "visitorCountEnabled": true,
-  "authEnabled": true
+  "authEnabled": true,
+  "howItWorksEnabled": true,
+  "aboutEnabled": true,
+  "contactEnabled": true,
+  "privacyPolicyEnabled": true,
+  "termsOfServiceEnabled": true,
+  "splashScreenEnabled": false,
+  "homeEntranceAnimationEnabled": true
 }
