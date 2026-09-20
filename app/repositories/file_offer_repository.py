@@ -83,10 +83,14 @@ class FileOfferRepository:
         ]
 
     def list_publishable(self) -> list[Offer]:
+        today = date.today()
         return [
             offer
             for offer in self._offers
-            if offer.is_active and offer.publish_status == "READY" and offer.evidence_status == "VERIFIED"
+            if offer.is_active
+            and offer.publish_status == "READY"
+            and offer.evidence_status == "VERIFIED"
+            and offer.expiry_date >= today
         ]
 
     def get_metadata(self) -> OfferMetadata:

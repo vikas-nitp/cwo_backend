@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 
-from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field, field_validator
 
 from app.domain.models import (
     BookingChannel,
@@ -40,6 +40,26 @@ class PublicOffer(BaseModel):
     eligibility_notes: list[str]
     terms_url: AnyHttpUrl | None = None
     booking_url: AnyHttpUrl | None = None
+    valid_days: list[int] | None = Field(
+        default=None,
+        description="JS weekday indices (0=Sun … 6=Sat) on which offer is valid; null = every day",
+        examples=[[1, 2, 3, 4, 5]],
+    )
+    evidence_status: str | None = Field(
+        default=None,
+        description="Curation confidence level: VERIFIED | UNVERIFIED",
+        examples=["VERIFIED"],
+    )
+    source_url: str | None = Field(
+        default=None,
+        description="Attribution URL — the source promotional page where this offer was curated from",
+        examples=["https://www.makemytrip.com/promos/hdfc-offer"],
+    )
+
+    @field_validator("source_url", mode="before")
+    @classmethod
+    def coerce_source_url(cls, v: object) -> str | None:
+        return str(v) if v is not None else None
 
 
 class FacetOption(BaseModel):
