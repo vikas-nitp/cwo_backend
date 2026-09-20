@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from datetime import date
 
+from app.core.logging import get_logger
 from app.repositories.base import OfferRepository
 from app.schemas.common import Pagination
 from app.schemas.offers import CatalogueFacets, FacetOption, OffersResponse, PublicOffer
+
+logger = get_logger(__name__)
 
 
 class UnsupportedFilterError(ValueError):
@@ -37,7 +40,9 @@ class OfferCatalogService:
         ):
             unknown = set(values) - supported[field]
             if unknown:
-                raise UnsupportedFilterError(f"Unsupported {field}: {', '.join(sorted(unknown))}")
+                msg = f"Unsupported {field}: {', '.join(sorted(unknown))}"
+                logger.warning("Catalogue filter rejected — %s", msg)
+                raise UnsupportedFilterError(msg)
 
     def _options(
         self,
