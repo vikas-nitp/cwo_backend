@@ -268,7 +268,7 @@
             "type": "boolean"
           },
           "homeEntranceAnimationEnabled": {
-            "default": true,
+            "default": false,
             "title": "Homeentranceanimationenabled",
             "type": "boolean"
           },

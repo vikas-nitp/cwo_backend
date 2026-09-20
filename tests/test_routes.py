@@ -22,7 +22,7 @@ def test_meta_and_flags(client):
         "privacyPolicyEnabled": True,
         "termsOfServiceEnabled": True,
         "splashScreenEnabled": True,
-        "homeEntranceAnimationEnabled": True,
+        "homeEntranceAnimationEnabled": False,
         "config_version": flags["config_version"],
     }
 
