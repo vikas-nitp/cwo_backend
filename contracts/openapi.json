@@ -267,6 +267,11 @@
             "title": "Couponcodeenabled",
             "type": "boolean"
           },
+          "homeEntranceAnimationEnabled": {
+            "default": true,
+            "title": "Homeentranceanimationenabled",
+            "type": "boolean"
+          },
           "howItWorksEnabled": {
             "default": true,
             "title": "Howitworksenabled",
@@ -285,6 +290,11 @@
           "publicAllOffersEnabled": {
             "default": true,
             "title": "Publicalloffersenabled",
+            "type": "boolean"
+          },
+          "splashScreenEnabled": {
+            "default": true,
+            "title": "Splashscreenenabled",
             "type": "boolean"
           },
           "termsOfServiceEnabled": {

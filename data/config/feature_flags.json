@@ -10,5 +10,7 @@
   "aboutEnabled": true,
   "contactEnabled": true,
   "privacyPolicyEnabled": true,
-  "termsOfServiceEnabled": true
+  "termsOfServiceEnabled": true,
+  "splashScreenEnabled": true,
+  "homeEntranceAnimationEnabled": true
 }
