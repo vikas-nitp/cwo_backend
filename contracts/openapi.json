@@ -268,7 +268,7 @@
             "type": "boolean"
           },
           "homeEntranceAnimationEnabled": {
-            "default": false,
+            "default": true,
             "title": "Homeentranceanimationenabled",
             "type": "boolean"
           },
@@ -293,7 +293,7 @@
             "type": "boolean"
           },
           "splashScreenEnabled": {
-            "default": true,
+            "default": false,
             "title": "Splashscreenenabled",
             "type": "boolean"
           },

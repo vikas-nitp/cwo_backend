@@ -26,8 +26,8 @@ class FeatureFlags(BaseModel):
     contactEnabled: bool = True
     privacyPolicyEnabled: bool = True
     termsOfServiceEnabled: bool = True
-    splashScreenEnabled: bool = True
-    homeEntranceAnimationEnabled: bool = False
+    splashScreenEnabled: bool = False
+    homeEntranceAnimationEnabled: bool = True
 
     def version(self) -> str:
         payload = json.dumps(self.model_dump(), sort_keys=True, separators=(",", ":"))

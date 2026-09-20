@@ -21,8 +21,8 @@ def test_meta_and_flags(client):
         "contactEnabled": True,
         "privacyPolicyEnabled": True,
         "termsOfServiceEnabled": True,
-        "splashScreenEnabled": True,
-        "homeEntranceAnimationEnabled": False,
+        "splashScreenEnabled": False,
+        "homeEntranceAnimationEnabled": True,
         "config_version": flags["config_version"],
     }
 
