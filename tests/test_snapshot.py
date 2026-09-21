@@ -4,10 +4,7 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-import pytest
-
 from scripts.build_offer_snapshot import _has_rows
-
 
 # ── _has_rows ─────────────────────────────────────────────────────────────────
 

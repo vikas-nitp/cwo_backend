@@ -351,13 +351,13 @@ def build_catalogue(catalogue: Path, output_dir: Path) -> int:
         if candidate.name == "offers.csv" and not _has_rows(candidate):
             demo = candidate.parent / "demo_offers.csv"
             if demo.exists():
-                print(f"offers.csv is empty or absent — falling back to demo_offers.csv")
+                print("offers.csv is empty or absent — falling back to demo_offers.csv")
                 spec = SourceSpec(demo, spec.format, spec.platform_id, spec.platform_name, spec.sheet)
             else:
-                print(f"Warning: offers.csv missing and no demo_offers.csv fallback found")
+                print("Warning: offers.csv missing and no demo_offers.csv fallback found")
         else:
             if candidate.name == "offers.csv":
-                print(f"Using offers.csv (cardsage pipeline data)")
+                print("Using offers.csv (cardsage pipeline data)")
         resolved_specs.append(spec)
 
     source_digest = source_hash(resolved_specs, catalogue.parent)
