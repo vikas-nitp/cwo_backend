@@ -125,8 +125,15 @@ def _evidence_status(validation_status: str | None) -> str:
 
 
 def _publish_status(evidence_status: str, confidence: float) -> str:
-    """Derive publish_status from evidence_status and confidence score."""
-    if evidence_status == "VERIFIED" and confidence >= 0.70:
+    """Derive publish_status from evidence_status and confidence score.
+
+    PARTIAL evidence is acceptable for launch — it means the offer was found
+    but not all fields could be fully verified.  UNVERIFIED (scraper could not
+    confirm the offer exists at all) always stays DRAFT regardless of confidence.
+    """
+    if evidence_status == "UNVERIFIED":
+        return "DRAFT"
+    if confidence >= 0.55:
         return "READY"
     return "DRAFT"
 
@@ -158,7 +165,8 @@ def _to_row(offer: dict[str, Any]) -> dict[str, str]:
 
     is_active = "false" if evidence_st == "UNVERIFIED" else "true"
 
-    last_verified = offer.get("last_verified_at") or offer.get("scraped_at") or ""
+    _lv_raw = offer.get("last_verified_at") or offer.get("scraped_at") or ""
+    last_verified = _lv_raw[:10] if _lv_raw else ""
 
     return {
         "offer_id": offer.get("offer_id") or "",
@@ -176,8 +184,8 @@ def _to_row(offer: dict[str, Any]) -> dict[str, str]:
         "max_discount": _fmt_num(offer.get("max_discount")),
         "min_transaction": _fmt_num(offer.get("min_transaction")),
         "coupon_code": offer.get("coupon_code") or "",
-        "valid_from": offer.get("valid_from") or "",
-        "expiry_date": offer.get("valid_to") or "",
+        "valid_from": (offer.get("valid_from") or "")[:10] or (offer.get("scraped_at") or "")[:10],
+        "expiry_date": (offer.get("valid_to") or "")[:10],
         "usage_limit": "",
         "new_user_only": str(offer.get("new_user_only") or False).lower(),
         "login_required": "false",

@@ -327,12 +327,43 @@ def build_records(
     return 0
 
 
+def _has_rows(csv_path: Path) -> bool:
+    """Return True if a CSV file exists and contains at least one data row (beyond header)."""
+    if not csv_path.exists():
+        return False
+    try:
+        with csv_path.open(newline="", encoding="utf-8-sig") as fh:
+            reader = iter(fh)
+            next(reader, None)  # skip header
+            return next(reader, None) is not None
+    except OSError:
+        return False
+
+
 def build_catalogue(catalogue: Path, output_dir: Path) -> int:
     specs = load_catalogue(catalogue)
-    source_digest = source_hash(specs, catalogue.parent)
+
+    # For each spec pointing at offers.csv, fall back to demo_offers.csv when
+    # offers.csv is absent or has no data rows (i.e. cardsage hasn't run yet).
+    resolved_specs: list[SourceSpec] = []
+    for spec in specs:
+        candidate = spec.path if spec.path.is_absolute() else catalogue.parent / spec.path
+        if candidate.name == "offers.csv" and not _has_rows(candidate):
+            demo = candidate.parent / "demo_offers.csv"
+            if demo.exists():
+                print("offers.csv is empty or absent — falling back to demo_offers.csv")
+                spec = SourceSpec(demo, spec.format, spec.platform_id, spec.platform_name, spec.sheet)
+            else:
+                print("Warning: offers.csv missing and no demo_offers.csv fallback found")
+        else:
+            if candidate.name == "offers.csv":
+                print("Using offers.csv (cardsage pipeline data)")
+        resolved_specs.append(spec)
+
+    source_digest = source_hash(resolved_specs, catalogue.parent)
     records: list[tuple[SourceRecord, SourceSpec]] = []
     adapter_errors: list[str] = []
-    for spec in specs:
+    for spec in resolved_specs:
         try:
             records.extend((record, spec) for record in read_source(spec, catalogue.parent))
         except Exception as exc:
