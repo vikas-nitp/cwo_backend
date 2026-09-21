@@ -197,6 +197,30 @@
         "title": "CatalogueFacets",
         "type": "object"
       },
+      "EmailSubscribeRequest": {
+        "properties": {
+          "email": {
+            "title": "Email",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "EmailSubscribeRequest",
+        "type": "object"
+      },
       "FacetOption": {
         "properties": {
           "count": {
@@ -277,6 +301,11 @@
             "title": "Howitworksenabled",
             "type": "boolean"
           },
+          "notificationsEnabled": {
+            "default": false,
+            "title": "Notificationsenabled",
+            "type": "boolean"
+          },
           "phase2UserFeaturesEnabled": {
             "default": false,
             "title": "Phase2Userfeaturesenabled",
@@ -297,9 +326,19 @@
             "title": "Splashscreenenabled",
             "type": "boolean"
           },
+          "subscriptionsEnabled": {
+            "default": false,
+            "title": "Subscriptionsenabled",
+            "type": "boolean"
+          },
           "termsOfServiceEnabled": {
             "default": true,
             "title": "Termsofserviceenabled",
+            "type": "boolean"
+          },
+          "userCardsEnabled": {
+            "default": false,
+            "title": "Usercardsenabled",
             "type": "boolean"
           },
           "visitorCountEnabled": {
@@ -325,6 +364,24 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "NotificationPrefsRequest": {
+        "properties": {
+          "notify_expiring": {
+            "title": "Notify Expiring",
+            "type": "boolean"
+          },
+          "notify_new": {
+            "title": "Notify New",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "notify_expiring",
+          "notify_new"
+        ],
+        "title": "NotificationPrefsRequest",
         "type": "object"
       },
       "OfferMetadata": {
@@ -778,6 +835,39 @@
           "eligibility_notes"
         ],
         "title": "PublicOffer",
+        "type": "object"
+      },
+      "SaveCardRequest": {
+        "properties": {
+          "bank_id": {
+            "title": "Bank Id",
+            "type": "string"
+          },
+          "card_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Card Name"
+          },
+          "payment_method": {
+            "enum": [
+              "CREDIT_CARD",
+              "DEBIT_CARD"
+            ],
+            "title": "Payment Method",
+            "type": "string"
+          }
+        },
+        "required": [
+          "bank_id",
+          "payment_method"
+        ],
+        "title": "SaveCardRequest",
         "type": "object"
       },
       "SearchDateBenefit": {
@@ -1625,6 +1715,197 @@
         "summary": "Search",
         "tags": [
           "Search"
+        ]
+      }
+    },
+    "/api/v1/subscriptions/email": {
+      "post": {
+        "operationId": "subscribe_email_api_v1_subscriptions_email_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailSubscribeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Subscribe Email",
+        "tags": [
+          "Subscriptions"
+        ]
+      }
+    },
+    "/api/v1/user/cards": {
+      "get": {
+        "operationId": "list_cards_api_v1_user_cards_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Cards",
+        "tags": [
+          "UserCards"
+        ]
+      },
+      "post": {
+        "operationId": "save_card_api_v1_user_cards_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveCardRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Card",
+        "tags": [
+          "UserCards"
+        ]
+      }
+    },
+    "/api/v1/user/cards/{card_id}": {
+      "delete": {
+        "operationId": "delete_card_api_v1_user_cards__card_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "card_id",
+            "required": true,
+            "schema": {
+              "title": "Card Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Card",
+        "tags": [
+          "UserCards"
+        ]
+      }
+    },
+    "/api/v1/user/notification-prefs": {
+      "get": {
+        "operationId": "get_notification_prefs_api_v1_user_notification_prefs_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Notification Prefs",
+        "tags": [
+          "UserCards"
+        ]
+      },
+      "post": {
+        "operationId": "save_notification_prefs_api_v1_user_notification_prefs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationPrefsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Notification Prefs",
+        "tags": [
+          "UserCards"
         ]
       }
     },

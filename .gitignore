@@ -218,3 +218,6 @@ logs/
 # Data files (keep only source data, not large binaries)
 data/*.xlsx
 data/*.csv
+data/subscriptions/*.jsonl
+data/user_cards/*.jsonl
+data/user_cards/*.json

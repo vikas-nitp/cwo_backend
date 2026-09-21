@@ -28,6 +28,9 @@ class FeatureFlags(BaseModel):
     termsOfServiceEnabled: bool = True
     splashScreenEnabled: bool = False
     homeEntranceAnimationEnabled: bool = True
+    subscriptionsEnabled: bool = False
+    userCardsEnabled: bool = False
+    notificationsEnabled: bool = False
 
     def version(self) -> str:
         payload = json.dumps(self.model_dump(), sort_keys=True, separators=(",", ":"))

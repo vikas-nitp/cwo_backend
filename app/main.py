@@ -21,6 +21,8 @@ from app.api.routes.health import router as health_router
 from app.api.routes.meta import router as meta_router
 from app.api.routes.offers import router as offers_router
 from app.api.routes.search import router as search_router
+from app.api.routes.subscriptions import router as subscriptions_router
+from app.api.routes.user_cards import router as user_cards_router
 from app.api.routes.visitors import router as visitors_router
 from app.core.config import (
     API_PREFIX,
@@ -133,6 +135,8 @@ app.include_router(search_router, prefix=API_PREFIX)
 app.include_router(feature_flags_router, prefix=API_PREFIX)
 app.include_router(availability_router, prefix=API_PREFIX)
 app.include_router(visitors_router, prefix=API_PREFIX)
+app.include_router(subscriptions_router, prefix=API_PREFIX)
+app.include_router(user_cards_router, prefix=API_PREFIX)
 
 
 # ── Development Server ──────────────────────────────────────
