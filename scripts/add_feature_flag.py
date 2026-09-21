@@ -157,8 +157,8 @@ def main() -> None:
     update_json(FF_JSON_FE, flag_name, value)
     update_capabilities(flag_name)
 
-    print(f"\nDone. Run: python3 -m pytest -q   (backend)")
-    print(       f"       npm run build              (frontend)")
+    print("\nDone. Run: python3 -m pytest -q   (backend)")
+    print(       "       npm run build              (frontend)")
 
 
 if __name__ == "__main__":
