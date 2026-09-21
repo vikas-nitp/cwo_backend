@@ -26,6 +26,7 @@ publish_status derivation:
     evidence_status == VERIFIED AND confidence_score >= 0.70 → READY
     otherwise                                                 → DRAFT
 """
+
 from __future__ import annotations
 
 import csv
@@ -70,6 +71,7 @@ def _resolve_combined_dir() -> Path:
 
     return date_dirs[0]
 
+
 # ── Output CSV columns (must match cwo_backend/data/source/offers.csv schema) ─
 # build_offer_snapshot.py accepts these aliases:
 #   channels  → booking_channel
@@ -84,14 +86,14 @@ CSV_COLUMNS = [
     "card_name",
     "payment_method",
     "category",
-    "channels",         # alias: booking_channel
+    "channels",  # alias: booking_channel
     "discount_type",
     "discount_value",
     "max_discount",
     "min_transaction",
     "coupon_code",
     "valid_from",
-    "expiry_date",      # alias: valid_to
+    "expiry_date",  # alias: valid_to
     "usage_limit",
     "new_user_only",
     "login_required",
@@ -110,13 +112,14 @@ CSV_COLUMNS = [
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+
 def _evidence_status(validation_status: str | None) -> str:
     """Derive evidence_status from cardsage validation_status."""
     mapping = {
-        "VALID":        "VERIFIED",
-        "WARNING":      "PARTIAL",
+        "VALID": "VERIFIED",
+        "WARNING": "PARTIAL",
         "NEEDS_REVIEW": "PARTIAL",
-        "INVALID":      "UNVERIFIED",
+        "INVALID": "UNVERIFIED",
     }
     return mapping.get((validation_status or "").upper(), "PARTIAL")
 
@@ -145,7 +148,7 @@ def _to_row(offer: dict[str, Any]) -> dict[str, str]:
     confidence = float(offer.get("confidence") or 0.0)
 
     evidence_st = _evidence_status(validation_status)
-    publish_st  = _publish_status(evidence_st, confidence)
+    publish_st = _publish_status(evidence_st, confidence)
 
     eligibility = offer.get("eligibility_notes") or []
     if isinstance(eligibility, list):
@@ -155,47 +158,44 @@ def _to_row(offer: dict[str, Any]) -> dict[str, str]:
 
     is_active = "false" if evidence_st == "UNVERIFIED" else "true"
 
-    last_verified = (
-        offer.get("last_verified_at")
-        or offer.get("scraped_at")
-        or ""
-    )
+    last_verified = offer.get("last_verified_at") or offer.get("scraped_at") or ""
 
     return {
-        "offer_id":         offer.get("offer_id") or "",
-        "platform_id":      offer.get("platform_id") or "",
-        "platform_name":    offer.get("platform_name") or "",
-        "offer_title":      offer.get("offer_title") or "",
-        "bank_id":          offer.get("bank_id") or "",
-        "bank_name":        offer.get("bank_name") or "",
-        "card_name":        offer.get("card_name") or "",
-        "payment_method":   offer.get("payment_method") or "",
-        "category":         offer.get("category") or "FLIGHT_DOMESTIC",
-        "channels":         offer.get("booking_channel") or "WEB_AND_APP",
-        "discount_type":    offer.get("discount_type") or "",
-        "discount_value":   _fmt_num(offer.get("discount_value")),
-        "max_discount":     _fmt_num(offer.get("max_discount")),
-        "min_transaction":  _fmt_num(offer.get("min_transaction")),
-        "coupon_code":      offer.get("coupon_code") or "",
-        "valid_from":       offer.get("valid_from") or "",
-        "expiry_date":      offer.get("valid_to") or "",
-        "usage_limit":      "",
-        "new_user_only":    str(offer.get("new_user_only") or False).lower(),
-        "login_required":   "false",
+        "offer_id": offer.get("offer_id") or "",
+        "platform_id": offer.get("platform_id") or "",
+        "platform_name": offer.get("platform_name") or "",
+        "offer_title": offer.get("offer_title") or "",
+        "bank_id": offer.get("bank_id") or "",
+        "bank_name": offer.get("bank_name") or "",
+        "card_name": offer.get("card_name") or "",
+        "payment_method": offer.get("payment_method") or "",
+        "category": offer.get("category") or "FLIGHT_DOMESTIC",
+        "channels": offer.get("booking_channel") or "WEB_AND_APP",
+        "discount_type": offer.get("discount_type") or "",
+        "discount_value": _fmt_num(offer.get("discount_value")),
+        "max_discount": _fmt_num(offer.get("max_discount")),
+        "min_transaction": _fmt_num(offer.get("min_transaction")),
+        "coupon_code": offer.get("coupon_code") or "",
+        "valid_from": offer.get("valid_from") or "",
+        "expiry_date": offer.get("valid_to") or "",
+        "usage_limit": "",
+        "new_user_only": str(offer.get("new_user_only") or False).lower(),
+        "login_required": "false",
         "eligibility_notes": eligibility_str,
-        "terms_url":        offer.get("terms_url") or "",
-        "source_url":       offer.get("source_url") or "",
-        "booking_url":      offer.get("booking_url") or "",
-        "source_type":      "SCRAPED",
-        "evidence_status":  evidence_st,
+        "terms_url": offer.get("terms_url") or "",
+        "source_url": offer.get("source_url") or "",
+        "booking_url": offer.get("booking_url") or "",
+        "source_type": "SCRAPED",
+        "evidence_status": evidence_st,
         "last_verified_at": last_verified,
-        "priority_score":   str(int(confidence * 100)),
-        "is_active":        is_active,
-        "publish_status":   publish_st,
+        "priority_score": str(int(confidence * 100)),
+        "is_active": is_active,
+        "publish_status": publish_st,
     }
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
+
 
 def main() -> None:
     combined_dir = _resolve_combined_dir()
@@ -203,8 +203,7 @@ def main() -> None:
 
     if not json_path.exists():
         print(
-            f"Combined offer file not found: {json_path}\n"
-            f"Run 'python -m cardsage run --source all' first.",
+            f"Combined offer file not found: {json_path}\nRun 'python -m cardsage run --source all' first.",
             file=sys.stderr,
         )
         sys.exit(1)

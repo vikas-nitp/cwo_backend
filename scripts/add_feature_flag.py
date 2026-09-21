@@ -18,25 +18,27 @@ Touch points updated automatically:
     Frontend : src/data/generated/featureFlags.json
     Frontend : src/config/featureCapabilities.ts
 """
+
 import json
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-BACKEND_ROOT  = Path(__file__).parent.parent
+BACKEND_ROOT = Path(__file__).parent.parent
 FRONTEND_ROOT = BACKEND_ROOT.parent / "cardwiseoffer"
 
-FF_PY        = BACKEND_ROOT / "app/core/feature_flags.py"
-FF_JSON_BE   = BACKEND_ROOT / "data/config/feature_flags.json"
-FF_JSON_FE   = FRONTEND_ROOT / "src/data/generated/featureFlags.json"
-CAPS_TS      = FRONTEND_ROOT / "src/config/featureCapabilities.ts"
-OPENAPI_BE   = BACKEND_ROOT / "contracts/openapi.json"
-OPENAPI_FE   = FRONTEND_ROOT / "contracts/openapi.json"
-TEST_ROUTES  = BACKEND_ROOT / "tests/test_routes.py"
+FF_PY = BACKEND_ROOT / "app/core/feature_flags.py"
+FF_JSON_BE = BACKEND_ROOT / "data/config/feature_flags.json"
+FF_JSON_FE = FRONTEND_ROOT / "src/data/generated/featureFlags.json"
+CAPS_TS = FRONTEND_ROOT / "src/config/featureCapabilities.ts"
+OPENAPI_BE = BACKEND_ROOT / "contracts/openapi.json"
+OPENAPI_FE = FRONTEND_ROOT / "contracts/openapi.json"
+TEST_ROUTES = BACKEND_ROOT / "tests/test_routes.py"
 
 
 # ── helpers ──────────────────────────────────────────────────────────
+
 
 def to_capability_key(flag_name: str) -> str:
     """splashScreenEnabled → splashScreen"""
@@ -58,6 +60,7 @@ def run(cmd: list[str], cwd: Path) -> None:
 
 # ── 1. Pydantic model ─────────────────────────────────────────────────
 
+
 def update_pydantic_model(flag_name: str, default: bool) -> None:
     src = FF_PY.read_text()
     if flag_name in src:
@@ -77,6 +80,7 @@ def update_pydantic_model(flag_name: str, default: bool) -> None:
 
 # ── 2. Backend JSON config ────────────────────────────────────────────
 
+
 def update_json(path: Path, flag_name: str, value: bool) -> None:
     data = json.loads(path.read_text())
     data[flag_name] = value
@@ -85,6 +89,7 @@ def update_json(path: Path, flag_name: str, value: bool) -> None:
 
 
 # ── 3. test_routes.py ─────────────────────────────────────────────────
+
 
 def update_test(flag_name: str, value: bool) -> None:
     src = TEST_ROUTES.read_text()
@@ -106,6 +111,7 @@ def update_test(flag_name: str, value: bool) -> None:
 
 # ── 4. featureCapabilities.ts ─────────────────────────────────────────
 
+
 def update_capabilities(flag_name: str) -> None:
     src = CAPS_TS.read_text()
     cap_key = to_capability_key(flag_name)
@@ -121,9 +127,11 @@ def update_capabilities(flag_name: str) -> None:
 
 # ── 5. Regenerate OpenAPI + TS types ──────────────────────────────────
 
+
 def regenerate_openapi() -> None:
     run(["python3", "scripts/export_openapi.py"], cwd=BACKEND_ROOT)
     import shutil
+
     shutil.copy(OPENAPI_BE, OPENAPI_FE)
     print("  ✓ contracts/openapi.json   regenerated + synced to frontend")
 
@@ -135,13 +143,14 @@ def regenerate_ts_types() -> None:
 
 # ── main ──────────────────────────────────────────────────────────────
 
+
 def main() -> None:
     if len(sys.argv) != 3 or sys.argv[2] not in ("true", "false"):
         print(__doc__)
         sys.exit(1)
 
     flag_name = sys.argv[1]
-    value     = sys.argv[2] == "true"
+    value = sys.argv[2] == "true"
 
     if not re.match(r"^[a-z][a-zA-Z0-9]+$", flag_name):
         print(f"ERROR: flag name must be camelCase, got: {flag_name}")
@@ -158,7 +167,7 @@ def main() -> None:
     update_capabilities(flag_name)
 
     print("\nDone. Run: python3 -m pytest -q   (backend)")
-    print(       "       npm run build              (frontend)")
+    print("       npm run build              (frontend)")
 
 
 if __name__ == "__main__":

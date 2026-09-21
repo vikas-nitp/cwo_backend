@@ -22,6 +22,7 @@ _DEFAULT_PREFS = {"notify_expiring": False, "notify_new": False}
 
 # ── Request / Response models ───────────────────────────────────────────────
 
+
 class SaveCardRequest(BaseModel):
     bank_id: str
     card_name: str | None = None
@@ -41,6 +42,7 @@ class NotificationPrefsRequest(BaseModel):
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
+
 
 def _load_cards() -> list[dict]:
     if not _CARDS_FILE.exists():
@@ -82,6 +84,7 @@ def _not_enabled_response():
 
 
 # ── Card endpoints ───────────────────────────────────────────────────────────
+
 
 @router.post("/user/cards")
 def save_card(request: Request, body: SaveCardRequest):
@@ -128,6 +131,7 @@ def delete_card(card_id: str, request: Request):
 
 
 # ── Notification prefs endpoints ─────────────────────────────────────────────
+
 
 @router.post("/user/notification-prefs")
 def save_notification_prefs(request: Request, body: NotificationPrefsRequest):
