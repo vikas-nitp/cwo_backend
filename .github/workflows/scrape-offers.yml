@@ -1,0 +1,83 @@
+name: scrape-offers
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # 2 am UTC daily
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install cardsage
+        run: pip install -e ./cardsage
+
+      - name: Install Playwright browsers
+        run: playwright install --with-deps webkit
+
+      - name: Run cardsage scraper
+        run: python -m cardsage run --source all
+
+      - name: Commit cardsage output if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add cardsage/output/latest/*.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: scrape offers [skip ci]"
+            git push
+          else
+            echo "No cardsage output changes to commit."
+          fi
+
+  convert:
+    needs: scrape
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pull latest commits (includes scrape job output)
+        run: git pull --rebase origin ${{ github.ref_name }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install cwo_backend dependencies
+        run: pip install -r cwo_backend/requirements.txt
+
+      - name: Convert cardsage output to offer snapshot
+        run: python3 cwo_backend/scripts/cardsage_to_snapshot.py
+
+      - name: Commit offer snapshot if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add cwo_backend/data/source/offers.csv
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update offer snapshot [skip ci]"
+            git push
+          else
+            echo "No offer snapshot changes to commit."
+          fi
