@@ -200,12 +200,14 @@
       "EmailSubscribeRequest": {
         "properties": {
           "email": {
+            "maxLength": 320,
             "title": "Email",
             "type": "string"
           },
           "source": {
             "anyOf": [
               {
+                "maxLength": 200,
                 "type": "string"
               },
               {
@@ -647,7 +649,8 @@
           "discount_type": {
             "enum": [
               "PERCENT",
-              "FLAT"
+              "FLAT",
+              "CASHBACK"
             ],
             "title": "Discount Type",
             "type": "string"
@@ -840,12 +843,15 @@
       "SaveCardRequest": {
         "properties": {
           "bank_id": {
+            "maxLength": 50,
+            "minLength": 1,
             "title": "Bank Id",
             "type": "string"
           },
           "card_name": {
             "anyOf": [
               {
+                "maxLength": 120,
                 "type": "string"
               },
               {
@@ -856,8 +862,8 @@
           },
           "payment_method": {
             "enum": [
-              "CREDIT_CARD",
-              "DEBIT_CARD"
+              "CREDIT",
+              "DEBIT"
             ],
             "title": "Payment Method",
             "type": "string"
@@ -1032,7 +1038,8 @@
           "discount_type": {
             "enum": [
               "PERCENT",
-              "FLAT"
+              "FLAT",
+              "CASHBACK"
             ],
             "title": "Discount Type",
             "type": "string"

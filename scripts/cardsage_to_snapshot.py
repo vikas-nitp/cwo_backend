@@ -23,8 +23,9 @@ evidence_status derivation:
     (missing)    → PARTIAL
 
 publish_status derivation:
-    evidence_status == VERIFIED AND confidence_score >= 0.70 → READY
-    otherwise                                                 → DRAFT
+    evidence_status != UNVERIFIED AND confidence_score >= 0.55 → READY
+    (PARTIAL evidence is accepted at launch — the offer was found but not fully verified)
+    evidence_status == UNVERIFIED OR confidence_score < 0.55  → DRAFT
 """
 
 from __future__ import annotations
@@ -188,7 +189,7 @@ def _to_row(offer: dict[str, Any]) -> dict[str, str]:
         "expiry_date": (offer.get("valid_to") or "")[:10],
         "usage_limit": "",
         "new_user_only": str(offer.get("new_user_only") or False).lower(),
-        "login_required": "false",
+        "login_required": str(bool(offer.get("login_required") or False)).lower(),
         "eligibility_notes": eligibility_str,
         "terms_url": offer.get("terms_url") or "",
         "source_url": offer.get("source_url") or "",

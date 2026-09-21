@@ -18,7 +18,7 @@ PlatformId = str
 PaymentMethod = Literal["CREDIT", "DEBIT", "NO_CARD"]
 Category = Literal["FLIGHT_DOMESTIC"]
 BookingChannel = Literal["WEB", "APP", "WEB_AND_APP"]
-DiscountType = Literal["PERCENT", "FLAT"]
+DiscountType = Literal["PERCENT", "FLAT", "CASHBACK"]
 EvidenceStatus = Literal["VERIFIED", "PARTIAL", "UNVERIFIED"]
 PublishStatus = Literal["READY", "DRAFT", "HIDDEN"]
 

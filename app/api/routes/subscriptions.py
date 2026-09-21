@@ -8,7 +8,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 router = APIRouter(tags=["Subscriptions"])
 
@@ -18,8 +18,8 @@ _EMAIL_RE = re.compile(r"^[^@]+@[^@]+\.[^@]+$")
 
 
 class EmailSubscribeRequest(BaseModel):
-    email: str
-    source: str | None = None
+    email: str = Field(max_length=320)
+    source: str | None = Field(default=None, max_length=200)
 
 
 def _validate_email(email: str) -> bool:

@@ -7,7 +7,7 @@ from typing import Literal
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 router = APIRouter(tags=["UserCards"])
 
@@ -15,17 +15,19 @@ _USER_CARDS_DIR = Path(__file__).resolve().parents[4] / "data" / "user_cards"
 _CARDS_FILE = _USER_CARDS_DIR / "user1.jsonl"
 _PREFS_FILE = _USER_CARDS_DIR / "user1_prefs.json"
 
-PaymentMethod = Literal["CREDIT_CARD", "DEBIT_CARD"]
+# Must match app/domain/models.py PaymentMethod — not CREDIT_CARD/DEBIT_CARD
+PaymentMethod = Literal["CREDIT", "DEBIT"]
 
 _DEFAULT_PREFS = {"notify_expiring": False, "notify_new": False}
+_MAX_CARDS = 20
 
 
 # ── Request / Response models ───────────────────────────────────────────────
 
 
 class SaveCardRequest(BaseModel):
-    bank_id: str
-    card_name: str | None = None
+    bank_id: str = Field(min_length=1, max_length=50)
+    card_name: str | None = Field(default=None, max_length=120)
     payment_method: PaymentMethod
 
 
@@ -91,6 +93,13 @@ def save_card(request: Request, body: SaveCardRequest):
     flags = request.app.state.feature_flags
     if flags is None or not flags.userCardsEnabled:
         return _not_enabled_response()
+
+    existing = _load_cards()
+    if len(existing) >= _MAX_CARDS:
+        return JSONResponse(
+            status_code=422,
+            content={"error": {"code": "CARD_LIMIT_REACHED", "message": f"Maximum {_MAX_CARDS} cards allowed"}},
+        )
 
     card_id = str(uuid.uuid4())
     record = {
