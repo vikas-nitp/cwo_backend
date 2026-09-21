@@ -12,5 +12,8 @@
   "privacyPolicyEnabled": true,
   "termsOfServiceEnabled": true,
   "splashScreenEnabled": false,
-  "homeEntranceAnimationEnabled": true
+  "homeEntranceAnimationEnabled": true,
+  "subscriptionsEnabled": false,
+  "userCardsEnabled": false,
+  "notificationsEnabled": false
 }

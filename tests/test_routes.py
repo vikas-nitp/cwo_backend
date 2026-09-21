@@ -23,6 +23,9 @@ def test_meta_and_flags(client):
         "termsOfServiceEnabled": True,
         "splashScreenEnabled": False,
         "homeEntranceAnimationEnabled": True,
+        "subscriptionsEnabled": False,
+        "userCardsEnabled": False,
+        "notificationsEnabled": False,
         "config_version": flags["config_version"],
     }
 
