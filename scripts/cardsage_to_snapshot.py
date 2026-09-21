@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 """
-Convert cardsage output JSON files into the backend CSV snapshot format.
+Convert cardsage combined output into the backend CSV snapshot format.
 
 Usage (from WORKSPACE root):
     python3 cwo_backend/scripts/cardsage_to_snapshot.py
 
-Input:  cardsage/output/latest/*.json  (or CARDSAGE_OUTPUT_DIR env var)
+Input:  cardsage/output/combined/YYYY-MM-DD/all_valid_offers.json
+        (latest date directory is selected automatically)
+        Override: CARDSAGE_COMBINED_DIR=cardsage/output/combined/2026-09-21
+
 Output: cwo_backend/data/source/offers.csv  (full rewrite)
 
-Platform mapping (cardsage platform_id → backend convention):
-    MAKEMYTRIP → MAKEMYTRIP
-    CLEARTRIP  → CLEARTRIP
-    IXIGO      → IXIGO
-    YATRA      → YATRA
+The combined file already contains only VALID + WARNING offers (NEEDS_REVIEW
+and INVALID are excluded by the orchestrator), so evidence_status derivation
+maps straightforwardly and publish_status relies on confidence_score.
 
 evidence_status derivation:
     VALID        → VERIFIED
     WARNING      → PARTIAL
-    NEEDS_REVIEW → PARTIAL
+    NEEDS_REVIEW → PARTIAL   (kept for safety; excluded upstream in practice)
     INVALID      → UNVERIFIED
     (missing)    → PARTIAL
 
@@ -25,6 +26,7 @@ publish_status derivation:
     evidence_status == VERIFIED AND confidence_score >= 0.70 → READY
     otherwise                                                 → DRAFT
 """
+
 from __future__ import annotations
 
 import csv
@@ -39,9 +41,36 @@ from typing import Any
 # Script lives at cwo_backend/scripts/; WORKSPACE root is two levels up.
 WORKSPACE = Path(__file__).resolve().parents[2]
 
-_DEFAULT_CARDSAGE_OUTPUT = WORKSPACE / "cardsage" / "output" / "latest"
-CARDSAGE_OUTPUT_DIR = Path(os.environ.get("CARDSAGE_OUTPUT_DIR", str(_DEFAULT_CARDSAGE_OUTPUT)))
+_COMBINED_ROOT = WORKSPACE / "cardsage" / "output" / "combined"
 OFFERS_CSV = WORKSPACE / "cwo_backend" / "data" / "source" / "offers.csv"
+
+
+def _resolve_combined_dir() -> Path:
+    """
+    Return the path to all_valid_offers.json's parent directory.
+
+    Priority:
+      1. CARDSAGE_COMBINED_DIR env var — an explicit date directory, e.g.
+         cardsage/output/combined/2026-09-21
+      2. Latest YYYY-MM-DD subdirectory under cardsage/output/combined/
+    """
+    env_override = os.environ.get("CARDSAGE_COMBINED_DIR", "").strip()
+    if env_override:
+        return Path(env_override)
+
+    if not _COMBINED_ROOT.exists():
+        return _COMBINED_ROOT  # will produce a clear error in main()
+
+    date_dirs = sorted(
+        (d for d in _COMBINED_ROOT.iterdir() if d.is_dir()),
+        key=lambda d: d.name,
+        reverse=True,
+    )
+    if not date_dirs:
+        return _COMBINED_ROOT  # will produce a clear error in main()
+
+    return date_dirs[0]
+
 
 # ── Output CSV columns (must match cwo_backend/data/source/offers.csv schema) ─
 # build_offer_snapshot.py accepts these aliases:
@@ -57,14 +86,14 @@ CSV_COLUMNS = [
     "card_name",
     "payment_method",
     "category",
-    "channels",         # alias: booking_channel
+    "channels",  # alias: booking_channel
     "discount_type",
     "discount_value",
     "max_discount",
     "min_transaction",
     "coupon_code",
     "valid_from",
-    "expiry_date",      # alias: valid_to
+    "expiry_date",  # alias: valid_to
     "usage_limit",
     "new_user_only",
     "login_required",
@@ -83,13 +112,14 @@ CSV_COLUMNS = [
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+
 def _evidence_status(validation_status: str | None) -> str:
     """Derive evidence_status from cardsage validation_status."""
     mapping = {
-        "VALID":        "VERIFIED",
-        "WARNING":      "PARTIAL",
+        "VALID": "VERIFIED",
+        "WARNING": "PARTIAL",
         "NEEDS_REVIEW": "PARTIAL",
-        "INVALID":      "UNVERIFIED",
+        "INVALID": "UNVERIFIED",
     }
     return mapping.get((validation_status or "").upper(), "PARTIAL")
 
@@ -118,7 +148,7 @@ def _to_row(offer: dict[str, Any]) -> dict[str, str]:
     confidence = float(offer.get("confidence") or 0.0)
 
     evidence_st = _evidence_status(validation_status)
-    publish_st  = _publish_status(evidence_st, confidence)
+    publish_st = _publish_status(evidence_st, confidence)
 
     eligibility = offer.get("eligibility_notes") or []
     if isinstance(eligibility, list):
@@ -128,95 +158,84 @@ def _to_row(offer: dict[str, Any]) -> dict[str, str]:
 
     is_active = "false" if evidence_st == "UNVERIFIED" else "true"
 
-    last_verified = (
-        offer.get("last_verified_at")
-        or offer.get("scraped_at")
-        or ""
-    )
+    last_verified = offer.get("last_verified_at") or offer.get("scraped_at") or ""
 
     return {
-        "offer_id":         offer.get("offer_id") or "",
-        "platform_id":      offer.get("platform_id") or "",
-        "platform_name":    offer.get("platform_name") or "",
-        "offer_title":      offer.get("offer_title") or "",
-        "bank_id":          offer.get("bank_id") or "",
-        "bank_name":        offer.get("bank_name") or "",
-        "card_name":        offer.get("card_name") or "",
-        "payment_method":   offer.get("payment_method") or "",
-        "category":         offer.get("category") or "FLIGHT_DOMESTIC",
-        "channels":         offer.get("booking_channel") or "WEB_AND_APP",
-        "discount_type":    offer.get("discount_type") or "",
-        "discount_value":   _fmt_num(offer.get("discount_value")),
-        "max_discount":     _fmt_num(offer.get("max_discount")),
-        "min_transaction":  _fmt_num(offer.get("min_transaction")),
-        "coupon_code":      offer.get("coupon_code") or "",
-        "valid_from":       offer.get("valid_from") or "",
-        "expiry_date":      offer.get("valid_to") or "",
-        "usage_limit":      "",
-        "new_user_only":    str(offer.get("new_user_only") or False).lower(),
-        "login_required":   "false",
+        "offer_id": offer.get("offer_id") or "",
+        "platform_id": offer.get("platform_id") or "",
+        "platform_name": offer.get("platform_name") or "",
+        "offer_title": offer.get("offer_title") or "",
+        "bank_id": offer.get("bank_id") or "",
+        "bank_name": offer.get("bank_name") or "",
+        "card_name": offer.get("card_name") or "",
+        "payment_method": offer.get("payment_method") or "",
+        "category": offer.get("category") or "FLIGHT_DOMESTIC",
+        "channels": offer.get("booking_channel") or "WEB_AND_APP",
+        "discount_type": offer.get("discount_type") or "",
+        "discount_value": _fmt_num(offer.get("discount_value")),
+        "max_discount": _fmt_num(offer.get("max_discount")),
+        "min_transaction": _fmt_num(offer.get("min_transaction")),
+        "coupon_code": offer.get("coupon_code") or "",
+        "valid_from": offer.get("valid_from") or "",
+        "expiry_date": offer.get("valid_to") or "",
+        "usage_limit": "",
+        "new_user_only": str(offer.get("new_user_only") or False).lower(),
+        "login_required": "false",
         "eligibility_notes": eligibility_str,
-        "terms_url":        offer.get("terms_url") or "",
-        "source_url":       offer.get("source_url") or "",
-        "booking_url":      offer.get("booking_url") or "",
-        "source_type":      "SCRAPED",
-        "evidence_status":  evidence_st,
+        "terms_url": offer.get("terms_url") or "",
+        "source_url": offer.get("source_url") or "",
+        "booking_url": offer.get("booking_url") or "",
+        "source_type": "SCRAPED",
+        "evidence_status": evidence_st,
         "last_verified_at": last_verified,
-        "priority_score":   str(int(confidence * 100)),
-        "is_active":        is_active,
-        "publish_status":   publish_st,
+        "priority_score": str(int(confidence * 100)),
+        "is_active": is_active,
+        "publish_status": publish_st,
     }
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
+
 def main() -> None:
-    # Collect all *.json files from the cardsage output directory.
-    if not CARDSAGE_OUTPUT_DIR.exists():
+    combined_dir = _resolve_combined_dir()
+    json_path = combined_dir / "all_valid_offers.json"
+
+    if not json_path.exists():
         print(
-            f"Cardsage output directory not found: {CARDSAGE_OUTPUT_DIR}\n"
-            f"Run 'python -m cardsage run --source all' first.",
+            f"Combined offer file not found: {json_path}\nRun 'python -m cardsage run --source all' first.",
             file=sys.stderr,
         )
         sys.exit(1)
 
-    json_files = sorted(CARDSAGE_OUTPUT_DIR.glob("*.json"))
-    if not json_files:
-        print(
-            f"No JSON files found in {CARDSAGE_OUTPUT_DIR}",
-            file=sys.stderr,
-        )
+    print(f"Reading from: {json_path}")
+
+    try:
+        payload = json.loads(json_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"Failed to read {json_path}: {exc}", file=sys.stderr)
         sys.exit(1)
 
-    # Read offers from all JSON files; de-duplicate on offer_id (last-write wins).
+    # all_valid_offers.json is a JSON array of offer objects.
+    if isinstance(payload, list):
+        raw_offers = payload
+    elif isinstance(payload, dict):
+        raw_offers = payload.get("offers") or []
+    else:
+        print(f"Unexpected JSON format in {json_path}", file=sys.stderr)
+        sys.exit(1)
+
+    # De-duplicate on offer_id (last-write wins, though combined should be clean).
     seen: dict[str, dict[str, Any]] = {}
-    total_read = 0
-
-    for json_path in json_files:
-        try:
-            payload = json.loads(json_path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError) as exc:
-            print(f"  Skipping {json_path.name}: {exc}", file=sys.stderr)
+    for offer in raw_offers:
+        if not isinstance(offer, dict):
             continue
-
-        # Cardsage JSON files may be a list of offers or a dict with an "offers" key.
-        if isinstance(payload, list):
-            offers = payload
-        elif isinstance(payload, dict):
-            offers = payload.get("offers") or []
-        else:
-            print(f"  Skipping {json_path.name}: unexpected format", file=sys.stderr)
+        offer_id = offer.get("offer_id")
+        if not offer_id:
             continue
+        seen[offer_id] = offer
 
-        for offer in offers:
-            if not isinstance(offer, dict):
-                continue
-            offer_id = offer.get("offer_id")
-            if not offer_id:
-                continue
-            seen[offer_id] = offer
-            total_read += 1
-
+    total_read = len(raw_offers)
     rows = [_to_row(offer) for offer in seen.values()]
 
     # Write CSV (full rewrite).

@@ -1557,6 +1557,7 @@
             "schema": {
               "default": [],
               "items": {
+                "maxLength": 50,
                 "type": "string"
               },
               "title": "Bank",
@@ -1570,6 +1571,7 @@
             "schema": {
               "default": [],
               "items": {
+                "maxLength": 50,
                 "type": "string"
               },
               "title": "Platform",
@@ -1583,6 +1585,7 @@
             "schema": {
               "default": [],
               "items": {
+                "maxLength": 50,
                 "type": "string"
               },
               "title": "Payment Method",
@@ -1596,6 +1599,7 @@
             "schema": {
               "default": [],
               "items": {
+                "maxLength": 50,
                 "type": "string"
               },
               "title": "Booking Channel",
@@ -1609,6 +1613,7 @@
             "schema": {
               "default": [],
               "items": {
+                "maxLength": 50,
                 "type": "string"
               },
               "title": "Category",

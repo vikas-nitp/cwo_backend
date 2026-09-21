@@ -99,7 +99,7 @@ app = FastAPI(
 
 # Add middlewares (order matters: first added = outermost)
 app.add_middleware(GZipMiddleware, minimum_size=1000)  # Compress responses > 1KB
-app.add_middleware(SecurityHeadersMiddleware)          # Security headers on every response
+app.add_middleware(SecurityHeadersMiddleware)  # Security headers on every response
 app.add_middleware(CacheHeadersMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(RateLimitMiddleware)
