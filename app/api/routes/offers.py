@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Annotated
 
 from fastapi import APIRouter, Query, Request, Response
 
@@ -16,6 +17,9 @@ from app.services.offer_catalog_service import (
 router = APIRouter(tags=["Offers"])
 logger = get_logger(__name__)
 
+# Constrained string type for filter query params — each value capped at 50 chars
+_FilterStr = Annotated[str, Query(max_length=50)]
+
 
 @router.get(
     "/offers",
@@ -25,11 +29,11 @@ logger = get_logger(__name__)
 def offers(
     request: Request,
     response: Response,
-    bank: list[str] = Query(default=[]),
-    platform: list[str] = Query(default=[]),
-    payment_method: list[str] = Query(default=[]),
-    booking_channel: list[str] = Query(default=[]),
-    category: list[str] = Query(default=[]),
+    bank: list[_FilterStr] = Query(default=[]),
+    platform: list[_FilterStr] = Query(default=[]),
+    payment_method: list[_FilterStr] = Query(default=[]),
+    booking_channel: list[_FilterStr] = Query(default=[]),
+    category: list[_FilterStr] = Query(default=[]),
     active_on: date = Query(default_factory=today_ist),
     page: int = Query(1, ge=1),
     limit: int = Query(SETTINGS.default_page_limit, ge=1, le=SETTINGS.max_page_limit),
