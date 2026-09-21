@@ -125,8 +125,15 @@ def _evidence_status(validation_status: str | None) -> str:
 
 
 def _publish_status(evidence_status: str, confidence: float) -> str:
-    """Derive publish_status from evidence_status and confidence score."""
-    if evidence_status == "VERIFIED" and confidence >= 0.70:
+    """Derive publish_status from evidence_status and confidence score.
+
+    PARTIAL evidence is acceptable for launch — it means the offer was found
+    but not all fields could be fully verified.  UNVERIFIED (scraper could not
+    confirm the offer exists at all) always stays DRAFT regardless of confidence.
+    """
+    if evidence_status == "UNVERIFIED":
+        return "DRAFT"
+    if confidence >= 0.55:
         return "READY"
     return "DRAFT"
 
