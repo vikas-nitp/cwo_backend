@@ -1,4 +1,5 @@
 """Tests for build_offer_snapshot.py demo data fallback and _has_rows helper."""
+
 from __future__ import annotations
 
 import csv
@@ -7,6 +8,7 @@ from pathlib import Path
 from scripts.build_offer_snapshot import _has_rows
 
 # ── _has_rows ─────────────────────────────────────────────────────────────────
+
 
 def test_has_rows_absent(tmp_path):
     """A file that does not exist is treated as having no rows."""
@@ -103,6 +105,7 @@ def test_build_catalogue_uses_offers_csv_when_present(tmp_path):
     assert rc == 0
 
     import json
+
     snapshot = json.loads((output_dir / "offers.snapshot.json").read_text())
     ids = [o["offer_id"] for o in snapshot]
     assert "DEMO-001" in ids
@@ -135,6 +138,7 @@ def test_build_catalogue_falls_back_to_demo_when_offers_csv_empty(tmp_path):
     assert rc == 0
 
     import json
+
     snapshot = json.loads((output_dir / "offers.snapshot.json").read_text())
     ids = [o["offer_id"] for o in snapshot]
     assert "DEMO-FALLBACK" in ids
@@ -158,6 +162,7 @@ def test_build_catalogue_falls_back_to_demo_when_offers_csv_absent(tmp_path):
     assert rc == 0
 
     import json
+
     snapshot = json.loads((output_dir / "offers.snapshot.json").read_text())
     ids = [o["offer_id"] for o in snapshot]
     assert "DEMO-ABSENT-FALLBACK" in ids
