@@ -284,3 +284,25 @@ class CacheHeadersMiddleware(BaseHTTPMiddleware):
                 response.headers["Cache-Control"] = "no-store"
 
         return response
+
+
+# ────────────────────────────────────────────────────────────────────
+# Security Headers Middleware
+# ────────────────────────────────────────────────────────────────────
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """
+    Inject defensive security headers on every response.
+
+    X-Content-Type-Options  — prevents MIME-type sniffing attacks.
+    X-Frame-Options         — blocks the API from being embedded in frames.
+    Referrer-Policy         — limits referrer leakage to same-origin context.
+    """
+
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        return response
