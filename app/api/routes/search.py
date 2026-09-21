@@ -20,6 +20,8 @@ def search(payload: SearchRequest, request: Request, response: Response):
         if not repository.loaded:
             return error_response(request, 503, "DATA_NOT_READY", "Offer data is not ready.")
         flags = request.app.state.feature_flags
+        if flags is None:
+            return error_response(request, 503, "CONFIG_NOT_READY", "Feature flags not loaded.")
         if payload.booking_amount is not None and not flags.bookingAmountComparisonEnabled:
             return error_response(
                 request,

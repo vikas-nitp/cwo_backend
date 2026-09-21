@@ -4,6 +4,7 @@ Railway-compatible (in-memory, single instance MVP).
 """
 
 import hashlib
+import ipaddress
 import time
 import uuid
 from collections import defaultdict
@@ -58,15 +59,28 @@ class InMemoryRateLimiter:
         self._last_cleanup = time.time()
 
     def _get_client_key(self, request: Request) -> str:
-        """Get client identifier (IP-based, privacy-safe)."""
-        # Railway sets X-Forwarded-For
-        forwarded = request.headers.get("x-forwarded-for", "") if SETTINGS.trust_proxy_headers else ""
-        if forwarded:
-            ip = forwarded.split(",")[0].strip()
-        else:
-            ip = request.client.host if request.client else "unknown"
+        """Get client identifier (IP-based, privacy-safe).
 
-        # Hash for privacy
+        Uses the rightmost non-private IP in X-Forwarded-For to prevent
+        spoofing: the leftmost entries are client-controlled, but the proxy
+        appends from the right.
+        """
+        forwarded = request.headers.get("x-forwarded-for", "") if SETTINGS.trust_proxy_headers else ""
+        ip = "unknown"
+        if forwarded:
+            candidates = [s.strip() for s in forwarded.split(",")]
+            for candidate in reversed(candidates):
+                try:
+                    if not ipaddress.ip_address(candidate).is_private:
+                        ip = candidate
+                        break
+                except ValueError:
+                    continue
+            else:
+                ip = candidates[-1] if candidates else "unknown"
+        elif request.client:
+            ip = request.client.host
+
         return hashlib.sha256(ip.encode()).hexdigest()[:16]
 
     def _cleanup_old_entries(self, bucket: list, window_seconds: int) -> list:
@@ -232,13 +246,15 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 class BodySizeLimitMiddleware(BaseHTTPMiddleware):
     """
     Reject requests with body > MAX_BODY_SIZE.
+    Checks both the Content-Length header and the actual received body so that
+    clients omitting the header cannot bypass the limit.
     """
 
     MAX_BODY_SIZE = 32 * 1024  # 32KB
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
-        # Only check POST/PUT/PATCH
         if request.method in ("POST", "PUT", "PATCH"):
+            # Fast-reject on declared Content-Length before reading anything.
             content_length = request.headers.get("content-length")
             if content_length:
                 try:
@@ -251,6 +267,18 @@ class BodySizeLimitMiddleware(BaseHTTPMiddleware):
                         )
                 except ValueError:
                     pass
+            # Read the actual body (Starlette caches it; downstream handlers see the same bytes).
+            try:
+                body = await request.body()
+                if len(body) > self.MAX_BODY_SIZE:
+                    return _middleware_error(
+                        request,
+                        413,
+                        "REQUEST_TOO_LARGE",
+                        "Request body too large (max 32KB)",
+                    )
+            except Exception:
+                pass
 
         return await call_next(request)
 
@@ -305,4 +333,5 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
         return response
