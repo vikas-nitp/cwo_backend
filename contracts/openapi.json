@@ -288,9 +288,19 @@
             "title": "Contactenabled",
             "type": "boolean"
           },
+          "cookieConsentEnabled": {
+            "default": false,
+            "title": "Cookieconsentenabled",
+            "type": "boolean"
+          },
           "couponCodeEnabled": {
             "default": false,
             "title": "Couponcodeenabled",
+            "type": "boolean"
+          },
+          "flightInternationalEnabled": {
+            "default": false,
+            "title": "Flightinternationalenabled",
             "type": "boolean"
           },
           "homeEntranceAnimationEnabled": {
@@ -440,7 +450,10 @@
           },
           "categories": {
             "items": {
-              "const": "FLIGHT_DOMESTIC",
+              "enum": [
+                "FLIGHT_DOMESTIC",
+                "FLIGHT_INTERNATIONAL"
+              ],
               "type": "string"
             },
             "title": "Categories",
@@ -631,7 +644,10 @@
             "title": "Card Specificity"
           },
           "category": {
-            "const": "FLIGHT_DOMESTIC",
+            "enum": [
+              "FLIGHT_DOMESTIC",
+              "FLIGHT_INTERNATIONAL"
+            ],
             "title": "Category",
             "type": "string"
           },
@@ -1009,7 +1025,10 @@
             "title": "Card Specificity"
           },
           "category": {
-            "const": "FLIGHT_DOMESTIC",
+            "enum": [
+              "FLIGHT_DOMESTIC",
+              "FLIGHT_INTERNATIONAL"
+            ],
             "title": "Category",
             "type": "string"
           },
@@ -1307,8 +1326,11 @@
             "title": "Booking Amount"
           },
           "category": {
-            "const": "FLIGHT_DOMESTIC",
             "default": "FLIGHT_DOMESTIC",
+            "enum": [
+              "FLIGHT_DOMESTIC",
+              "FLIGHT_INTERNATIONAL"
+            ],
             "title": "Category",
             "type": "string"
           },
