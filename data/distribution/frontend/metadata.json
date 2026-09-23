@@ -1,14 +1,6 @@
 {
-  "data_version": "2026-09-04-b68e8bce82da",
+  "data_version": "2026-09-23-19a305f645d7",
   "banks": [
-    {
-      "id": "AMEX",
-      "name": "American Express"
-    },
-    {
-      "id": "AU",
-      "name": "AU Small Finance Bank"
-    },
     {
       "id": "AXIS",
       "name": "Axis Bank"
@@ -16,6 +8,10 @@
     {
       "id": "BOB",
       "name": "Bank of Baroda"
+    },
+    {
+      "id": "CANARA",
+      "name": "Canara Bank"
     },
     {
       "id": "FEDERAL",
@@ -26,12 +22,16 @@
       "name": "HDFC Bank"
     },
     {
+      "id": "HSBC",
+      "name": "HSBC"
+    },
+    {
       "id": "ICICI",
       "name": "ICICI Bank"
     },
     {
       "id": "IDFC",
-      "name": "IDFC First Bank"
+      "name": "IDFC FIRST Bank"
     },
     {
       "id": "INDUSIND",
@@ -42,20 +42,12 @@
       "name": "Kotak Mahindra Bank"
     },
     {
+      "id": "ONECARD",
+      "name": "OneCard"
+    },
+    {
       "id": "PNB",
       "name": "Punjab National Bank"
-    },
-    {
-      "id": "RBL",
-      "name": "RBL Bank"
-    },
-    {
-      "id": "SBI",
-      "name": "State Bank of India"
-    },
-    {
-      "id": "YES",
-      "name": "Yes Bank"
     }
   ],
   "platforms": [
@@ -74,11 +66,10 @@
     "NO_CARD"
   ],
   "categories": [
-    "FLIGHT_DOMESTIC"
+    "FLIGHT_DOMESTIC",
+    "FLIGHT_INTERNATIONAL"
   ],
   "booking_channels": [
-    "APP",
-    "WEB",
     "WEB_AND_APP"
   ],
   "airports": [
@@ -776,7 +767,7 @@
       "is_domestic_default": true
     }
   ],
-  "availability_start": "2026-07-01",
-  "availability_end": "2027-12-31",
-  "dataset_last_updated_at": "2026-09-04"
+  "availability_start": "2025-09-22",
+  "availability_end": "2027-03-31",
+  "dataset_last_updated_at": "2026-09-23"
 }

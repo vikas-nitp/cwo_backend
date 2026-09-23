@@ -33,6 +33,7 @@ from __future__ import annotations
 import csv
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -150,6 +151,120 @@ def _fmt_num(value: Any) -> str:
         return str(value)
 
 
+def _fmt_booking_limit(raw: str) -> str:
+    """
+    Convert cardsage booking_limit slug to a human-readable usage limit string.
+    e.g. "1_per_card_per_category_per_month" → "1 per card per month"
+         "2_per_card_per_week"               → "2 per card per week"
+    """
+    if not raw:
+        return ""
+    s = raw.replace("_", " ").strip()
+    s = re.sub(r"\bper category\b\s*", "", s, flags=re.IGNORECASE).strip()
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+# Patterns for post-processing combined JSON offers that were normalized before
+# the booking-limit and eligibility-dedup fixes landed.
+
+# "once per card, per product per month" / "1 per card per category per month"
+_ONCE_PER_CARD_RE = re.compile(
+    r"(?i)(?:once|\d+)\s+per\s+card[,\s]+per\s+(product|category|user|transaction)?[,\s]*per\s+(month|week|day|year)",
+)
+# "1 booking per card per category" (MMT-style: no frequency word at end)
+_BOOKING_PER_CARD_CAT_RE = re.compile(
+    r"(?i)(\d+)\s+booking(?:s)?\s+per\s+card\s+per\s+(category|product|user|transaction)",
+)
+_NOTE_MIN_BOOKING_RE = re.compile(
+    r"(?i)min(?:imum)?\.?\s+booking(?:\s+(?:INR|Rs\.?|₹))?\s*[\d,]+",
+)
+_NOTE_ONCE_PER_CARD_RE = re.compile(
+    r"(?i)(?:once|\d+)\s+per\s+card",
+)
+
+# Required fields for READY publish_status
+_REQUIRED_CARD_FIELDS = ("discount_type", "discount_value", "valid_to")
+_REQUIRED_CARD_SOFT = ("bank_id", "coupon_code")  # at least 1 needed for card offers
+
+
+def _fix_offer(offer: dict[str, Any]) -> dict[str, Any]:
+    """
+    Post-process a combined-JSON offer to:
+      1. Backfill booking_limit from eligibility notes (two regex strategies).
+      2. Strip eligibility notes that duplicate structured fields.
+      3. Derive effective_pct for FLAT offers with known min_transaction.
+      4. Flag offers with too many missing required fields as needs_review.
+    Mutates and returns the dict.
+    """
+    booking_limit = offer.get("booking_limit") or ""
+    eligibility = list(offer.get("eligibility_notes") or [])
+    min_txn = offer.get("min_transaction")
+
+    # ── 1. Backfill booking_limit from eligibility notes ────────────────────────
+    if not booking_limit:
+        for note in eligibility:
+            # Strategy A: "once per card, per product per month" (EaseMyTrip style)
+            m = _ONCE_PER_CARD_RE.search(note)
+            if m:
+                scope = (m.group(1) or "").lower()
+                freq = (m.group(2) or "").lower()
+                parts = ["1_per_card"]
+                if scope:
+                    parts.append(f"per_{scope}")
+                if freq:
+                    parts.append(f"per_{freq}")
+                booking_limit = "_".join(parts)
+                offer["booking_limit"] = booking_limit
+                break
+            # Strategy B: "1 booking per card per category" (MMT T&C blob style)
+            m2 = _BOOKING_PER_CARD_CAT_RE.search(note)
+            if m2:
+                n_times = m2.group(1)
+                scope = m2.group(2).lower()
+                booking_limit = f"{n_times}_per_card_per_{scope}"
+                offer["booking_limit"] = booking_limit
+                break
+
+    # ── 2. Remove notes that duplicate structured fields ───────────────────────
+    if min_txn or booking_limit:
+        eligibility = [
+            n
+            for n in eligibility
+            if not (min_txn and _NOTE_MIN_BOOKING_RE.search(n))
+            and not (booking_limit and _NOTE_ONCE_PER_CARD_RE.search(n))
+        ]
+        offer["eligibility_notes"] = eligibility
+
+    # ── 3. Derive effective_pct for FLAT offers with known min_transaction ─────
+    dtype = (offer.get("discount_type") or "").upper()
+    dval = float(offer.get("discount_value") or 0)
+    min_t = float(offer.get("min_transaction") or 0)
+    if dtype == "FLAT" and dval > 0 and min_t > 0:
+        pct = round(dval / min_t * 100, 1)
+        if 0 < pct <= 100:
+            offer.setdefault("extra", {})
+            if isinstance(offer.get("extra"), dict):
+                offer["extra"]["effective_pct"] = pct
+
+    # ── 4. Required fields check → downgrade confidence if too many missing ────
+    # Required for any offer to be READY: discount_type, discount_value, valid_to
+    # Soft-required for card offers: bank_id, coupon_code (at least one)
+    missing_required = sum(
+        1
+        for f in _REQUIRED_CARD_FIELDS
+        if not offer.get(f) or (f == "discount_value" and float(offer.get(f) or 0) == 0)
+    )
+    has_bank_or_coupon = bool(offer.get("bank_id")) or bool(offer.get("coupon_code"))
+    if missing_required >= 2 or (missing_required >= 1 and not has_bank_or_coupon):
+        # Too many required fields absent — cap confidence so publish_status → DRAFT
+        offer["confidence"] = min(float(offer.get("confidence") or 0), 0.45)
+        if not offer.get("validation_status"):
+            offer["validation_status"] = "NEEDS_REVIEW"
+
+    return offer
+
+
 def _to_row(offer: dict[str, Any]) -> dict[str, str]:
     """Map a single cardsage Offer dict to a CSV row dict."""
     validation_status = offer.get("validation_status") or ""
@@ -187,7 +302,7 @@ def _to_row(offer: dict[str, Any]) -> dict[str, str]:
         "coupon_code": offer.get("coupon_code") or "",
         "valid_from": (offer.get("valid_from") or "")[:10] or (offer.get("scraped_at") or "")[:10],
         "expiry_date": (offer.get("valid_to") or "")[:10],
-        "usage_limit": "",
+        "usage_limit": _fmt_booking_limit(offer.get("booking_limit") or ""),
         "new_user_only": str(offer.get("new_user_only") or False).lower(),
         "login_required": str(bool(offer.get("login_required") or False)).lower(),
         "eligibility_notes": eligibility_str,
@@ -245,7 +360,7 @@ def main() -> None:
         seen[offer_id] = offer
 
     total_read = len(raw_offers)
-    rows = [_to_row(offer) for offer in seen.values()]
+    rows = [_to_row(_fix_offer(offer)) for offer in seen.values()]
 
     # Write CSV (full rewrite).
     OFFERS_CSV.parent.mkdir(parents=True, exist_ok=True)

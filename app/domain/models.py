@@ -16,7 +16,7 @@ from pydantic import (
 
 PlatformId = str
 PaymentMethod = Literal["CREDIT", "DEBIT", "NO_CARD"]
-Category = Literal["FLIGHT_DOMESTIC"]
+Category = Literal["FLIGHT_DOMESTIC", "FLIGHT_INTERNATIONAL"]
 BookingChannel = Literal["WEB", "APP", "WEB_AND_APP"]
 DiscountType = Literal["PERCENT", "FLAT", "CASHBACK"]
 EvidenceStatus = Literal["VERIFIED", "PARTIAL", "UNVERIFIED"]

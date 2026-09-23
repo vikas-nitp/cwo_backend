@@ -17,6 +17,8 @@ class FeatureFlags(BaseModel):
     phase2UserFeaturesEnabled: bool = False
     publicAllOffersEnabled: bool = True
     couponCodeEnabled: bool = False
+    flightInternationalEnabled: bool = False
+    cookieConsentEnabled: bool = False
     analyticsEnabled: bool = True
     bookingAmountComparisonEnabled: bool = False
     visitorCountEnabled: bool = False

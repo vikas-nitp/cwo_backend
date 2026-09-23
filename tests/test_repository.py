@@ -20,20 +20,21 @@ def repository():
 def test_startup_and_metadata_derivation():
     repo = repository()
     assert repo.loaded
-    assert len(repo.get_metadata().banks) == 14
-    assert repo.get_metadata().availability_end == date(2027, 12, 31)
+    assert len(repo.get_metadata().banks) == 12
+    assert repo.get_metadata().availability_end == date(2027, 3, 31)
 
 
 def test_filters():
     repo = repository()
     offers = repo.list_offers(
         active_on=date(2026, 7, 12),
-        platform_ids=["CLEARTRIP"],
-        bank_ids=["HDFC"],
-        payment_methods=["DEBIT"],
+        platform_ids=["MAKEMYTRIP"],
+        bank_ids=["ICICI"],
+        payment_methods=["CREDIT"],
     )
-    assert [offer.offer_id for offer in offers] == ["CT-HDFC-DEBIT-001"]
+    assert [offer.offer_id for offer in offers] == ["MAK-ICICI-9DD070"]
 
 
 def test_expired_excluded():
-    assert repository().list_offers(active_on=date(2030, 1, 1)) == []
+    # MAK-KOTAK-919B61 is the last offer, expiring 2027-03-31; no offers exist after that date
+    assert repository().list_offers(active_on=date(2031, 1, 1)) == []

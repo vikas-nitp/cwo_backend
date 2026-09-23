@@ -104,14 +104,19 @@ def normalize_row(row: dict[str, Any], spec: SourceSpec | None = None) -> dict[s
             if value not in (None, ""):
                 extra[key] = value
             continue
-        if value in (None, "") and key in NULLABLE:
+        if key in {"eligibility_notes", "supported_cards"}:
+            if value in (None, ""):
+                output[key] = []
+            else:
+                output[key] = (
+                    value
+                    if isinstance(value, list)
+                    else [item.strip() for item in str(value).replace(";", "|").split("|") if item.strip()]
+                )
+        elif value in (None, "") and key in NULLABLE:
             output[key] = None
         elif key in BOOL_FIELDS:
             output[key] = parse_bool(value)
-        elif key in {"eligibility_notes", "supported_cards"}:
-            output[key] = (
-                value if isinstance(value, list) else [item.strip() for item in str(value).split("|") if item.strip()]
-            )
         else:
             output[key] = value
     for field in (
