@@ -1,5 +1,5 @@
 """
-CardwiseOffer Backend - FastAPI Application
+CardOptimal Backend - FastAPI Application
 
 Run with:
     cd cwo_backend && PYTHONPATH=$(pwd) venv/bin/python3 -m uvicorn app.main:app --port 8001 --reload
@@ -27,6 +27,7 @@ from app.api.routes.visitors import router as visitors_router
 from app.core.config import (
     API_PREFIX,
     APP_ENV,
+    APP_NAME,
     CORS_ORIGINS,
     FACETS_SNAPSHOT_PATH,
     FEATURE_FLAGS_PATH,
@@ -88,9 +89,9 @@ async def lifespan(application: FastAPI):
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="CardwiseOffer API",
+    title=f"{APP_NAME} API",
     version="1.1.0",
-    description="API for CardwiseOffer - Find best credit card offers",
+    description=f"API for {APP_NAME} — find best credit card offers for Indian flights",
     docs_url=_docs_url,
     redoc_url=_redoc_url,
     openapi_url=_openapi_url,
@@ -114,7 +115,7 @@ app.add_middleware(
     allow_headers=["Content-Type", "X-Request-ID"],
 )
 
-logger.info(f"Starting CardwiseOffer API (env={APP_ENV})")
+logger.info(f"Starting {APP_NAME} API (env={APP_ENV})")
 logger.info(f"CORS origins: {CORS_ORIGINS}")
 
 

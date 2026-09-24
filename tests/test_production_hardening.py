@@ -10,8 +10,8 @@ def test_production_configuration_rejects_unsafe_origins():
     for origins in ([], ["*"], ["http://localhost:5173"]):
         with pytest.raises(ValidationError):
             RuntimeSettings(app_env="production", allowed_origins=origins)
-    settings = RuntimeSettings(app_env="production", allowed_origins=["https://cardwiseoffer.com"])
-    assert settings.allowed_origins == ["https://cardwiseoffer.com"]
+    settings = RuntimeSettings(app_env="production", allowed_origins=["https://cardsage.in"])
+    assert settings.allowed_origins == ["https://cardsage.in"]
 
 
 def test_request_id_accepts_safe_value_and_rejects_log_injection(client):
