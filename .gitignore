@@ -211,9 +211,10 @@ nohup.out
 logs/
 .DS_Store
 
-# Markdown files except README
+# Markdown files except README and docs/
 *.md
 !README.md
+!docs/**/*.md
 
 # Data files (keep only source data, not large binaries)
 data/*.xlsx
