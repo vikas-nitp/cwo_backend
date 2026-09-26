@@ -1,4 +1,4 @@
-# CardwiseOffer Backend
+# CardOptimal Backend
 
 FastAPI service that serves validated domestic-flight card offers. No database required — all data is file-based JSON/CSV.
 
