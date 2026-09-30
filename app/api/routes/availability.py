@@ -13,13 +13,11 @@ router = APIRouter(tags=["Availability"])
 @router.get("/availability", response_model=AvailabilityResponse)
 def availability(
     request: Request,
-    from_date: date = Query(alias="from"),
-    to_date: date = Query(alias="to"),
+    from_date: date = Query(alias="from"),  # noqa: B008
+    to_date: date = Query(alias="to"),  # noqa: B008
 ):
     if to_date < from_date or (to_date - from_date).days > 30:
-        raise HTTPException(
-            status_code=422, detail="Availability range must be 1 to 31 days"
-        )
+        raise HTTPException(status_code=422, detail="Availability range must be 1 to 31 days")
     repository = request.app.state.offer_repository
     metadata = repository.get_metadata()
     days = []
@@ -32,9 +30,7 @@ def availability(
             if offer.discount_type == "FLAT" or offer.max_discount is not None
         ]
         percentages = [
-            offer.discount_value
-            for offer in offers
-            if offer.discount_type == "PERCENT" and offer.max_discount is None
+            offer.discount_value for offer in offers if offer.discount_type == "PERCENT" and offer.max_discount is None
         ]
         if amounts:
             kind, value = "AMOUNT", max(amounts)

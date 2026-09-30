@@ -1,25 +1,37 @@
 {
-  "data_version": "2026-07-12-b3c9bde44ee5",
+  "data_version": "2026-09-04-2947efaf61df",
   "banks": [
     {
       "id": "AMEX",
       "name": "American Express"
     },
     {
+      "id": "AU",
+      "name": "AU Small Finance Bank"
+    },
+    {
       "id": "AXIS",
       "name": "Axis Bank"
+    },
+    {
+      "id": "BOB",
+      "name": "Bank of Baroda"
+    },
+    {
+      "id": "FEDERAL",
+      "name": "Federal Bank"
     },
     {
       "id": "HDFC",
       "name": "HDFC Bank"
     },
     {
-      "id": "HSBC",
-      "name": "HSBC Bank"
-    },
-    {
       "id": "ICICI",
       "name": "ICICI Bank"
+    },
+    {
+      "id": "IDFC",
+      "name": "IDFC First Bank"
     },
     {
       "id": "INDUSIND",
@@ -27,25 +39,29 @@
     },
     {
       "id": "KOTAK",
-      "name": "Kotak Bank"
+      "name": "Kotak Mahindra Bank"
+    },
+    {
+      "id": "PNB",
+      "name": "Punjab National Bank"
+    },
+    {
+      "id": "RBL",
+      "name": "RBL Bank"
     },
     {
       "id": "SBI",
       "name": "State Bank of India"
+    },
+    {
+      "id": "YES",
+      "name": "Yes Bank"
     }
   ],
   "platforms": [
     {
       "id": "CLEARTRIP",
       "name": "Cleartrip"
-    },
-    {
-      "id": "EASEMYTRIP",
-      "name": "EaseMyTrip"
-    },
-    {
-      "id": "GOIBIBO",
-      "name": "Goibibo"
     },
     {
       "id": "MAKEMYTRIP",
@@ -766,8 +782,5 @@
       "country": "IN",
       "is_domestic_default": true
     }
-  ],
-  "availability_start": "2026-07-13",
-  "availability_end": "2026-10-15",
-  "dataset_last_updated_at": "2026-07-12"
+  ]
 }

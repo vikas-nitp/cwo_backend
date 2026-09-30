@@ -5,20 +5,20 @@ from decimal import Decimal
 from typing import Any, Literal
 
 from pydantic import (
+    AliasChoices,
     AnyHttpUrl,
     BaseModel,
     ConfigDict,
     Field,
-    AliasChoices,
     field_serializer,
     model_validator,
 )
 
 PlatformId = str
 PaymentMethod = Literal["CREDIT", "DEBIT", "NO_CARD"]
-Category = Literal["FLIGHT_DOMESTIC"]
+Category = Literal["FLIGHT_DOMESTIC", "FLIGHT_INTERNATIONAL"]
 BookingChannel = Literal["WEB", "APP", "WEB_AND_APP"]
-DiscountType = Literal["PERCENT", "FLAT"]
+DiscountType = Literal["PERCENT", "FLAT", "CASHBACK"]
 EvidenceStatus = Literal["VERIFIED", "PARTIAL", "UNVERIFIED"]
 PublishStatus = Literal["READY", "DRAFT", "HIDDEN"]
 
@@ -44,6 +44,8 @@ class Offer(BaseModel):
     coupon_code: str | None = None
     valid_from: date
     expiry_date: date = Field(validation_alias=AliasChoices("expiry_date", "valid_to"))
+    # 0=Monday … 6=Sunday (Python weekday convention). None means valid every day.
+    valid_days: list[int] | None = Field(default=None)
     updated_at: date
     usage_limit: str | None = None
     new_user_only: bool = False
@@ -68,9 +70,7 @@ class Offer(BaseModel):
             if not value.get("supported_cards") and value.get("card_name"):
                 value["supported_cards"] = [value["card_name"]]
             if not value.get("updated_at"):
-                value["updated_at"] = value.get("last_verified_at") or value.get(
-                    "valid_from"
-                )
+                value["updated_at"] = value.get("last_verified_at") or value.get("valid_from")
         return value
 
     @model_validator(mode="after")

@@ -197,6 +197,32 @@
         "title": "CatalogueFacets",
         "type": "object"
       },
+      "EmailSubscribeRequest": {
+        "properties": {
+          "email": {
+            "maxLength": 320,
+            "title": "Email",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "EmailSubscribeRequest",
+        "type": "object"
+      },
       "FacetOption": {
         "properties": {
           "count": {
@@ -233,9 +259,19 @@
       "FeatureFlagsResponse": {
         "additionalProperties": false,
         "properties": {
+          "aboutEnabled": {
+            "default": true,
+            "title": "Aboutenabled",
+            "type": "boolean"
+          },
           "analyticsEnabled": {
             "default": true,
             "title": "Analyticsenabled",
+            "type": "boolean"
+          },
+          "authEnabled": {
+            "default": false,
+            "title": "Authenabled",
             "type": "boolean"
           },
           "bookingAmountComparisonEnabled": {
@@ -247,9 +283,39 @@
             "title": "Config Version",
             "type": "string"
           },
+          "contactEnabled": {
+            "default": true,
+            "title": "Contactenabled",
+            "type": "boolean"
+          },
+          "cookieConsentEnabled": {
+            "default": false,
+            "title": "Cookieconsentenabled",
+            "type": "boolean"
+          },
           "couponCodeEnabled": {
             "default": false,
             "title": "Couponcodeenabled",
+            "type": "boolean"
+          },
+          "flightInternationalEnabled": {
+            "default": false,
+            "title": "Flightinternationalenabled",
+            "type": "boolean"
+          },
+          "homeEntranceAnimationEnabled": {
+            "default": true,
+            "title": "Homeentranceanimationenabled",
+            "type": "boolean"
+          },
+          "howItWorksEnabled": {
+            "default": true,
+            "title": "Howitworksenabled",
+            "type": "boolean"
+          },
+          "notificationsEnabled": {
+            "default": false,
+            "title": "Notificationsenabled",
             "type": "boolean"
           },
           "phase2UserFeaturesEnabled": {
@@ -257,9 +323,39 @@
             "title": "Phase2Userfeaturesenabled",
             "type": "boolean"
           },
+          "privacyPolicyEnabled": {
+            "default": true,
+            "title": "Privacypolicyenabled",
+            "type": "boolean"
+          },
           "publicAllOffersEnabled": {
             "default": true,
             "title": "Publicalloffersenabled",
+            "type": "boolean"
+          },
+          "splashScreenEnabled": {
+            "default": false,
+            "title": "Splashscreenenabled",
+            "type": "boolean"
+          },
+          "subscriptionsEnabled": {
+            "default": false,
+            "title": "Subscriptionsenabled",
+            "type": "boolean"
+          },
+          "termsOfServiceEnabled": {
+            "default": true,
+            "title": "Termsofserviceenabled",
+            "type": "boolean"
+          },
+          "userCardsEnabled": {
+            "default": false,
+            "title": "Usercardsenabled",
+            "type": "boolean"
+          },
+          "visitorCountEnabled": {
+            "default": false,
+            "title": "Visitorcountenabled",
             "type": "boolean"
           }
         },
@@ -280,6 +376,24 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "NotificationPrefsRequest": {
+        "properties": {
+          "notify_expiring": {
+            "title": "Notify Expiring",
+            "type": "boolean"
+          },
+          "notify_new": {
+            "title": "Notify New",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "notify_expiring",
+          "notify_new"
+        ],
+        "title": "NotificationPrefsRequest",
         "type": "object"
       },
       "OfferMetadata": {
@@ -336,7 +450,10 @@
           },
           "categories": {
             "items": {
-              "const": "FLIGHT_DOMESTIC",
+              "enum": [
+                "FLIGHT_DOMESTIC",
+                "FLIGHT_INTERNATIONAL"
+              ],
               "type": "string"
             },
             "title": "Categories",
@@ -515,8 +632,22 @@
             ],
             "title": "Card Name"
           },
+          "card_specificity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Card Specificity"
+          },
           "category": {
-            "const": "FLIGHT_DOMESTIC",
+            "enum": [
+              "FLIGHT_DOMESTIC",
+              "FLIGHT_INTERNATIONAL"
+            ],
             "title": "Category",
             "type": "string"
           },
@@ -534,7 +665,8 @@
           "discount_type": {
             "enum": [
               "PERCENT",
-              "FLAT"
+              "FLAT",
+              "CASHBACK"
             ],
             "title": "Discount Type",
             "type": "string"
@@ -550,6 +682,21 @@
             },
             "title": "Eligibility Notes",
             "type": "array"
+          },
+          "evidence_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Curation confidence level: VERIFIED | UNVERIFIED",
+            "examples": [
+              "VERIFIED"
+            ],
+            "title": "Evidence Status"
           },
           "expiry_date": {
             "format": "date",
@@ -609,6 +756,21 @@
             "title": "Platform Name",
             "type": "string"
           },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Attribution URL \u2014 the source promotional page where this offer was curated from",
+            "examples": [
+              "https://www.makemytrip.com/promos/hdfc-offer"
+            ],
+            "title": "Source Url"
+          },
           "supported_cards": {
             "items": {
               "type": "string"
@@ -645,6 +807,30 @@
             ],
             "title": "Usage Limit"
           },
+          "valid_days": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "JS weekday indices (0=Sun \u2026 6=Sat) on which offer is valid; null = every day",
+            "examples": [
+              [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            ],
+            "title": "Valid Days"
+          },
           "valid_from": {
             "format": "date",
             "title": "Valid From",
@@ -668,6 +854,42 @@
           "eligibility_notes"
         ],
         "title": "PublicOffer",
+        "type": "object"
+      },
+      "SaveCardRequest": {
+        "properties": {
+          "bank_id": {
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Bank Id",
+            "type": "string"
+          },
+          "card_name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Card Name"
+          },
+          "payment_method": {
+            "enum": [
+              "CREDIT",
+              "DEBIT"
+            ],
+            "title": "Payment Method",
+            "type": "string"
+          }
+        },
+        "required": [
+          "bank_id",
+          "payment_method"
+        ],
+        "title": "SaveCardRequest",
         "type": "object"
       },
       "SearchDateBenefit": {
@@ -791,8 +1013,22 @@
             ],
             "title": "Card Name"
           },
+          "card_specificity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Card Specificity"
+          },
           "category": {
-            "const": "FLIGHT_DOMESTIC",
+            "enum": [
+              "FLIGHT_DOMESTIC",
+              "FLIGHT_INTERNATIONAL"
+            ],
             "title": "Category",
             "type": "string"
           },
@@ -821,7 +1057,8 @@
           "discount_type": {
             "enum": [
               "PERCENT",
-              "FLAT"
+              "FLAT",
+              "CASHBACK"
             ],
             "title": "Discount Type",
             "type": "string"
@@ -867,6 +1104,21 @@
               }
             ],
             "title": "Estimated Savings"
+          },
+          "evidence_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Curation confidence level: VERIFIED | UNVERIFIED",
+            "examples": [
+              "VERIFIED"
+            ],
+            "title": "Evidence Status"
           },
           "expiry_date": {
             "format": "date",
@@ -941,6 +1193,21 @@
             "title": "Savings Label",
             "type": "string"
           },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Attribution URL \u2014 the source promotional page where this offer was curated from",
+            "examples": [
+              "https://www.makemytrip.com/promos/hdfc-offer"
+            ],
+            "title": "Source Url"
+          },
           "supported_cards": {
             "items": {
               "type": "string"
@@ -976,6 +1243,30 @@
               }
             ],
             "title": "Usage Limit"
+          },
+          "valid_days": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "JS weekday indices (0=Sun \u2026 6=Sat) on which offer is valid; null = every day",
+            "examples": [
+              [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            ],
+            "title": "Valid Days"
           },
           "valid_from": {
             "format": "date",
@@ -1035,8 +1326,11 @@
             "title": "Booking Amount"
           },
           "category": {
-            "const": "FLIGHT_DOMESTIC",
             "default": "FLIGHT_DOMESTIC",
+            "enum": [
+              "FLIGHT_DOMESTIC",
+              "FLIGHT_INTERNATIONAL"
+            ],
             "title": "Category",
             "type": "string"
           },
@@ -1180,8 +1474,8 @@
     }
   },
   "info": {
-    "description": "API for CardwiseOffer - Find best credit card offers",
-    "title": "CardwiseOffer API",
+    "description": "API for CardOptimal \u2014 find best credit card offers for Indian flights",
+    "title": "CardOptimal API",
     "version": "1.1.0"
   },
   "openapi": "3.1.0",
@@ -1292,6 +1586,7 @@
             "schema": {
               "default": [],
               "items": {
+                "maxLength": 50,
                 "type": "string"
               },
               "title": "Bank",
@@ -1305,6 +1600,7 @@
             "schema": {
               "default": [],
               "items": {
+                "maxLength": 50,
                 "type": "string"
               },
               "title": "Platform",
@@ -1318,6 +1614,7 @@
             "schema": {
               "default": [],
               "items": {
+                "maxLength": 50,
                 "type": "string"
               },
               "title": "Payment Method",
@@ -1331,6 +1628,7 @@
             "schema": {
               "default": [],
               "items": {
+                "maxLength": 50,
                 "type": "string"
               },
               "title": "Booking Channel",
@@ -1344,6 +1642,7 @@
             "schema": {
               "default": [],
               "items": {
+                "maxLength": 50,
                 "type": "string"
               },
               "title": "Category",
@@ -1450,6 +1749,216 @@
         "summary": "Search",
         "tags": [
           "Search"
+        ]
+      }
+    },
+    "/api/v1/subscriptions/email": {
+      "post": {
+        "operationId": "subscribe_email_api_v1_subscriptions_email_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailSubscribeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Subscribe Email",
+        "tags": [
+          "Subscriptions"
+        ]
+      }
+    },
+    "/api/v1/user/cards": {
+      "get": {
+        "operationId": "list_cards_api_v1_user_cards_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Cards",
+        "tags": [
+          "UserCards"
+        ]
+      },
+      "post": {
+        "operationId": "save_card_api_v1_user_cards_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveCardRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Card",
+        "tags": [
+          "UserCards"
+        ]
+      }
+    },
+    "/api/v1/user/cards/{card_id}": {
+      "delete": {
+        "operationId": "delete_card_api_v1_user_cards__card_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "card_id",
+            "required": true,
+            "schema": {
+              "title": "Card Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Card",
+        "tags": [
+          "UserCards"
+        ]
+      }
+    },
+    "/api/v1/user/notification-prefs": {
+      "get": {
+        "operationId": "get_notification_prefs_api_v1_user_notification_prefs_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Notification Prefs",
+        "tags": [
+          "UserCards"
+        ]
+      },
+      "post": {
+        "operationId": "save_notification_prefs_api_v1_user_notification_prefs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationPrefsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Notification Prefs",
+        "tags": [
+          "UserCards"
+        ]
+      }
+    },
+    "/api/v1/visitors/count": {
+      "get": {
+        "operationId": "visitor_count_api_v1_visitors_count_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Visitor Count",
+        "tags": [
+          "Visitors"
         ]
       }
     },

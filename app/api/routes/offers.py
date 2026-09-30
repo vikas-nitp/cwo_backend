@@ -1,18 +1,24 @@
 from datetime import date
+from typing import Annotated
 
 from fastapi import APIRouter, Query, Request, Response
 
 from app.api.errors import error_response
 from app.api.headers import not_modified, version_headers
+from app.core.config import SETTINGS
+from app.core.dates import today_ist
+from app.core.logging import get_logger
 from app.schemas.offers import OffersResponse
 from app.services.offer_catalog_service import (
     OfferCatalogService,
     UnsupportedFilterError,
 )
-from app.core.config import SETTINGS
-from app.core.dates import today_ist
 
 router = APIRouter(tags=["Offers"])
+logger = get_logger(__name__)
+
+# Constrained string type for filter query params — each value capped at 50 chars
+_FilterStr = Annotated[str, Query(max_length=50)]
 
 
 @router.get(
@@ -23,11 +29,11 @@ router = APIRouter(tags=["Offers"])
 def offers(
     request: Request,
     response: Response,
-    bank: list[str] = Query(default=[]),
-    platform: list[str] = Query(default=[]),
-    payment_method: list[str] = Query(default=[]),
-    booking_channel: list[str] = Query(default=[]),
-    category: list[str] = Query(default=[]),
+    bank: list[_FilterStr] = Query(default=[]),
+    platform: list[_FilterStr] = Query(default=[]),
+    payment_method: list[_FilterStr] = Query(default=[]),
+    booking_channel: list[_FilterStr] = Query(default=[]),
+    category: list[_FilterStr] = Query(default=[]),
     active_on: date = Query(default_factory=today_ist),
     page: int = Query(1, ge=1),
     limit: int = Query(SETTINGS.default_page_limit, ge=1, le=SETTINGS.max_page_limit),
@@ -49,9 +55,7 @@ def offers(
         )
     repository = request.app.state.offer_repository
     if not repository.loaded:
-        return error_response(
-            request, 503, "DATA_NOT_READY", "Offer data is not ready."
-        )
+        return error_response(request, 503, "DATA_NOT_READY", "Offer data is not ready.")
     version = repository.get_manifest().data_version
     etag = version_headers(
         response,
@@ -74,18 +78,10 @@ def offers(
         )
         if not flags.couponCodeEnabled:
             result = result.model_copy(
-                update={
-                    "offers": [
-                        offer.model_copy(update={"coupon_code": None})
-                        for offer in result.offers
-                    ]
-                }
+                update={"offers": [offer.model_copy(update={"coupon_code": None}) for offer in result.offers]}
             )
         return result
     except UnsupportedFilterError as exc:
-        code = (
-            "UNSUPPORTED_PLATFORM"
-            if str(exc).startswith("Unsupported platform")
-            else "UNSUPPORTED_FILTER"
-        )
+        code = "UNSUPPORTED_PLATFORM" if str(exc).startswith("Unsupported platform") else "UNSUPPORTED_FILTER"
+        logger.warning("Unsupported filter in /offers: %s", exc)
         return error_response(request, 400, code, str(exc))

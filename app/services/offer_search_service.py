@@ -1,5 +1,7 @@
 from datetime import date, timedelta
+
 from app.core.dates import today_ist
+from app.core.logging import get_logger
 from app.domain.calculations import estimate_savings
 from app.domain.ranking import rank_offers
 from app.repositories.base import OfferRepository
@@ -17,6 +19,9 @@ BOOKING_URLS = {
 }
 
 
+logger = get_logger(__name__)
+
+
 class SearchDateError(ValueError):
     pass
 
@@ -25,24 +30,29 @@ class OfferSearchService:
     def __init__(self, repository: OfferRepository):
         self.repository = repository
 
-    def search(
-        self, request: SearchRequest, today: date | None = None
-    ) -> SearchResponse:
+    def search(self, request: SearchRequest, today: date | None = None) -> SearchResponse:
         today = today or today_ist()
         metadata = self.repository.get_metadata()
         known_banks = {bank.id for bank in metadata.banks}
         unknown_banks = set(request.banks) - known_banks
         if unknown_banks:
-            raise ValueError(f"Unknown bank ID: {', '.join(sorted(unknown_banks))}")
+            msg = f"Unknown bank ID: {', '.join(sorted(unknown_banks))}"
+            logger.warning("Search rejected — %s", msg)
+            raise ValueError(msg)
         if request.date < today:
+            logger.warning("Search rejected — travel date in the past: %s", request.date)
             raise SearchDateError("Travel date cannot be in the past.")
         if (
             metadata.availability_start is None
             or metadata.availability_end is None
-            or not metadata.availability_start
-            <= request.date
-            <= metadata.availability_end
+            or not metadata.availability_start <= request.date <= metadata.availability_end
         ):
+            logger.warning(
+                "Search rejected — date %s outside availability window [%s, %s]",
+                request.date,
+                metadata.availability_start,
+                metadata.availability_end,
+            )
             raise SearchDateError("Travel date is outside offer availability.")
         offers = self.repository.list_offers(
             active_on=request.date,
@@ -50,10 +60,7 @@ class OfferSearchService:
             categories=[request.category],
         )
         ranked = rank_offers(
-            [
-                (offer, estimate_savings(offer, request.booking_amount))
-                for offer in offers
-            ],
+            [(offer, estimate_savings(offer, request.booking_amount)) for offer in offers],
             request.banks,
             request.date,
         )
@@ -70,9 +77,7 @@ class OfferSearchService:
                         "estimated_savings": item.estimate.estimated_savings,
                         "estimated_final_amount": item.estimate.estimated_final_amount,
                         "savings_label": item.estimate.savings_label,
-                        "amount_eligible": item.estimate.eligible
-                        if request.booking_amount is not None
-                        else None,
+                        "amount_eligible": item.estimate.eligible if request.booking_amount is not None else None,
                         "comparison_text": (
                             f"Save ₹{item.savings_delta:,.0f} more"
                             if request.booking_amount is not None
@@ -80,12 +85,12 @@ class OfferSearchService:
                             and item.savings_delta > 0
                             else None
                         ),
-                        "booking_url": offer.booking_url
-                        or BOOKING_URLS.get(offer.platform_id),
+                        "booking_url": offer.booking_url or BOOKING_URLS.get(offer.platform_id),
                     }
                 )
             )
         if not offers:
+            logger.warning("Search on %s returned no eligible offers", request.date)
             raise SearchDateError("No eligible offers are available on this date.")
         date_strip = []
         strip_end = min(request.date + timedelta(days=6), metadata.availability_end)
@@ -97,9 +102,7 @@ class OfferSearchService:
                 categories=[request.category],
             )
             amounts = [
-                offer.max_discount
-                if offer.max_discount is not None
-                else offer.discount_value
+                offer.max_discount if offer.max_discount is not None else offer.discount_value
                 for offer in strip_offers
                 if offer.discount_type == "FLAT" or offer.max_discount is not None
             ]

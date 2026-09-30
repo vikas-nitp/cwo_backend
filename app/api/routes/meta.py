@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Response
 
-from app.api.headers import not_modified, version_headers
 from app.api.errors import error_response
+from app.api.headers import not_modified, version_headers
 from app.core.config import SETTINGS
 from app.domain.models import OfferMetadata
 
@@ -12,9 +12,7 @@ router = APIRouter(tags=["Meta"])
 def meta(request: Request, response: Response):
     repository = request.app.state.offer_repository
     if not repository.loaded:
-        return error_response(
-            request, 503, "DATA_NOT_READY", "Offer data is not ready."
-        )
+        return error_response(request, 503, "DATA_NOT_READY", "Offer data is not ready.")
     metadata = repository.get_metadata()
     etag = version_headers(
         response,

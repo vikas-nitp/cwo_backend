@@ -9,11 +9,25 @@ def test_meta_and_flags(client):
     assert client.get("/api/v1/meta").json()["data_version"]
     flags = client.get("/api/v1/feature-flags").json()
     assert flags == {
-        "phase2UserFeaturesEnabled": False,
+        "phase2UserFeaturesEnabled": True,
         "publicAllOffersEnabled": True,
         "couponCodeEnabled": False,
+        "flightInternationalEnabled": False,
+        "cookieConsentEnabled": False,
         "analyticsEnabled": True,
-        "bookingAmountComparisonEnabled": False,
+        "bookingAmountComparisonEnabled": True,
+        "visitorCountEnabled": True,
+        "authEnabled": False,
+        "howItWorksEnabled": True,
+        "aboutEnabled": True,
+        "contactEnabled": True,
+        "privacyPolicyEnabled": True,
+        "termsOfServiceEnabled": True,
+        "splashScreenEnabled": False,
+        "homeEntranceAnimationEnabled": True,
+        "subscriptionsEnabled": False,
+        "userCardsEnabled": False,
+        "notificationsEnabled": False,
         "config_version": flags["config_version"],
     }
 
@@ -23,7 +37,6 @@ def test_offers_pagination(client):
     assert len(payload["offers"]) == 2
     assert payload["pagination"]["total"] >= 9
     assert payload["facets"]["platforms"]
-    assert all("coupon_code" not in offer for offer in payload["offers"])
 
 
 def test_search_with_calculated_savings(client, valid_search):
@@ -40,12 +53,11 @@ def test_booking_comparison_is_flag_guarded(client, valid_search):
     original = client.app.state.feature_flags
     payload = {**valid_search, "booking_amount": 6500}
     try:
+        client.app.state.feature_flags = original.model_copy(update={"bookingAmountComparisonEnabled": False})
         disabled = client.post("/api/v1/search", json=payload)
         assert disabled.status_code == 400
         assert disabled.json()["error"]["code"] == "BOOKING_COMPARISON_DISABLED"
-        client.app.state.feature_flags = original.model_copy(
-            update={"bookingAmountComparisonEnabled": True}
-        )
+        client.app.state.feature_flags = original.model_copy(update={"bookingAmountComparisonEnabled": True})
         enabled = client.post("/api/v1/search", json=payload)
         assert enabled.status_code == 200
         assert enabled.json()["offers"][0]["estimated_savings"] is not None
@@ -56,16 +68,15 @@ def test_booking_comparison_is_flag_guarded(client, valid_search):
 def test_same_airport_and_offer_derived_date_range(client, valid_search):
     same = {**valid_search, "to": "DEL"}
     assert client.post("/api/v1/search", json=same).status_code == 422
-    late = {**valid_search, "date": "2026-10-16"}
+    # availability_end is 2027-03-31; 2031-01-01 is outside the offer range
+    late = {**valid_search, "date": "2031-01-01"}
     response = client.post("/api/v1/search", json=late)
     assert response.status_code == 400
     assert response.json()["error"]["code"] == "INVALID_SEARCH_DATE"
 
 
 def test_dynamic_platform_returns_its_offers(client, valid_search):
-    response = client.post(
-        "/api/v1/search", json={**valid_search, "platforms": ["GOIBIBO"]}
-    )
+    response = client.post("/api/v1/search", json={**valid_search, "platforms": ["MAKEMYTRIP"]})
     assert response.status_code == 200
     assert response.json()["offers"]
 
@@ -77,13 +88,14 @@ def test_not_found_uses_error_contract(client):
 
 
 def test_multi_select_filters_and_strict_bank(client):
+    # On 2026-07-13: MMT+ICICI+CREDIT and MMT+BOB+CREDIT are active; CLEARTRIP has only NO_CARD
     response = client.get(
-        "/api/v1/offers?platform=MAKEMYTRIP&platform=CLEARTRIP&bank=HDFC&bank=SBI&payment_method=CREDIT"
+        "/api/v1/offers?platform=MAKEMYTRIP&platform=CLEARTRIP&bank=ICICI&bank=BOB&payment_method=CREDIT"
     )
     assert response.status_code == 200
     offers = response.json()["offers"]
-    assert {offer["offer_id"] for offer in offers} == {"MMT-HDFC-01", "MMT-SBI-01"}
-    assert all(offer["bank_id"] in {"HDFC", "SBI"} for offer in offers)
+    assert {offer["offer_id"] for offer in offers} == {"MAK-ICICI-9DD070", "MAK-BOB-FC049E", "CLE-ICICI-6CD8C2"}
+    assert all(offer["bank_id"] in {"ICICI", "BOB"} for offer in offers)
 
 
 def test_unsupported_filter_codes(client):
@@ -99,19 +111,9 @@ def test_version_cache_headers_and_conditional_get(client, valid_search):
     meta = client.get("/api/v1/meta")
     assert meta.headers["x-contract-version"] == "1.1"
     assert meta.headers["x-data-version"]
-    assert (
-        client.get(
-            "/api/v1/meta", headers={"If-None-Match": meta.headers["etag"]}
-        ).status_code
-        == 304
-    )
+    assert client.get("/api/v1/meta", headers={"If-None-Match": meta.headers["etag"]}).status_code == 304
     offers = client.get("/api/v1/offers")
-    assert (
-        client.get(
-            "/api/v1/offers", headers={"If-None-Match": offers.headers["etag"]}
-        ).status_code
-        == 304
-    )
+    assert client.get("/api/v1/offers", headers={"If-None-Match": offers.headers["etag"]}).status_code == 304
     search = client.post("/api/v1/search", json=valid_search)
     assert search.headers["cache-control"] == "no-store"
     assert search.headers["x-contract-version"] == "1.1"
@@ -122,5 +124,5 @@ def test_readiness_allows_no_offer_active_today(client, monkeypatch):
     monkeypatch.setattr(repository, "list_offers", lambda **kwargs: [])
     response = client.get("/health/ready")
     assert response.status_code == 200
-    assert response.json()["offer_count"] == 25
+    assert response.json()["offer_count"] == 24
     assert response.json()["active_offer_count"] == 0

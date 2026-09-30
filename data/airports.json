@@ -50,7 +50,7 @@
   },
   {
     "code": "GOI",
-    "city": "Vasco da Gama",
+    "city": "Goa (Dabolim)",
     "name": "Goa Dabolim International Airport",
     "country": "IN",
     "is_domestic_default": true
@@ -260,14 +260,14 @@
   },
   {
     "code": "SAG",
-    "city": "Kakadi",
+    "city": "Shirdi",
     "name": "Shirdi International Airport",
     "country": "IN",
     "is_domestic_default": true
   },
   {
     "code": "GOX",
-    "city": "Mopa",
+    "city": "Goa (Mopa)",
     "name": "Manohar International Airport",
     "country": "IN",
     "is_domestic_default": true
@@ -276,13 +276,6 @@
     "code": "HWR",
     "city": "Halwara",
     "name": "Halwara International Airport",
-    "country": "IN",
-    "is_domestic_default": true
-  },
-  {
-    "code": "NMI",
-    "city": "Navi Mumbai",
-    "name": "Navi Mumbai International Airport",
     "country": "IN",
     "is_domestic_default": true
   },
@@ -407,7 +400,7 @@
   },
   {
     "code": "TEZ",
-    "city": "",
+    "city": "Tezpur",
     "name": "Tezpur Airport",
     "country": "IN",
     "is_domestic_default": true
@@ -519,7 +512,7 @@
   },
   {
     "code": "IXD",
-    "city": "Allahabad",
+    "city": "Prayagraj",
     "name": "Prayagraj Airport",
     "country": "IN",
     "is_domestic_default": true
@@ -575,7 +568,7 @@
   },
   {
     "code": "JSA",
-    "city": "",
+    "city": "Jaisalmer",
     "name": "Jaisalmer Airport",
     "country": "IN",
     "is_domestic_default": true

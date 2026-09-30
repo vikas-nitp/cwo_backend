@@ -1,6 +1,6 @@
+import re
 from datetime import date
 from decimal import Decimal
-import re
 
 from pydantic import (
     BaseModel,
@@ -34,9 +34,7 @@ class SearchRequest(BaseModel):
     @field_validator("banks")
     @classmethod
     def normalize_banks(cls, value: list[str]) -> list[str]:
-        normalized = list(
-            dict.fromkeys(item.strip().upper() for item in value if item.strip())
-        )
+        normalized = list(dict.fromkeys(item.strip().upper() for item in value if item.strip()))
         if len(normalized) > 2:
             raise ValueError("Maximum two banks are allowed")
         return normalized

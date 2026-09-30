@@ -1,12 +1,4 @@
-"""
-Logging configuration for CardwiseOffer Backend
-
-Features:
-- Console logging with colors
-- Daily rotating file logs (TXT and JSON)
-- 15-day retention with auto-archive
-- Debug level support
-"""
+"""Logging configuration for CardOptimal Backend."""
 
 import json
 import logging
@@ -18,7 +10,6 @@ from pathlib import Path
 from typing import Optional
 
 import yaml
-
 
 # ────────────────────────────────────────────────────────────────────
 # Custom JSON Formatter
@@ -150,9 +141,7 @@ def setup_logging(config_path: Optional[str] = None) -> None:
     """
     # Default: logging.yaml in cwo_backend root
     resolved_config_path = (
-        Path(config_path)
-        if config_path is not None
-        else Path(__file__).parent.parent.parent / "logging.yaml"
+        Path(config_path) if config_path is not None else Path(__file__).parent.parent.parent / "logging.yaml"
     )
 
     # Create logs directory
@@ -165,11 +154,9 @@ def setup_logging(config_path: Optional[str] = None) -> None:
             config = yaml.safe_load(f)
 
         # Update file paths to absolute
-        for handler_name, handler_config in config.get("handlers", {}).items():
+        for _handler_name, handler_config in config.get("handlers", {}).items():
             if "filename" in handler_config:
-                handler_config["filename"] = str(
-                    logs_dir / Path(handler_config["filename"]).name
-                )
+                handler_config["filename"] = str(logs_dir / Path(handler_config["filename"]).name)
 
         logging.config.dictConfig(config)
     else:
@@ -182,52 +169,4 @@ def setup_logging(config_path: Optional[str] = None) -> None:
 
 
 def get_logger(name: str) -> logging.Logger:
-    """
-    Get a logger instance.
-
-    Args:
-        name: Logger name (e.g., "app.services.data")
-
-    Returns:
-        Logger instance
-    """
     return logging.getLogger(name)
-
-
-# ────────────────────────────────────────────────────────────────────
-# Convenience Methods
-# ────────────────────────────────────────────────────────────────────
-
-
-class AppLogger:
-    """
-    Application logger with convenience methods.
-
-    Usage:
-        from app.core.logging import AppLogger
-        logger = AppLogger("app.services.data")
-        logger.debug("Loading data", extra={"file": "offers.xlsx"})
-        logger.info("Data loaded", extra={"count": 100})
-        logger.error("Failed to load", exc_info=True)
-    """
-
-    def __init__(self, name: str):
-        self._logger = logging.getLogger(name)
-
-    def debug(self, msg: str, **kwargs) -> None:
-        self._logger.debug(msg, **kwargs)
-
-    def info(self, msg: str, **kwargs) -> None:
-        self._logger.info(msg, **kwargs)
-
-    def warning(self, msg: str, **kwargs) -> None:
-        self._logger.warning(msg, **kwargs)
-
-    def error(self, msg: str, **kwargs) -> None:
-        self._logger.error(msg, **kwargs)
-
-    def critical(self, msg: str, **kwargs) -> None:
-        self._logger.critical(msg, **kwargs)
-
-    def exception(self, msg: str, **kwargs) -> None:
-        self._logger.exception(msg, **kwargs)

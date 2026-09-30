@@ -1,0 +1,10 @@
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "SIM"]
+ignore = [
+    "B008",   # FastAPI Query/Depends in function defaults is the documented pattern
+    "SIM102", # nested if for guard-clause readability
+    "SIM108", # ternary for multi-condition ip extraction hurts readability
+]

@@ -7,34 +7,37 @@ def ids(repository, selected):
 
 def test_overlapping_and_future_validity_boundaries(client):
     repository = client.app.state.offer_repository
-    july = ids(repository, date(2026, 7, 25))
-    september = ids(repository, date(2026, 9, 10))
-    before_future = ids(repository, date(2026, 8, 14))
-    future_active = ids(repository, date(2026, 8, 15))
 
-    assert {"MMT-HDFC-01", "MMT-SBI-01"} <= july
-    assert "MMT-HDFC-01" in september and "MMT-SBI-01" not in september
-    assert "MMT-AXIS-01" not in before_future
-    assert "MMT-AXIS-01" in future_active
+    # MAK-ICICI-9DD070 starts 2026-07-01 — active Jul 12, not active Jun 30
+    assert "MAK-ICICI-9DD070" in ids(repository, date(2026, 7, 12))
+    assert "MAK-ICICI-9DD070" not in ids(repository, date(2026, 6, 30))
+
+    # MAK-INDUSIND-2B9F7D starts 2026-08-14 — not active Aug 13, active Aug 14
+    assert "MAK-INDUSIND-2B9F7D" not in ids(repository, date(2026, 8, 13))
+    assert "MAK-INDUSIND-2B9F7D" in ids(repository, date(2026, 8, 14))
+
+    # MAK-KOTAK-919B61 starts 2026-09-01 — not active Aug 31, active Sep 10
+    assert "MAK-KOTAK-919B61" not in ids(repository, date(2026, 8, 31))
+    assert "MAK-KOTAK-919B61" in ids(repository, date(2026, 9, 10))
 
 
 def test_expiry_is_inclusive_and_after_expiry_is_excluded(client):
     repository = client.app.state.offer_repository
-    assert "MMT-HDFC-D01" in ids(repository, date(2026, 7, 31))
-    assert "MMT-HDFC-D01" not in ids(repository, date(2026, 8, 1))
-    assert not ids(repository, date(2026, 10, 16))
+    # MAK-KOTAK-919B61 expires 2027-03-31 — inclusive last day, excluded next day
+    assert "MAK-KOTAK-919B61" in ids(repository, date(2027, 3, 31))
+    assert "MAK-KOTAK-919B61" not in ids(repository, date(2027, 4, 1))
+    # No offers exist after 2027-03-31
+    assert ids(repository, date(2031, 1, 1)) == set()
 
 
 def test_metadata_and_bounded_availability_endpoint(client):
     metadata = client.get("/api/v1/meta").json()
-    assert metadata["availability_start"] == "2026-07-13"
-    assert metadata["availability_end"] == "2026-10-15"
+    assert metadata["availability_start"] == "2025-09-22"
+    assert metadata["availability_end"] == "2027-03-31"
     response = client.get("/api/v1/availability?from=2026-07-30&to=2026-08-02")
     assert response.status_code == 200
     days = response.json()["days"]
     assert len(days) == 4
     assert all({"offer_count", "display_text", "available"} <= set(day) for day in days)
-    assert (
-        client.get("/api/v1/availability?from=2026-07-01&to=2026-08-01").status_code
-        == 422
-    )
+    # 31-day range exceeds the 30-day limit → 422
+    assert client.get("/api/v1/availability?from=2026-07-01&to=2026-08-01").status_code == 422

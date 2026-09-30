@@ -31,9 +31,7 @@ def estimate_savings(offer: Offer, booking_amount: Decimal | None) -> SavingsEst
     if booking_amount <= 0:
         raise ValueError("booking_amount must be positive")
     if offer.min_transaction is not None and booking_amount < offer.min_transaction:
-        return SavingsEstimate(
-            Decimal("0"), booking_amount, "Minimum transaction not met", False
-        )
+        return SavingsEstimate(Decimal("0"), booking_amount, "Minimum transaction not met", False)
     saving = (
         offer.discount_value
         if offer.discount_type == "FLAT"
@@ -42,6 +40,4 @@ def estimate_savings(offer: Offer, booking_amount: Decimal | None) -> SavingsEst
     if offer.max_discount is not None:
         saving = min(saving, offer.max_discount)
     saving = min(max(saving, Decimal("0")), booking_amount)
-    return SavingsEstimate(
-        saving, booking_amount - saving, f"Estimated saving ₹{_money(saving)}", True
-    )
+    return SavingsEstimate(saving, booking_amount - saving, f"Estimated saving ₹{_money(saving)}", True)

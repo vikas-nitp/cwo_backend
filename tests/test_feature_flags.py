@@ -87,7 +87,5 @@ def test_feature_endpoint_version_and_conditional_get(client):
     assert response.status_code == 200
     assert response.json()["config_version"]
     assert response.headers["x-contract-version"] == "1.1"
-    cached = client.get(
-        "/api/v1/feature-flags", headers={"If-None-Match": response.headers["etag"]}
-    )
+    cached = client.get("/api/v1/feature-flags", headers={"If-None-Match": response.headers["etag"]})
     assert cached.status_code == 304

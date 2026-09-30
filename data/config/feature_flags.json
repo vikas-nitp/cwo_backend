@@ -1,7 +1,21 @@
 {
-  "phase2UserFeaturesEnabled": false,
+  "phase2UserFeaturesEnabled": true,
   "publicAllOffersEnabled": true,
   "couponCodeEnabled": false,
+  "flightInternationalEnabled": false,
+  "cookieConsentEnabled": false,
   "analyticsEnabled": true,
-  "bookingAmountComparisonEnabled": false
+  "bookingAmountComparisonEnabled": true,
+  "visitorCountEnabled": true,
+  "authEnabled": false,
+  "howItWorksEnabled": true,
+  "aboutEnabled": true,
+  "contactEnabled": true,
+  "privacyPolicyEnabled": true,
+  "termsOfServiceEnabled": true,
+  "splashScreenEnabled": false,
+  "homeEntranceAnimationEnabled": true,
+  "subscriptionsEnabled": false,
+  "userCardsEnabled": false,
+  "notificationsEnabled": false
 }

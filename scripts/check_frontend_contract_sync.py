@@ -11,17 +11,13 @@ def main() -> int:
         return 0
     expected = [
         Path("openapi.json"),
-        *[
-            Path("examples") / path.name
-            for path in (ROOT / "contracts/examples").glob("*.json")
-        ],
+        *[Path("examples") / path.name for path in (ROOT / "contracts/examples").glob("*.json")],
     ]
     mismatches = [
         str(relative)
         for relative in expected
         if not (FRONTEND / relative).exists()
-        or (FRONTEND / relative).read_bytes()
-        != (ROOT / "contracts" / relative).read_bytes()
+        or (FRONTEND / relative).read_bytes() != (ROOT / "contracts" / relative).read_bytes()
     ]
     if mismatches:
         print("Frontend contract artifacts are stale: " + ", ".join(mismatches))

@@ -4,5 +4,7 @@
   "publicAllOffersEnabled": true,
   "couponCodeEnabled": false,
   "analyticsEnabled": true,
-  "bookingAmountComparisonEnabled": false
+  "bookingAmountComparisonEnabled": false,
+  "visitorCountEnabled": false,
+  "authEnabled": false
 }

@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from datetime import date
 
+from app.core.logging import get_logger
 from app.repositories.base import OfferRepository
 from app.schemas.common import Pagination
 from app.schemas.offers import CatalogueFacets, FacetOption, OffersResponse, PublicOffer
+
+logger = get_logger(__name__)
 
 
 class UnsupportedFilterError(ValueError):
@@ -12,9 +15,7 @@ class UnsupportedFilterError(ValueError):
 
 
 def _normalize(values: list[str] | None) -> list[str]:
-    return list(
-        dict.fromkeys(value.strip().upper() for value in values or [] if value.strip())
-    )
+    return list(dict.fromkeys(value.strip().upper() for value in values or [] if value.strip()))
 
 
 class OfferCatalogService:
@@ -39,9 +40,9 @@ class OfferCatalogService:
         ):
             unknown = set(values) - supported[field]
             if unknown:
-                raise UnsupportedFilterError(
-                    f"Unsupported {field}: {', '.join(sorted(unknown))}"
-                )
+                msg = f"Unsupported {field}: {', '.join(sorted(unknown))}"
+                logger.warning("Catalogue filter rejected — %s", msg)
+                raise UnsupportedFilterError(msg)
 
     def _options(
         self,
@@ -60,43 +61,29 @@ class OfferCatalogService:
             "platform_ids": None if group == "platforms" else platforms or None,
             "bank_ids": None if group == "banks" else banks or None,
             "payment_methods": None if group == "payment_methods" else methods or None,
-            "booking_channels": None
-            if group == "booking_channels"
-            else channels or None,
+            "booking_channels": None if group == "booking_channels" else channels or None,
             "categories": categories or None,
         }
         candidates = self.repository.list_offers(active_on=active_on, **filters)
         if group == "platforms":
-            raw: list[tuple[str, str]] = [
-                (item.id, item.name) for item in metadata.platforms
-            ]
+            raw: list[tuple[str, str]] = [(item.id, item.name) for item in metadata.platforms]
             attribute = "platform_id"
         elif group == "banks":
             raw = [(item.id, item.name) for item in metadata.banks]
             attribute = "bank_id"
         elif group == "payment_methods":
-            raw = [
-                (item, item.replace("_", " ").title())
-                for item in metadata.payment_methods
-            ]
+            raw = [(item, item.replace("_", " ").title()) for item in metadata.payment_methods]
             attribute = "payment_method"
         else:
-            raw = [
-                (item, item.replace("_", " ").title())
-                for item in metadata.booking_channels
-            ]
+            raw = [(item, item.replace("_", " ").title()) for item in metadata.booking_channels]
             attribute = "booking_channel"
         return [
             FacetOption(
                 id=identifier,
                 name=name,
-                count=sum(
-                    1 for offer in candidates if getattr(offer, attribute) == identifier
-                ),
+                count=sum(1 for offer in candidates if getattr(offer, attribute) == identifier),
                 selected=identifier in selected,
-                disabled=not any(
-                    getattr(offer, attribute) == identifier for offer in candidates
-                ),
+                disabled=not any(getattr(offer, attribute) == identifier for offer in candidates),
             )
             for identifier, name in raw
         ]
@@ -128,9 +115,7 @@ class OfferCatalogService:
             booking_channels=channels or None,
             categories=categories or None,
         )
-        offers.sort(
-            key=lambda offer: (offer.priority_score, offer.expiry_date), reverse=True
-        )
+        offers.sort(key=lambda offer: (offer.priority_score, offer.expiry_date), reverse=True)
         facets = CatalogueFacets(
             platforms=self._options(
                 group="platforms",
@@ -177,10 +162,7 @@ class OfferCatalogService:
         start = (page - 1) * limit
         return OffersResponse(
             data_version=self.repository.get_manifest().data_version,
-            offers=[
-                PublicOffer.model_validate(offer)
-                for offer in offers[start : start + limit]
-            ],
+            offers=[PublicOffer.model_validate(offer) for offer in offers[start : start + limit]],
             pagination=Pagination(
                 page=page,
                 limit=limit,

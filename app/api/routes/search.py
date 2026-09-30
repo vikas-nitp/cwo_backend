@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Request, Response
 
 from app.api.errors import error_response
+from app.core.logging import get_logger
 from app.schemas.search import SearchRequest, SearchResponse
 from app.services.offer_search_service import OfferSearchService, SearchDateError
 
 router = APIRouter(tags=["Search"])
+logger = get_logger(__name__)
 
 
 @router.post(
@@ -16,14 +18,11 @@ def search(payload: SearchRequest, request: Request, response: Response):
     try:
         repository = request.app.state.offer_repository
         if not repository.loaded:
-            return error_response(
-                request, 503, "DATA_NOT_READY", "Offer data is not ready."
-            )
+            return error_response(request, 503, "DATA_NOT_READY", "Offer data is not ready.")
         flags = request.app.state.feature_flags
-        if (
-            payload.booking_amount is not None
-            and not flags.bookingAmountComparisonEnabled
-        ):
+        if flags is None:
+            return error_response(request, 503, "CONFIG_NOT_READY", "Feature flags not loaded.")
+        if payload.booking_amount is not None and not flags.bookingAmountComparisonEnabled:
             return error_response(
                 request,
                 400,
@@ -34,18 +33,15 @@ def search(payload: SearchRequest, request: Request, response: Response):
         result = OfferSearchService(repository).search(payload)
         if not flags.couponCodeEnabled:
             result = result.model_copy(
-                update={
-                    "offers": [
-                        offer.model_copy(update={"coupon_code": None})
-                        for offer in result.offers
-                    ]
-                }
+                update={"offers": [offer.model_copy(update={"coupon_code": None}) for offer in result.offers]}
             )
         response.headers["X-Data-Version"] = repository.get_manifest().data_version
         response.headers["X-Contract-Version"] = "1.1"
         response.headers["Cache-Control"] = "no-store"
         return result
     except SearchDateError as exc:
+        logger.warning("Invalid search date: %s", exc)
         return error_response(request, 400, "INVALID_SEARCH_DATE", str(exc), "date")
     except ValueError as exc:
+        logger.warning("Invalid search filter: %s", exc)
         return error_response(request, 400, "INVALID_SEARCH_FILTER", str(exc), "banks")
