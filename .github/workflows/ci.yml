@@ -11,13 +11,34 @@ jobs:
       HAS_FRONTEND_TOKEN: ${{ secrets.FRONTEND_REPO_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
+      # Use the frontend branch with the same name when it exists, otherwise main.
+      - name: Pick frontend ref
+        if: env.HAS_FRONTEND_TOKEN == 'true'
+        id: frontend_ref
+        env:
+          REPO: vikas-nitp/cardwiseoffer
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          TOKEN: ${{ secrets.FRONTEND_REPO_TOKEN }}
+        run: |
+          auth=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
+          set +e
+          git -c "http.extraheader=AUTHORIZATION: basic $auth" ls-remote --exit-code --heads "https://github.com/$REPO.git" "refs/heads/$BRANCH" >/dev/null
+          code=$?
+          set -e
+          case "$code" in
+            0) ref="$BRANCH" ;;
+            2) ref=main; echo "::notice::No '$BRANCH' branch in $REPO; using main for the cross-repo check" ;;
+            *) echo "::error::Could not query $REPO (git exit $code) - check FRONTEND_REPO_TOKEN"; exit 1 ;;
+          esac
+          echo "Using $REPO@$ref"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
       - name: Check out frontend for contract sync
         if: env.HAS_FRONTEND_TOKEN == 'true'
         uses: actions/checkout@v4
         with:
           repository: vikas-nitp/cardwiseoffer
           token: ${{ secrets.FRONTEND_REPO_TOKEN }}
-          ref: ${{ github.head_ref || github.ref_name }}
+          ref: ${{ steps.frontend_ref.outputs.ref }}
           path: frontend
       - uses: actions/setup-python@v5
         with:
