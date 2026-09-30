@@ -1305,7 +1305,7 @@
             "items": {
               "type": "string"
             },
-            "maxItems": 2,
+            "maxItems": 4,
             "title": "Banks",
             "type": "array"
           },

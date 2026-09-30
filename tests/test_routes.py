@@ -126,3 +126,13 @@ def test_readiness_allows_no_offer_active_today(client, monkeypatch):
     assert response.status_code == 200
     assert response.json()["offer_count"] == 28
     assert response.json()["active_offer_count"] == 0
+
+
+def test_search_accepts_up_to_four_banks_and_rejects_five(client, valid_search):
+    four = {**valid_search, "banks": ["HDFC", "SBI", "ICICI", "AXIS"]}
+    response = client.post("/api/v1/search", json=four)
+    assert response.status_code == 200
+    kinds = {offer["display_kind"] for offer in response.json()["offers"]}
+    assert "SELECTED_CARD" in kinds
+    five = {**valid_search, "banks": ["HDFC", "SBI", "ICICI", "AXIS", "KOTAK"]}
+    assert client.post("/api/v1/search", json=five).status_code == 422

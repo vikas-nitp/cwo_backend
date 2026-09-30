@@ -20,13 +20,14 @@ Touch points updated automatically:
 """
 
 import json
+import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
 BACKEND_ROOT = Path(__file__).parent.parent
-FRONTEND_ROOT = BACKEND_ROOT.parent / "cardwiseoffer"
+FRONTEND_ROOT = Path(os.getenv("CWO_FRONTEND_DIR", BACKEND_ROOT.parent / "cardwiseoffer"))
 
 FF_PY = BACKEND_ROOT / "app/core/feature_flags.py"
 FF_JSON_BE = BACKEND_ROOT / "data/config/feature_flags.json"

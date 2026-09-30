@@ -45,7 +45,7 @@ def rank_offers(
             result.append((*general, "GENERAL_BEST"))
             used.add(general[0].offer_id)
 
-    for index, bank in enumerate(selected[:2]):
+    for index, bank in enumerate(selected):
         match = next(
             (item for item in ordered if item[0].bank_id == bank and item[1].eligible),
             None,

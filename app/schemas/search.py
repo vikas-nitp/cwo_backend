@@ -13,12 +13,15 @@ from pydantic import (
 from app.domain.models import Category, PlatformId
 from app.schemas.offers import PublicOffer
 
+# Guests compare 2 cards, signed-in users up to 4 (frontend enforces the tighter guest limit).
+MAX_SEARCH_BANKS = 4
+
 
 class SearchRequest(BaseModel):
     from_airport: str = Field(alias="from")
     to_airport: str = Field(alias="to")
     date: date
-    banks: list[str] = Field(default_factory=list, max_length=2)
+    banks: list[str] = Field(default_factory=list, max_length=MAX_SEARCH_BANKS)
     platforms: list[PlatformId] = Field(default_factory=list)
     category: Category = "FLIGHT_DOMESTIC"
     booking_amount: Decimal | None = Field(default=None, gt=0)
@@ -35,8 +38,8 @@ class SearchRequest(BaseModel):
     @classmethod
     def normalize_banks(cls, value: list[str]) -> list[str]:
         normalized = list(dict.fromkeys(item.strip().upper() for item in value if item.strip()))
-        if len(normalized) > 2:
-            raise ValueError("Maximum two banks are allowed")
+        if len(normalized) > MAX_SEARCH_BANKS:
+            raise ValueError(f"Maximum {MAX_SEARCH_BANKS} banks are allowed")
         return normalized
 
     @model_validator(mode="after")
