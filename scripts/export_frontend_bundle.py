@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 from pathlib import Path
 
@@ -12,9 +13,11 @@ WORKSPACE = ROOT.parent
 GENERATED = ROOT / "data/generated"
 DISTRIBUTION = ROOT / "data/distribution/frontend"
 
-# Frontend static data directory — kept in sync with the backend distribution.
-# The React app reads from this path at build/dev time (no backend API call needed).
-FRONTEND_STATIC = WORKSPACE / "cardwiseoffer/src/data/generated"
+# Frontend checkout — defaults to the sibling ``cardwiseoffer`` directory, override with CWO_FRONTEND_DIR.
+# Its static data directory is kept in sync with the backend distribution; the React app
+# reads from there at build/dev time (no backend API call needed).
+FRONTEND_DIR = Path(os.getenv("CWO_FRONTEND_DIR", WORKSPACE / "cardwiseoffer"))
+FRONTEND_STATIC = FRONTEND_DIR / "src/data/generated"
 
 FILES = {
     "offers.snapshot.json": "offers.json",

@@ -68,7 +68,7 @@ def test_booking_comparison_is_flag_guarded(client, valid_search):
 def test_same_airport_and_offer_derived_date_range(client, valid_search):
     same = {**valid_search, "to": "DEL"}
     assert client.post("/api/v1/search", json=same).status_code == 422
-    # availability_end is 2027-03-31; 2031-01-01 is outside the offer range
+    # availability_end is 2027-12-31; 2031-01-01 is outside the offer range
     late = {**valid_search, "date": "2031-01-01"}
     response = client.post("/api/v1/search", json=late)
     assert response.status_code == 400
@@ -88,13 +88,13 @@ def test_not_found_uses_error_contract(client):
 
 
 def test_multi_select_filters_and_strict_bank(client):
-    # On 2026-07-13: MMT+ICICI+CREDIT and MMT+BOB+CREDIT are active; CLEARTRIP has only NO_CARD
+    # On 2026-07-13: MMT+ICICI and CT+ICICI credit offers are active; BOB offers start later
     response = client.get(
-        "/api/v1/offers?platform=MAKEMYTRIP&platform=CLEARTRIP&bank=ICICI&bank=BOB&payment_method=CREDIT"
+        "/api/v1/offers?platform=MAKEMYTRIP&platform=CLEARTRIP&bank=ICICI&bank=BOB&payment_method=CREDIT&active_on=2026-07-13"
     )
     assert response.status_code == 200
     offers = response.json()["offers"]
-    assert {offer["offer_id"] for offer in offers} == {"MAK-ICICI-9DD070", "MAK-BOB-FC049E", "CLE-ICICI-6CD8C2"}
+    assert {offer["offer_id"] for offer in offers} == {"MMT-ICICI-001", "CT-ICICI-001"}
     assert all(offer["bank_id"] in {"ICICI", "BOB"} for offer in offers)
 
 
@@ -124,5 +124,5 @@ def test_readiness_allows_no_offer_active_today(client, monkeypatch):
     monkeypatch.setattr(repository, "list_offers", lambda **kwargs: [])
     response = client.get("/health/ready")
     assert response.status_code == 200
-    assert response.json()["offer_count"] == 24
+    assert response.json()["offer_count"] == 28
     assert response.json()["active_offer_count"] == 0

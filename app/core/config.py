@@ -22,7 +22,7 @@ class RuntimeSettings(BaseModel):
     facets_snapshot_path: Path = ROOT / "data/generated/facets.snapshot.json"
     manifest_path: Path = ROOT / "data/generated/manifest.json"
     feature_flags_path: Path = ROOT / "data/config/feature_flags.json"
-    supported_platforms: tuple[str, ...] = ("MAKEMYTRIP", "CLEARTRIP")
+    user_data_dir: Path = ROOT / "data"
     contract_version: str = "1.1"
     default_page_limit: int = Field(20, ge=1, le=100)
     max_page_limit: int = Field(100, ge=1, le=500)
@@ -70,7 +70,7 @@ def load_runtime_settings() -> RuntimeSettings:
         facets_snapshot_path=Path(os.getenv("FACETS_SNAPSHOT_PATH", ROOT / "data/generated/facets.snapshot.json")),
         manifest_path=Path(os.getenv("MANIFEST_PATH", ROOT / "data/generated/manifest.json")),
         feature_flags_path=Path(os.getenv("FEATURE_FLAGS_PATH", ROOT / "data/config/feature_flags.json")),
-        supported_platforms=tuple(_csv("SUPPORTED_PLATFORMS", "MAKEMYTRIP,CLEARTRIP")),
+        user_data_dir=Path(os.getenv("USER_DATA_DIR", ROOT / "data")),
         contract_version=os.getenv("CONTRACT_VERSION", "1.1"),
         default_page_limit=int(os.getenv("DEFAULT_PAGE_LIMIT", "20")),
         max_page_limit=int(os.getenv("MAX_PAGE_LIMIT", "100")),
@@ -96,7 +96,7 @@ METADATA_SNAPSHOT_PATH = str(SETTINGS.metadata_snapshot_path)
 FACETS_SNAPSHOT_PATH = str(SETTINGS.facets_snapshot_path)
 MANIFEST_PATH = str(SETTINGS.manifest_path)
 FEATURE_FLAGS_PATH = str(SETTINGS.feature_flags_path)
-SUPPORTED_PLATFORMS = SETTINGS.supported_platforms
+USER_DATA_DIR = SETTINGS.user_data_dir
 CONTRACT_VERSION = SETTINGS.contract_version
 
 

@@ -1794,6 +1794,18 @@
     "/api/v1/user/cards": {
       "get": {
         "operationId": "list_cards_api_v1_user_cards_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Session-Id",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9-]{16,64}$",
+              "title": "X-Session-Id",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -1802,6 +1814,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "List Cards",
@@ -1811,6 +1833,18 @@
       },
       "post": {
         "operationId": "save_card_api_v1_user_cards_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Session-Id",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9-]{16,64}$",
+              "title": "X-Session-Id",
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1859,6 +1893,16 @@
               "title": "Card Id",
               "type": "string"
             }
+          },
+          {
+            "in": "header",
+            "name": "X-Session-Id",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9-]{16,64}$",
+              "title": "X-Session-Id",
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1890,6 +1934,18 @@
     "/api/v1/user/notification-prefs": {
       "get": {
         "operationId": "get_notification_prefs_api_v1_user_notification_prefs_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Session-Id",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9-]{16,64}$",
+              "title": "X-Session-Id",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -1898,6 +1954,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Get Notification Prefs",
@@ -1907,6 +1973,18 @@
       },
       "post": {
         "operationId": "save_notification_prefs_api_v1_user_notification_prefs_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Session-Id",
+            "required": true,
+            "schema": {
+              "pattern": "^[A-Za-z0-9-]{16,64}$",
+              "title": "X-Session-Id",
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {

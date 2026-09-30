@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-FRONTEND = ROOT.parent / "cardwiseoffer" / "contracts"
+FRONTEND = Path(os.getenv("CWO_FRONTEND_DIR", ROOT.parent / "cardwiseoffer")) / "contracts"
 
 
 def main() -> int:

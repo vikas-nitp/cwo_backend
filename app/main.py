@@ -2,7 +2,7 @@
 CardOptimal Backend - FastAPI Application
 
 Run with:
-    cd cwo_backend && PYTHONPATH=$(pwd) venv/bin/python3 -m uvicorn app.main:app --port 8001 --reload
+    cd cwo_backend && uvicorn app.main:app --port 8001 --reload
 """
 
 import re
@@ -111,8 +111,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
     allow_credentials=False,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type", "X-Request-ID"],
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "X-Request-ID", "X-Session-Id"],
 )
 
 logger.info(f"Starting {APP_NAME} API (env={APP_ENV})")

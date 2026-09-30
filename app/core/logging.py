@@ -96,7 +96,6 @@ class DailyRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
         """Rotate to new dated file at midnight"""
         if self.stream:
             self.stream.close()
-            self.stream = None
 
         # Update to new date
         new_filename = self._get_dated_filename(datetime.now())
