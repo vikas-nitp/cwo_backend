@@ -48,7 +48,7 @@ CardSage's approach (polite delays, public pages only, read-only, no login) repr
 - `User-Agent` set to a descriptive string (`CardSage/1.0 (+https://cardwiseoffer.com/about)`) so platforms can identify and contact us
 - `robots.txt` checked before adding any new platform
 - No caching beyond 24 h — stale data is refreshed; no archiving or redistribution of scraped content
-- `cardsage_to_snapshot.py` filters at evidence threshold (0.55) so low-confidence offers don't reach users
+- cardsage filters at its evidence threshold (0.55) before delivering `offers.csv`, so low-confidence offers do not reach users
 
 ### If a C&D is received
 1. Stop scraping the named platform immediately (disable seed URL in `cardsage/config/`)

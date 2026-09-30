@@ -66,7 +66,7 @@ cardsage is missing: `evidence_status` and `publish_status` — must be derived 
 ## Blocking work to connect the pipeline
 
 1. Add `booking_url: str | None` to `cardsage/core/models.py` — the ONLY new field needed in cardsage
-2. Build conversion script (`scripts/cardsage_to_snapshot.py`) that reads cardsage output JSON and derives `evidence_status`, `publish_status`, `priority_score`
+2. (Now done inside cardsage, which delivers `data/source/offers.csv`) Derive `evidence_status`, `publish_status`, `priority_score`
 3. Fix `cardwiseoffer/src/domain/offerMapper.ts:55` CTA fallback to `platformHomeUrl(platform_id)`
 
 ## Phase 2 enrichment (add to app/domain/models.py + app/schemas/offers.py)
