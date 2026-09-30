@@ -136,3 +136,11 @@ def test_search_accepts_up_to_four_banks_and_rejects_five(client, valid_search):
     assert "SELECTED_CARD" in kinds
     five = {**valid_search, "banks": ["HDFC", "SBI", "ICICI", "AXIS", "KOTAK"]}
     assert client.post("/api/v1/search", json=five).status_code == 422
+
+
+def test_search_with_no_matching_offers_is_empty_not_an_error(client, valid_search):
+    response = client.post("/api/v1/search", json={**valid_search, "platforms": ["NOSUCHPLATFORM"]})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["offers"] == []
+    assert len(body["date_strip"]) > 0

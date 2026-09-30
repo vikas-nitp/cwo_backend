@@ -90,8 +90,8 @@ class OfferSearchService:
                 )
             )
         if not offers:
-            logger.warning("Search on %s returned no eligible offers", request.date)
-            raise SearchDateError("No eligible offers are available on this date.")
+            # An empty result is a valid answer, not an error: the client still needs date_strip to offer other dates.
+            logger.info("Search on %s returned no eligible offers", request.date)
         date_strip = []
         strip_end = min(request.date + timedelta(days=6), metadata.availability_end)
         for offset in range((strip_end - request.date).days + 1):
