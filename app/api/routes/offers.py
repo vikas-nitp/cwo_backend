@@ -60,7 +60,8 @@ def offers(
     etag = version_headers(
         response,
         version=version,
-        cache_key=str(request.url),
+        # active_on defaults to "today", so it must be part of the cache key or a 304 could serve yesterday's offers
+        cache_key=f"{request.url}|{active_on.isoformat()}",
         cache_control=f"public, max-age={SETTINGS.offers_cache_ttl}",
     )
     if not_modified(request, etag):

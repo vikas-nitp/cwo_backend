@@ -2,6 +2,7 @@ from datetime import date, timedelta
 
 from fastapi import APIRouter, HTTPException, Query, Request
 
+from app.api.errors import error_response
 from app.schemas.availability import (
     AvailabilityDay,
     AvailabilityResponse,
@@ -19,6 +20,8 @@ def availability(
     if to_date < from_date or (to_date - from_date).days > 30:
         raise HTTPException(status_code=422, detail="Availability range must be 1 to 31 days")
     repository = request.app.state.offer_repository
+    if not repository.loaded:
+        return error_response(request, 503, "DATA_NOT_READY", "Offer data is not ready.")
     metadata = repository.get_metadata()
     days = []
     for offset in range((to_date - from_date).days + 1):

@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 router = APIRouter(tags=["Visitors"])
 
 _WINDOW_SECONDS = 120  # active = seen in last 2 minutes
+_MAX_SESSIONS = 10_000  # bound memory: ids are client-supplied
 
 
 def _evict(sessions: dict[str, float]) -> None:
@@ -23,7 +24,8 @@ def visitor_count(request: Request):
 
     sessions: dict[str, float] = request.app.state.visitor_sessions
     vid = request.query_params.get("v", "")
-    if vid:
-        sessions[vid[:64]] = time.monotonic()
     _evict(sessions)
+    key = vid[:64]
+    if key and (key in sessions or len(sessions) < _MAX_SESSIONS):
+        sessions[key] = time.monotonic()
     return {"count": len(sessions)}

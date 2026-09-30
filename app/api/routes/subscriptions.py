@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import hashlib
+import hmac
 import json
+import os
 import re
 from datetime import datetime, timezone
 
@@ -13,6 +14,7 @@ from app.core.storage import STORE_LOCK, data_path
 
 router = APIRouter(tags=["Subscriptions"])
 
+_IP_HASH_KEY = os.getenv("IP_HASH_SALT", "cwo-dev-salt-change-me").encode()
 _EMAIL_RE = re.compile(r"^[^@]+@[^@]+\.[^@]+$")
 
 
@@ -61,7 +63,8 @@ def subscribe_email(request: Request, body: EmailSubscribeRequest):
         )
 
     client_host = request.client.host if request.client else "unknown"
-    ip_hash = hashlib.sha256(client_host.encode()).hexdigest()
+    # Keyed hash: a plain SHA-256 of an IP can be reversed by enumerating the IPv4 space.
+    ip_hash = hmac.new(_IP_HASH_KEY, client_host.encode(), "sha256").hexdigest()
 
     record = {
         "email": email,

@@ -196,7 +196,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 return response
 
         # Global limit (skip health check)
-        if path != "/health":
+        if not path.startswith("/health"):
             allowed, retry_after = rate_limiter.check_global_limit(request)
             if not allowed:
                 logger.warning(f"Global rate limit exceeded for path={path}")
@@ -225,7 +225,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         latency_ms = int((time.time() - start_time) * 1000)
 
         # Log non-health requests
-        if request.url.path != "/health":
+        if not request.url.path.startswith("/health"):
             logger.info(
                 "%s %s status=%s latency=%sms request_id=%s",
                 request.method,
@@ -243,44 +243,69 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 # ────────────────────────────────────────────────────────────────────
 
 
-class BodySizeLimitMiddleware(BaseHTTPMiddleware):
+class BodySizeLimitMiddleware:
     """
-    Reject requests with body > MAX_BODY_SIZE.
-    Checks both the Content-Length header and the actual received body so that
-    clients omitting the header cannot bypass the limit.
+    Reject request bodies larger than MAX_BODY_SIZE.
+
+    Pure ASGI so the limit is enforced while the body streams in: a declared
+    Content-Length is rejected up front, and chunked uploads that omit the header
+    are cut off as soon as they exceed the limit instead of being buffered.
     """
 
     MAX_BODY_SIZE = 32 * 1024  # 32KB
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
-        if request.method in ("POST", "PUT", "PATCH"):
-            # Fast-reject on declared Content-Length before reading anything.
-            content_length = request.headers.get("content-length")
-            if content_length:
-                try:
-                    if int(content_length) > self.MAX_BODY_SIZE:
-                        return _middleware_error(
-                            request,
-                            413,
-                            "REQUEST_TOO_LARGE",
-                            "Request body too large (max 32KB)",
-                        )
-                except ValueError:
-                    pass
-            # Read the actual body (Starlette caches it; downstream handlers see the same bytes).
-            try:
-                body = await request.body()
-                if len(body) > self.MAX_BODY_SIZE:
-                    return _middleware_error(
-                        request,
-                        413,
-                        "REQUEST_TOO_LARGE",
-                        "Request body too large (max 32KB)",
-                    )
-            except Exception:
-                pass
+    def __init__(self, app):
+        self.app = app
 
-        return await call_next(request)
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http" or scope["method"] not in ("POST", "PUT", "PATCH"):
+            await self.app(scope, receive, send)
+            return
+
+        request = Request(scope)
+        try:
+            declared = int(request.headers.get("content-length", "0"))
+        except ValueError:
+            declared = 0
+        if declared > self.MAX_BODY_SIZE:
+            await self._reject(request, scope, receive, send)
+            return
+
+        received = 0
+        exceeded = False
+        started = False
+
+        async def limited_receive():
+            nonlocal received, exceeded
+            message = await receive()
+            if message["type"] == "http.request":
+                received += len(message.get("body", b""))
+                if received > self.MAX_BODY_SIZE:
+                    # Frameworks catch exceptions raised while reading the body and turn them into
+                    # 400s, so signal a disconnect instead and replace whatever they answer with a 413.
+                    exceeded = True
+                    return {"type": "http.disconnect"}
+            return message
+
+        async def guarded_send(message):
+            nonlocal started
+            if exceeded and not started:
+                return
+            if message["type"] == "http.response.start":
+                started = True
+            await send(message)
+
+        try:
+            await self.app(scope, limited_receive, guarded_send)
+        except Exception:
+            if not exceeded:
+                raise
+        if exceeded and not started:
+            await self._reject(request, scope, receive, send)
+
+    async def _reject(self, request, scope, receive, send) -> None:
+        response = _middleware_error(request, 413, "REQUEST_TOO_LARGE", "Request body too large (max 32KB)")
+        await response(scope, receive, send)
 
 
 # ────────────────────────────────────────────────────────────────────

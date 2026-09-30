@@ -42,12 +42,12 @@ class PublicOffer(BaseModel):
     booking_url: AnyHttpUrl | None = None
     valid_days: list[int] | None = Field(
         default=None,
-        description="JS weekday indices (0=Sun … 6=Sat) on which offer is valid; null = every day",
+        description="Python weekday indices (0=Mon … 6=Sun) on which offer is valid; null = every day",
         examples=[[1, 2, 3, 4, 5]],
     )
     evidence_status: str | None = Field(
         default=None,
-        description="Curation confidence level: VERIFIED | UNVERIFIED",
+        description="Curation confidence level: VERIFIED | PARTIAL | UNVERIFIED",
         examples=["VERIFIED"],
     )
     source_url: str | None = Field(

@@ -692,7 +692,7 @@
                 "type": "null"
               }
             ],
-            "description": "Curation confidence level: VERIFIED | UNVERIFIED",
+            "description": "Curation confidence level: VERIFIED | PARTIAL | UNVERIFIED",
             "examples": [
               "VERIFIED"
             ],
@@ -819,7 +819,7 @@
                 "type": "null"
               }
             ],
-            "description": "JS weekday indices (0=Sun \u2026 6=Sat) on which offer is valid; null = every day",
+            "description": "Python weekday indices (0=Mon \u2026 6=Sun) on which offer is valid; null = every day",
             "examples": [
               [
                 1,
@@ -1114,7 +1114,7 @@
                 "type": "null"
               }
             ],
-            "description": "Curation confidence level: VERIFIED | UNVERIFIED",
+            "description": "Curation confidence level: VERIFIED | PARTIAL | UNVERIFIED",
             "examples": [
               "VERIFIED"
             ],
@@ -1256,7 +1256,7 @@
                 "type": "null"
               }
             ],
-            "description": "JS weekday indices (0=Sun \u2026 6=Sat) on which offer is valid; null = every day",
+            "description": "Python weekday indices (0=Mon \u2026 6=Sun) on which offer is valid; null = every day",
             "examples": [
               [
                 1,

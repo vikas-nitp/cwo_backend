@@ -2,6 +2,7 @@ import json
 from datetime import date
 from pathlib import Path
 
+from app.core.dates import today_ist
 from app.core.logging import get_logger
 from app.domain.models import DataManifest, FacetSnapshot, Offer, OfferMetadata
 from app.domain.validity import is_publishable
@@ -86,7 +87,7 @@ class FileOfferRepository:
         ]
 
     def list_publishable(self) -> list[Offer]:
-        today = date.today()
+        today = today_ist()
         return [
             offer
             for offer in self._offers

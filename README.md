@@ -34,6 +34,8 @@ The backend does not scrape or convert anything itself. Column names follow
 `demo_offers.csv`; `build_data_bundle.py` validates every row and writes a
 rejection report to `data/generated/validation-report.json`.
 
+**Publishing rules.** Only rows with `is_active=true`, `publish_status=READY` and `evidence_status=VERIFIED` are served; `PARTIAL`/`UNVERIFIED` rows are kept in the snapshot but never shown. Any row that fails validation makes the build exit non-zero (and fails the Docker build) so bad data never ships silently; fix the row named in `data/generated/validation-report.json`.
+
 Falls back to `data/source/demo_offers.csv` automatically when `offers.csv` is absent or header-only.
 
 **Step 2 — Rebuild distribution bundle**

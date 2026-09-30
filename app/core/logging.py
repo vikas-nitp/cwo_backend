@@ -5,6 +5,7 @@ import logging
 import logging.config
 import logging.handlers
 import shutil
+import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Optional
@@ -104,6 +105,9 @@ class DailyRotatingFileHandler(logging.handlers.TimedRotatingFileHandler):
         # Open new file
         self.stream = self._open()
 
+        # Schedule the next rollover; without this the handler rolls over on every record after midnight
+        self.rolloverAt = self.computeRollover(int(time.time()))
+
         # Archive old logs
         self._archive_old_logs()
 
@@ -143,17 +147,33 @@ def setup_logging(config_path: Optional[str] = None) -> None:
         Path(config_path) if config_path is not None else Path(__file__).parent.parent.parent / "logging.yaml"
     )
 
-    # Create logs directory
+    # Log files are best-effort: on a read-only filesystem fall back to console-only logging
     logs_dir = Path(__file__).parent.parent.parent / "logs"
-    logs_dir.mkdir(parents=True, exist_ok=True)
-    (logs_dir / "archive").mkdir(parents=True, exist_ok=True)
+    try:
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        (logs_dir / "archive").mkdir(parents=True, exist_ok=True)
+        logs_writable = True
+    except OSError:
+        logs_writable = False
 
     if resolved_config_path.exists():
         with open(resolved_config_path, "r") as f:
             config = yaml.safe_load(f)
 
+        handlers = config.get("handlers", {})
+        if not logs_writable:
+            file_handlers = {name for name, cfg in handlers.items() if "filename" in cfg}
+            for name in file_handlers:
+                del handlers[name]
+            for logger_config in config.get("loggers", {}).values():
+                if "handlers" in logger_config:
+                    logger_config["handlers"] = [h for h in logger_config["handlers"] if h not in file_handlers]
+            root = config.get("root", {})
+            if "handlers" in root:
+                root["handlers"] = [h for h in root["handlers"] if h not in file_handlers]
+
         # Update file paths to absolute
-        for _handler_name, handler_config in config.get("handlers", {}).items():
+        for _handler_name, handler_config in handlers.items():
             if "filename" in handler_config:
                 handler_config["filename"] = str(logs_dir / Path(handler_config["filename"]).name)
 

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, Response
 
 from app.api.errors import error_response
+from app.core.config import CONTRACT_VERSION
 from app.core.logging import get_logger
 from app.schemas.search import SearchRequest, SearchResponse
 from app.services.offer_search_service import OfferSearchService, SearchDateError
@@ -36,7 +37,7 @@ def search(payload: SearchRequest, request: Request, response: Response):
                 update={"offers": [offer.model_copy(update={"coupon_code": None}) for offer in result.offers]}
             )
         response.headers["X-Data-Version"] = repository.get_manifest().data_version
-        response.headers["X-Contract-Version"] = "1.1"
+        response.headers["X-Contract-Version"] = CONTRACT_VERSION
         response.headers["Cache-Control"] = "no-store"
         return result
     except SearchDateError as exc:
