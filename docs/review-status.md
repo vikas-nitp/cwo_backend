@@ -61,3 +61,24 @@ Last verified: backend 112 tests + ruff + mypy green; frontend 185 tests + typec
 7. **Booking URL fallback.** Backend hardcodes booking URLs for MakeMyTrip and Cleartrip only; other platforms rely on `booking_url` in the CSV. Add `booking_url` to cardsage output, or keep a config map?
 8. **Email PII.** Subscriber emails are stored as plaintext JSONL. Fine for MVP? Otherwise forward to an email provider/DB and add a retention/deletion policy.
 9. **CI branch fallback.** If the other repo has no same-named branch, CI falls back to `main`. Acceptable, or require matching branch names?
+
+---
+
+# Update — second review pass (cardsage added)
+
+## Also fixed in this pass
+- **cardsage** (new branch `claude/inspiring-hawking-rvunlm`): added `pyproject.toml` (`pip install -e` previously failed), `cardsage backend-feed` +
+  `core/backend_feed.py` (the CSV bridge the removed converter used to provide, now owned by cardsage and tested against the backend's validator),
+  combined export no longer drops other platforms on the first single-platform run of a day, expired carry-over is dropped, `--sync-frontend` rewired,
+  link checker verifies TLS and no longer spoofs a browser UA, `.env.example` matches the variables the code reads, CI workflow, README rewritten.
+- **backend**: `flightInternationalEnabled` is now enforced server-side (it was frontend-local only); `fastapi`/`pydantic`/`starlette` pinned because the
+  generated OpenAPI contract changed with the installed pydantic version (CI would flake); new `docs/feature-flags.md` and `docs/runbook.md`; README config table.
+- **cardsage validator**: `valid_to` more than 540 days out → `NEEDS_REVIEW` (a 2030-12-31 placeholder would otherwise stretch the booking window to 2030).
+
+## New decisions / open items
+10. **Who runs the scraper, and where?** Nothing schedules cardsage now. Options: your machine/cron, a self-hosted runner, or a GitHub Action in the cardsage repo that opens a PR against `cwo_backend` with `offers.csv`.
+11. **Validator confidence band (cardsage BUG-11).** The documented 0.70–0.84 → `WARNING` rule is not enforced; enforcing it hides those offers (WARNING → PARTIAL → not shown). Enforce, or relax the docs?
+12. **Analytics.** `analyticsEnabled` is on but no analytics script exists; and the privacy policy says no analytics. Pick a provider + turn on cookie consent, or remove the flag.
+13. **International.** cardsage exports `FLIGHT_INTERNATIONAL` by default; the flag keeps it hidden. Keep scraping it, or set `ACTIVE_PHASE2_CATEGORIES = []` to save crawl time?
+14. **Legal/ToS exposure.** cardsage scrapes six commercial sites (some via private mobile APIs when enabled) and docs include a cease-and-desist runbook. Get the legal read before launch.
+15. **Open cardsage parser bugs** (BUG-01..05, 08..10 in `cardsage/docs/BUGS.md`) are unfixed — they need live-site fixtures; BUG-10 (LLM can invent fields) matters most because LLM output reaches users.

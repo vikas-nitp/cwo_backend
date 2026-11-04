@@ -144,3 +144,25 @@ def test_search_with_no_matching_offers_is_empty_not_an_error(client, valid_sear
     body = response.json()
     assert body["offers"] == []
     assert len(body["date_strip"]) > 0
+
+
+def _with_flag(client, **update):
+    original = client.app.state.feature_flags
+    client.app.state.feature_flags = original.model_copy(update=update)
+    return original
+
+
+def test_international_is_hidden_until_flag_is_enabled(client, valid_search):
+    original = _with_flag(client, flightInternationalEnabled=False)
+    try:
+        blocked = client.get("/api/v1/offers?category=FLIGHT_INTERNATIONAL&active_on=2026-07-13")
+        assert blocked.status_code == 403 and blocked.json()["error"]["code"] == "FEATURE_DISABLED"
+        search = client.post("/api/v1/search", json={**valid_search, "category": "FLIGHT_INTERNATIONAL"})
+        assert search.status_code == 403
+        default = client.get("/api/v1/offers?active_on=2026-07-13")
+        assert {o["category"] for o in default.json()["offers"]} == {"FLIGHT_DOMESTIC"}
+        _with_flag(client, flightInternationalEnabled=True)
+        # No international rows in the fixture, so the category is unknown (400) - but no longer flag-blocked (403)
+        assert client.get("/api/v1/offers?category=FLIGHT_INTERNATIONAL&active_on=2026-07-13").status_code == 400
+    finally:
+        client.app.state.feature_flags = original

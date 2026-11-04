@@ -1,5 +1,8 @@
-fastapi>=0.115.0
+# fastapi / pydantic / starlette are pinned because they determine the generated
+# contracts/openapi.json (CI fails on drift). Bump them together and re-run
+# `python scripts/export_openapi.py`, then sync the frontend (`npm run data:build`).
+fastapi==0.162.0
+pydantic==2.14.2
+starlette==1.10.0
 uvicorn[standard]>=0.30.6
-pydantic>=2.10.0
 pyyaml>=6.0.0
-starlette>=0.41.0

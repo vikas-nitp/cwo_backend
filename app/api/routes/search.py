@@ -31,6 +31,14 @@ def search(payload: SearchRequest, request: Request, response: Response):
                 "Booking amount comparison is currently unavailable.",
                 "booking_amount",
             )
+        if payload.category == "FLIGHT_INTERNATIONAL" and not flags.flightInternationalEnabled:
+            return error_response(
+                request,
+                403,
+                "FEATURE_DISABLED",
+                "International flight search is currently unavailable.",
+                "category",
+            )
         result = OfferSearchService(repository).search(payload)
         if not flags.couponCodeEnabled:
             result = result.model_copy(

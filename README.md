@@ -1,6 +1,9 @@
 # CardOptimal Backend
 
-FastAPI service that serves validated domestic-flight card offers. No database required — all data is file-based JSON/CSV.
+FastAPI service that serves validated flight card offers (domestic by default). No database required — all data is file-based JSON/CSV.
+
+Part of a three-repo pipeline: **cardsage** (scrape/parse → CSV) → **cwo_backend** (validate + serve) → **cardwiseoffer** (frontend).
+End-to-end steps: [docs/runbook.md](docs/runbook.md) · Flags: [docs/feature-flags.md](docs/feature-flags.md) · Open items: [docs/review-status.md](docs/review-status.md) · API contract: [docs/contracts/cardwiseoffer-api-v1.md](docs/contracts/cardwiseoffer-api-v1.md)
 
 ---
 
@@ -28,10 +31,10 @@ Run these whenever cardsage produces new output or offer data changes.
 
 **Step 1 — Receive the CSV from cardsage**
 
-cardsage (a separate project) produces the offer CSV and delivers it to
-`data/source/offers.csv` in this repo (commit it on the branch you are building).
-The backend does not scrape or convert anything itself. Column names follow
-`demo_offers.csv`; `build_data_bundle.py` validates every row and writes a
+cardsage (a separate repo) produces the offer CSV: run `python3 -m cardsage backend-feed` there (it writes
+`data/source/offers.csv` here when the repos are siblings) and commit the file.
+The backend does not scrape or convert anything itself. Columns are defined by
+`cardsage/core/backend_feed.py` (`BACKEND_CSV_COLUMNS`) and match `demo_offers.csv`; `build_data_bundle.py` validates every row and writes a
 rejection report to `data/generated/validation-report.json`.
 
 **Publishing rules.** Only rows with `is_active=true`, `publish_status=READY` and `evidence_status=VERIFIED` are served; `PARTIAL`/`UNVERIFIED` rows are kept in the snapshot but never shown. Any row that fails validation makes the build exit non-zero (and fails the Docker build) so bad data never ships silently; fix the row named in `data/generated/validation-report.json`.
@@ -135,6 +138,20 @@ data/
 ```
 
 ---
+
+## Configuration (environment variables)
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `APP_ENV` | `dev` | `dev` / `test` / `production`. Production requires an explicit non-local `ALLOWED_ORIGINS`; `/docs` is dev-only; rate limiting is skipped in dev |
+| `ALLOWED_ORIGINS` | localhost dev ports | Comma-separated CORS origins |
+| `TRUST_PROXY_HEADERS` | `false` | **Set `true` behind Render/Railway**, otherwise all users share the proxy IP's rate-limit bucket |
+| `IP_HASH_SALT` | dev placeholder | Key for hashing subscriber IPs — set a random value in production |
+| `USER_DATA_DIR` | `./data` | Where `user_cards/` and `subscriptions/` are written (mount a volume to persist) |
+| `*_SNAPSHOT_PATH`, `MANIFEST_PATH`, `FEATURE_FLAGS_PATH` | `data/generated/…`, `data/config/feature_flags.json` | Override data locations |
+| `CONTRACT_VERSION`, `DEFAULT_PAGE_LIMIT`, `MAX_PAGE_LIMIT` | `1.1`, 20, 100 | Contract and paging |
+| `META_CACHE_TTL`, `FLAGS_CACHE_TTL`, `OFFERS_CACHE_TTL` | 86400, 300, 600 s | `Cache-Control` max-age |
+| `RATE_LIMIT_GLOBAL[_WINDOW]`, `RATE_LIMIT_SEARCH[_WINDOW]` | 30/60 s, 5/10 s | Per-IP limits (in-memory, single instance) |
 
 ## Runtime storage and scaling
 

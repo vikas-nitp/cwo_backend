@@ -56,6 +56,13 @@ def offers(
     repository = request.app.state.offer_repository
     if not repository.loaded:
         return error_response(request, 503, "DATA_NOT_READY", "Offer data is not ready.")
+    if not flags.flightInternationalEnabled:
+        # International offers may be in the data (cardsage exports them) but stay hidden until the flag is on.
+        if any(value.strip().upper() == "FLIGHT_INTERNATIONAL" for value in category):
+            return error_response(
+                request, 403, "FEATURE_DISABLED", "International flight offers are currently unavailable.", "category"
+            )
+        category = category or ["FLIGHT_DOMESTIC"]
     version = repository.get_manifest().data_version
     etag = version_headers(
         response,

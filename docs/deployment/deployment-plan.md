@@ -21,7 +21,7 @@ React SPA (Vite build)                 FastAPI + uvicorn
 |---|---|---|
 | Frontend hosting | **Vercel** (free tier) | Zero-config Vite deploy, PR previews, custom domain |
 | Backend hosting | **Railway** ($5/mo starter) | Dockerfile already in repo, always-on, custom domain |
-| cardsage scraper | **GitHub Actions** cron | Runs on schedule, commits updated JSONs, free |
+| cardsage scraper | **Manual / your own scheduler** (decision pending) | The old backend cron workflow was removed; scraping with Playwright on shared CI runners is fragile and is not scheduled anywhere yet. See `docs/review-status.md` |
 | Database | File-based JSON (Phase 1) | Already working; Phase 3 upgrades to PostgreSQL |
 | Domain | cardwiseoffer.com | Frontend; api.cardwiseoffer.com for backend |
 
