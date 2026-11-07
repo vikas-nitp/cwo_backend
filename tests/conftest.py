@@ -1,3 +1,4 @@
+import os
 import sys
 from datetime import date
 from pathlib import Path
@@ -7,7 +8,16 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.main import app
+ROOT = Path(__file__).resolve().parents[1]
+
+# Point tests at the committed fixture data in data/snapshots/ rather than the
+# gitignored cardsage-generated output in data/generated/.
+os.environ.setdefault("OFFERS_SNAPSHOT_PATH", str(ROOT / "data/snapshots/offers.snapshot.json"))
+os.environ.setdefault("METADATA_SNAPSHOT_PATH", str(ROOT / "data/snapshots/metadata.snapshot.json"))
+os.environ.setdefault("FACETS_SNAPSHOT_PATH", str(ROOT / "data/snapshots/facets.snapshot.json"))
+os.environ.setdefault("MANIFEST_PATH", str(ROOT / "data/snapshots/manifest.json"))
+
+from app.main import app  # noqa: E402  (must come after env vars are set)
 
 
 @pytest.fixture

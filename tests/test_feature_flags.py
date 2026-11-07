@@ -72,7 +72,7 @@ def test_all_offers_toggle_and_readiness(client):
                 json={
                     "from": "DEL",
                     "to": "BLR",
-                    "date": "2026-07-13",
+                    "date": "2026-10-19",
                 },
             ).status_code
             == 200

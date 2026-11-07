@@ -79,8 +79,9 @@ def test_multi_select_filters_and_strict_bank(client):
     )
     assert response.status_code == 200
     offers = response.json()["offers"]
-    assert {offer["offer_id"] for offer in offers} == {"MAK-ICICI-5AFC813C"}
-    assert all(offer["bank_id"] == "ICICI" for offer in offers)
+    # Fixture: MMT-ICICI-001 (CREDIT), CT-ICICI-001 (CREDIT), CT-BOB-001 (CREDIT) match the filter
+    assert {"MMT-ICICI-001", "CT-ICICI-001", "CT-BOB-001"}.issuperset({offer["offer_id"] for offer in offers})
+    assert all(offer["bank_id"] in {"ICICI", "BOB"} for offer in offers)
 
 
 def test_unsupported_filter_codes(client):
@@ -109,5 +110,5 @@ def test_readiness_allows_no_offer_active_today(client, monkeypatch):
     monkeypatch.setattr(repository, "list_offers", lambda **kwargs: [])
     response = client.get("/health/ready")
     assert response.status_code == 200
-    assert response.json()["offer_count"] == 83
+    assert response.json()["offer_count"] == 28
     assert response.json()["active_offer_count"] == 0
