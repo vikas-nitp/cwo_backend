@@ -21,7 +21,17 @@ class SearchRequest(BaseModel):
     banks: list[str] = Field(default_factory=list, max_length=2)
     platforms: list[PlatformId] = Field(default_factory=list)
     category: Category = "FLIGHT_DOMESTIC"
-    booking_amount: Decimal | None = Field(default=None, gt=0)
+    booking_amount: Decimal | None = Field(default=None, ge=1000)
+
+    @field_validator("booking_amount", mode="before")
+    @classmethod
+    def booking_amount_must_be_whole_rupees(cls, v):
+        if v is None:
+            return v
+        d = Decimal(str(v))
+        if d != d.to_integral_value():
+            raise ValueError("Booking amount must be a whole number (no paise)")
+        return d
 
     @field_validator("from_airport", "to_airport", mode="before")
     @classmethod

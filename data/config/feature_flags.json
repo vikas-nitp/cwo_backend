@@ -17,5 +17,6 @@
   "homeEntranceAnimationEnabled": true,
   "subscriptionsEnabled": false,
   "userCardsEnabled": false,
-  "notificationsEnabled": false
+  "notificationsEnabled": false,
+  "tieredDiscountEnabled": true
 }

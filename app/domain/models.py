@@ -23,6 +23,25 @@ EvidenceStatus = Literal["VERIFIED", "PARTIAL", "UNVERIFIED"]
 PublishStatus = Literal["READY", "DRAFT", "HIDDEN"]
 
 
+class DiscountTier(BaseModel):
+    """One spend-range row from a tiered EMI/discount table."""
+    model_config = ConfigDict(frozen=True)
+
+    min_amount: Decimal = Field(ge=0)
+    max_amount: Decimal | None = Field(default=None, ge=0)
+    discount_type: DiscountType
+    discount_value: Decimal = Field(ge=0)
+    max_discount: Decimal | None = Field(default=None, ge=0)
+
+    @field_serializer("min_amount", "discount_value")
+    def serialize_required_decimal(self, value: Decimal) -> float:
+        return float(value)
+
+    @field_serializer("max_amount", "max_discount")
+    def serialize_optional_decimal(self, value: Decimal | None) -> float | None:
+        return None if value is None else float(value)
+
+
 class Offer(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -61,6 +80,7 @@ class Offer(BaseModel):
     is_active: bool = True
     publish_status: PublishStatus
     extra: dict[str, Any] = Field(default_factory=dict)
+    discount_tiers: list[DiscountTier] | None = None
 
     @model_validator(mode="before")
     @classmethod

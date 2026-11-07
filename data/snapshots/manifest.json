@@ -8,5 +8,6 @@
   "supported_platforms": [
     "MAKEMYTRIP",
     "CLEARTRIP"
-  ]
+  ],
+  "dataset_last_updated_at": "2026-10-19"
 }
