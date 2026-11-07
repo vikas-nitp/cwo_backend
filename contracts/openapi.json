@@ -348,6 +348,11 @@
             "title": "Termsofserviceenabled",
             "type": "boolean"
           },
+          "tieredDiscountEnabled": {
+            "default": true,
+            "title": "Tiereddiscountenabled",
+            "type": "boolean"
+          },
           "userCardsEnabled": {
             "default": false,
             "title": "Usercardsenabled",
@@ -1312,7 +1317,7 @@
           "booking_amount": {
             "anyOf": [
               {
-                "exclusiveMinimum": 0.0,
+                "minimum": 1000.0,
                 "type": "number"
               },
               {

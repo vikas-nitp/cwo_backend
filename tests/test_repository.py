@@ -20,21 +20,22 @@ def repository():
 def test_startup_and_metadata_derivation():
     repo = repository()
     assert repo.loaded
-    assert len(repo.get_metadata().banks) == 12
-    assert repo.get_metadata().availability_end == date(2027, 3, 31)
+    assert len(repo.get_metadata().banks) == 19
+    assert repo.get_metadata().availability_end == date(2030, 12, 31)
 
 
 def test_filters():
     repo = repository()
+    # 2026-10-19 is a Monday; MAK-ICICI-5AFC813C has valid_days=[0] (Monday-only)
     offers = repo.list_offers(
-        active_on=date(2026, 7, 12),
+        active_on=date(2026, 10, 19),
         platform_ids=["MAKEMYTRIP"],
         bank_ids=["ICICI"],
         payment_methods=["CREDIT"],
     )
-    assert [offer.offer_id for offer in offers] == ["MAK-ICICI-9DD070"]
+    assert [offer.offer_id for offer in offers] == ["MAK-ICICI-5AFC813C"]
 
 
 def test_expired_excluded():
-    # MAK-KOTAK-919B61 is the last offer, expiring 2027-03-31; no offers exist after that date
+    # No publishable offers exist after 2030-12-31
     assert repository().list_offers(active_on=date(2031, 1, 1)) == []

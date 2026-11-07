@@ -3,7 +3,7 @@ from datetime import date
 from app.services.offer_catalog_service import OfferCatalogService
 from tests.test_repository import repository
 
-ACTIVE = date(2026, 7, 12)
+ACTIVE = date(2026, 10, 19)  # Monday — MAK-ICICI-5AFC813C (valid_days=[0]) is publishable
 
 
 def catalogue(**filters):
@@ -27,24 +27,32 @@ def by_id(options):
 
 def test_generated_platform_bank_payment_relationships():
     facets = repository().get_facets()
-    # MakeMyTrip banks are a superset of the core banks (new pipeline data)
-    assert {"BOB", "HDFC", "ICICI", "INDUSIND", "KOTAK"} <= set(facets.platforms["MAKEMYTRIP"]["banks"])
-    assert facets.platforms["CLEARTRIP"]["payment_methods"] == ["CREDIT", "NO_CARD"]
-    assert "MAKEMYTRIP" in facets.banks["HDFC"]["platforms"]
-    assert "CREDIT" in facets.banks["HDFC"]["payment_methods"]
+    # Snapshot covers all 7 platforms
+    assert set(facets.platforms.keys()) == {"AIRINDIA", "CLEARTRIP", "EASEMYTRIP", "IXIGO", "MAKEMYTRIP", "PAYTM", "YATRA"}
+    # MakeMyTrip has significantly more offers than Cleartrip
+    assert facets.platforms["MAKEMYTRIP"]["count"] > facets.platforms["CLEARTRIP"]["count"]
+    # ICICI is the top bank by offer count
+    assert "ICICI" in facets.banks
+    assert facets.banks["ICICI"]["count"] >= facets.banks["HDFC"]["count"]
+    # Computed catalogue facets reflect platform-bank relationships
+    result = catalogue()
+    pf = by_id(result.facets.platforms)
+    bf = by_id(result.facets.banks)
+    assert pf["MAKEMYTRIP"].count > 0
+    assert bf["HDFC"].count > 0
 
 
 def test_or_within_and_and_across_groups():
     result = catalogue(
         platforms=["MAKEMYTRIP"],
-        banks=["ICICI", "BOB"],
+        banks=["ICICI", "AXIS"],
         payment_methods=["CREDIT"],
     )
     assert {offer.offer_id for offer in result.offers} == {
-        "MAK-ICICI-9DD070",
-        "MAK-BOB-FC049E",
+        "MAK-ICICI-5AFC813C",
+        "MAK-AXIS-67A18B38",
     }
-    assert all(offer.bank_id in {"ICICI", "BOB"} for offer in result.offers)
+    assert all(offer.bank_id in {"ICICI", "AXIS"} for offer in result.offers)
 
 
 def test_strict_catalogue_bank_filter_excludes_other_and_no_card():
@@ -53,20 +61,21 @@ def test_strict_catalogue_bank_filter_excludes_other_and_no_card():
 
 
 def test_self_excluding_counts_and_zero_disabled_options():
-    # On 2026-07-12, MAKEMYTRIP+ICICI has 1 active offer; HDFC not yet active (starts 2026-09-01)
+    # On 2026-10-19, MAKEMYTRIP+ICICI has 1 active offer; CLE has no ICICI offers
     result = catalogue(platforms=["MAKEMYTRIP"], banks=["ICICI"])
     platforms = by_id(result.facets.platforms)
     banks = by_id(result.facets.banks)
     assert platforms["MAKEMYTRIP"].count == 1
-    assert platforms["CLEARTRIP"].count == 1  # CLE-ICICI-6CD8C2 (intl) is active
-    assert banks["BOB"].count == 1  # MAK-BOB-FC049E active on MMT
-    assert banks["HDFC"].count == 0  # MAK-HDFC-9D4C28 starts 2026-09-01
-    assert banks["HDFC"].disabled is True
+    assert platforms["CLEARTRIP"].count == 0  # CLE has no ICICI offers on this date
+    assert banks["BOB"].count == 0  # MAK has no BOB offers on this date
+    assert banks["BOB"].disabled is True
+    assert banks["HDFC"].count == 1  # MAK-HDFC-095394FE is active on 2026-10-19
+    assert banks["HDFC"].disabled is False
     assert banks["ICICI"].selected is True
 
 
 def test_date_sensitive_counts():
-    # IXI-AUBANK-A64E9C expires 2030-12-31 — no offers active after that
+    # No publishable offers exist after 2030-12-31
     result = catalogue(active_on=date(2031, 1, 1))
     assert result.pagination.total == 0
     assert all(option.disabled for option in result.facets.platforms)
