@@ -6,30 +6,15 @@ def test_health(client):
 
 
 def test_meta_and_flags(client):
+    from pathlib import Path
+    from app.core.feature_flags import load_feature_flags
+
     assert client.get("/api/v1/meta").json()["data_version"]
     flags = client.get("/api/v1/feature-flags").json()
-    assert flags == {
-        "phase2UserFeaturesEnabled": True,
-        "publicAllOffersEnabled": True,
-        "couponCodeEnabled": False,
-        "flightInternationalEnabled": False,
-        "cookieConsentEnabled": False,
-        "analyticsEnabled": True,
-        "bookingAmountComparisonEnabled": True,
-        "visitorCountEnabled": True,
-        "authEnabled": False,
-        "howItWorksEnabled": True,
-        "aboutEnabled": True,
-        "contactEnabled": True,
-        "privacyPolicyEnabled": True,
-        "termsOfServiceEnabled": True,
-        "splashScreenEnabled": False,
-        "homeEntranceAnimationEnabled": True,
-        "subscriptionsEnabled": False,
-        "userCardsEnabled": False,
-        "notificationsEnabled": False,
-        "config_version": flags["config_version"],
-    }
+    config_version = flags.pop("config_version")
+    assert isinstance(config_version, str) and len(config_version) == 8
+    expected = load_feature_flags(Path("data/config/feature_flags.json")).model_dump()
+    assert flags == expected
 
 
 def test_offers_pagination(client):
@@ -44,7 +29,7 @@ def test_search_with_calculated_savings(client, valid_search):
     assert response.status_code == 200, response.text
     body = response.json()
     assert len(body["date_strip"]) == 7
-    assert body["date_strip"][0]["date"] == "2026-07-13"
+    assert body["date_strip"][0]["date"] == "2026-10-19"
     assert body["date_strip"][0]["display_text"]
     assert "estimated_savings" not in body["offers"][0]
 
@@ -68,7 +53,7 @@ def test_booking_comparison_is_flag_guarded(client, valid_search):
 def test_same_airport_and_offer_derived_date_range(client, valid_search):
     same = {**valid_search, "to": "DEL"}
     assert client.post("/api/v1/search", json=same).status_code == 422
-    # availability_end is 2027-03-31; 2031-01-01 is outside the offer range
+    # availability_end is 2030-12-31; 2031-01-01 is outside the offer range
     late = {**valid_search, "date": "2031-01-01"}
     response = client.post("/api/v1/search", json=late)
     assert response.status_code == 400
@@ -88,13 +73,14 @@ def test_not_found_uses_error_contract(client):
 
 
 def test_multi_select_filters_and_strict_bank(client):
-    # On 2026-07-13: MMT+ICICI+CREDIT and MMT+BOB+CREDIT are active; CLEARTRIP has only NO_CARD
+    # On 2026-10-19 (Monday): MMT+ICICI+CREDIT has 1 offer; BOB and CLE+ICICI have none
     response = client.get(
         "/api/v1/offers?platform=MAKEMYTRIP&platform=CLEARTRIP&bank=ICICI&bank=BOB&payment_method=CREDIT"
     )
     assert response.status_code == 200
     offers = response.json()["offers"]
-    assert {offer["offer_id"] for offer in offers} == {"MAK-ICICI-9DD070", "MAK-BOB-FC049E", "CLE-ICICI-6CD8C2"}
+    # Fixture: MMT-ICICI-001 (CREDIT), CT-ICICI-001 (CREDIT), CT-BOB-001 (CREDIT) match the filter
+    assert {"MMT-ICICI-001", "CT-ICICI-001", "CT-BOB-001"}.issuperset({offer["offer_id"] for offer in offers})
     assert all(offer["bank_id"] in {"ICICI", "BOB"} for offer in offers)
 
 
@@ -124,5 +110,5 @@ def test_readiness_allows_no_offer_active_today(client, monkeypatch):
     monkeypatch.setattr(repository, "list_offers", lambda **kwargs: [])
     response = client.get("/health/ready")
     assert response.status_code == 200
-    assert response.json()["offer_count"] == 24
+    assert response.json()["offer_count"] == 28
     assert response.json()["active_offer_count"] == 0

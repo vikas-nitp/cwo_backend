@@ -88,6 +88,8 @@ def load_runtime_settings() -> RuntimeSettings:
 SETTINGS = load_runtime_settings()
 APP_ENV = SETTINGS.app_env
 API_PREFIX = "/api/v1"
+APP_NAME = "CardOptimal"
+APP_DOMAIN = "cardsage.in"
 CORS_ORIGINS = SETTINGS.allowed_origins
 OFFERS_SNAPSHOT_PATH = str(SETTINGS.offers_snapshot_path)
 METADATA_SNAPSHOT_PATH = str(SETTINGS.metadata_snapshot_path)

@@ -30,7 +30,12 @@ class OfferSearchService:
     def __init__(self, repository: OfferRepository):
         self.repository = repository
 
-    def search(self, request: SearchRequest, today: date | None = None) -> SearchResponse:
+    def search(
+        self,
+        request: SearchRequest,
+        today: date | None = None,
+        tiered_discount_enabled: bool = False,
+    ) -> SearchResponse:
         today = today or today_ist()
         metadata = self.repository.get_metadata()
         known_banks = {bank.id for bank in metadata.banks}
@@ -60,7 +65,17 @@ class OfferSearchService:
             categories=[request.category],
         )
         ranked = rank_offers(
-            [(offer, estimate_savings(offer, request.booking_amount)) for offer in offers],
+            [
+                (
+                    offer,
+                    estimate_savings(
+                        offer,
+                        request.booking_amount,
+                        tiered_discount_enabled=tiered_discount_enabled,
+                    ),
+                )
+                for offer in offers
+            ],
             request.banks,
             request.date,
         )

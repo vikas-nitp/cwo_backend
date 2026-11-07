@@ -1,4 +1,4 @@
-"""Logging configuration for CardwiseOffer Backend."""
+"""Logging configuration for CardOptimal Backend."""
 
 import json
 import logging

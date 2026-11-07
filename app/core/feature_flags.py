@@ -33,6 +33,7 @@ class FeatureFlags(BaseModel):
     subscriptionsEnabled: bool = False
     userCardsEnabled: bool = False
     notificationsEnabled: bool = False
+    tieredDiscountEnabled: bool = True
 
     def version(self) -> str:
         payload = json.dumps(self.model_dump(), sort_keys=True, separators=(",", ":"))
@@ -43,11 +44,16 @@ class FeatureFlagsResponse(FeatureFlags):
     config_version: str
 
 
-def load_feature_flags(path: Path) -> FeatureFlags:
+def load_feature_flags(path: Path | None = None) -> FeatureFlags:
+    """Load feature flags from *path*, falling back to model defaults when absent.
+
+    Pass path=None (or omit) to get pure defaults — useful in tests and scripts
+    that don't need environment-specific overrides.
+    """
+    if path is None or not path.exists():
+        return FeatureFlags()
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
-    except FileNotFoundError as exc:
-        raise FeatureFlagConfigError(f"feature flag file not found: {path}") from exc
     except json.JSONDecodeError as exc:
         raise FeatureFlagConfigError(f"feature flag file is malformed: {exc.msg}") from exc
     try:
