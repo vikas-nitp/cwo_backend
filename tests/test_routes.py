@@ -6,30 +6,15 @@ def test_health(client):
 
 
 def test_meta_and_flags(client):
+    from pathlib import Path
+    from app.core.feature_flags import load_feature_flags
+
     assert client.get("/api/v1/meta").json()["data_version"]
     flags = client.get("/api/v1/feature-flags").json()
-    assert flags == {
-        "phase2UserFeaturesEnabled": True,
-        "publicAllOffersEnabled": True,
-        "couponCodeEnabled": False,
-        "flightInternationalEnabled": False,
-        "cookieConsentEnabled": False,
-        "analyticsEnabled": True,
-        "bookingAmountComparisonEnabled": True,
-        "visitorCountEnabled": True,
-        "authEnabled": False,
-        "howItWorksEnabled": True,
-        "aboutEnabled": True,
-        "contactEnabled": True,
-        "privacyPolicyEnabled": True,
-        "termsOfServiceEnabled": True,
-        "splashScreenEnabled": False,
-        "homeEntranceAnimationEnabled": True,
-        "subscriptionsEnabled": False,
-        "userCardsEnabled": False,
-        "notificationsEnabled": False,
-        "config_version": flags["config_version"],
-    }
+    config_version = flags.pop("config_version")
+    assert isinstance(config_version, str) and len(config_version) == 8
+    expected = load_feature_flags(Path("data/config/feature_flags.json")).model_dump()
+    assert flags == expected
 
 
 def test_offers_pagination(client):

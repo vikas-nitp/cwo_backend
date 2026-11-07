@@ -30,7 +30,10 @@ def search(payload: SearchRequest, request: Request, response: Response):
                 "Booking amount comparison is currently unavailable.",
                 "booking_amount",
             )
-        result = OfferSearchService(repository).search(payload)
+        result = OfferSearchService(repository).search(
+            payload,
+            tiered_discount_enabled=flags.tieredDiscountEnabled,
+        )
         if not flags.couponCodeEnabled:
             result = result.model_copy(
                 update={"offers": [offer.model_copy(update={"coupon_code": None}) for offer in result.offers]}

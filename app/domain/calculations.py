@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from decimal import Decimal
 
-from app.domain.models import Offer
+from app.domain.models import DiscountTier, Offer
 
 
 @dataclass(frozen=True)
@@ -25,11 +25,47 @@ def describe_offer(offer: Offer) -> str:
     return label
 
 
-def estimate_savings(offer: Offer, booking_amount: Decimal | None) -> SavingsEstimate:
+def _find_tier(tiers: list[DiscountTier], amount: Decimal) -> DiscountTier | None:
+    """Return the matching tier for the given booking amount, or None."""
+    for tier in tiers:
+        if amount < tier.min_amount:
+            continue
+        if tier.max_amount is None or amount <= tier.max_amount:
+            return tier
+    return None
+
+
+def _savings_from_tier(tier: DiscountTier, booking_amount: Decimal) -> Decimal:
+    """Compute savings for one tier."""
+    if tier.discount_type == "FLAT":
+        saving = tier.discount_value
+    else:
+        saving = booking_amount * tier.discount_value / Decimal("100")
+        if tier.max_discount is not None:
+            saving = min(saving, tier.max_discount)
+    return min(max(saving, Decimal("0")), booking_amount)
+
+
+def estimate_savings(
+    offer: Offer,
+    booking_amount: Decimal | None,
+    *,
+    tiered_discount_enabled: bool = False,
+) -> SavingsEstimate:
     if booking_amount is None:
         return SavingsEstimate(None, None, describe_offer(offer), True)
     if booking_amount <= 0:
         raise ValueError("booking_amount must be positive")
+
+    # Tier-aware path: use full tier table when FF is on and tiers are present
+    tiers = offer.discount_tiers if tiered_discount_enabled else None
+    if tiers:
+        matched = _find_tier(tiers, booking_amount)
+        if matched is None:
+            return SavingsEstimate(Decimal("0"), booking_amount, "Minimum transaction not met", False)
+        saving = _savings_from_tier(matched, booking_amount)
+        return SavingsEstimate(saving, booking_amount - saving, f"Estimated saving ₹{_money(saving)}", True)
+
     if offer.min_transaction is not None and booking_amount < offer.min_transaction:
         return SavingsEstimate(Decimal("0"), booking_amount, "Minimum transaction not met", False)
     saving = (

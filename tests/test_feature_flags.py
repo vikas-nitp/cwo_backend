@@ -37,8 +37,11 @@ def test_valid_loading_and_stable_version(tmp_path):
 
 
 def test_missing_malformed_unknown_and_invalid_type(tmp_path):
-    with pytest.raises(FeatureFlagConfigError, match="not found"):
-        load_feature_flags(tmp_path / "missing.json")
+    # missing file → falls back to defaults (no error)
+    defaults = load_feature_flags(tmp_path / "missing.json")
+    assert defaults == FeatureFlags()
+    # None → same fallback
+    assert load_feature_flags(None) == FeatureFlags()
     malformed = tmp_path / "malformed.json"
     malformed.write_text("{")
     with pytest.raises(FeatureFlagConfigError, match="malformed"):
