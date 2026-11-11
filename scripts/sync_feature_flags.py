@@ -38,9 +38,7 @@ def generate_capabilities_ts(flags_model: type[FeatureFlags]) -> str:
     return (
         'import type { FeatureFlags } from "@/contexts/FeatureFlagContext";\n\n'
         "export function resolveFeatureCapabilities(flags: FeatureFlags) {\n"
-        "  return {\n"
-        + "\n".join(lines)
-        + "\n  };\n}\n"
+        "  return {\n" + "\n".join(lines) + "\n  };\n}\n"
     )
 
 

@@ -34,6 +34,8 @@ class FeatureFlags(BaseModel):
     userCardsEnabled: bool = False
     notificationsEnabled: bool = False
     tieredDiscountEnabled: bool = True
+    instagramEnabled: bool = False
+    youtubeEnabled: bool = False
 
     def version(self) -> str:
         payload = json.dumps(self.model_dump(), sort_keys=True, separators=(",", ":"))

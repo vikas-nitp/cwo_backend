@@ -18,5 +18,7 @@
   "subscriptionsEnabled": false,
   "userCardsEnabled": false,
   "notificationsEnabled": false,
-  "tieredDiscountEnabled": true
+  "tieredDiscountEnabled": true,
+  "instagramEnabled": false,
+  "youtubeEnabled": false
 }
