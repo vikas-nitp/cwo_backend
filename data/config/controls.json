@@ -1,0 +1,34 @@
+{
+  "_readme": "Master control file for CardOptimal product stack (backend + frontend). See CONTROLS.md at workspace root for the cross-system quick reference.",
+
+  "platforms": {
+    "supported": ["MAKEMYTRIP", "CLEARTRIP"],
+    "available": ["MAKEMYTRIP", "CLEARTRIP", "IXIGO", "YATRA", "AIRINDIA", "INDIGO", "EASEMYTRIP", "PAYTM", "AKASA", "SPICEJET"],
+    "_note": "Override 'supported' at deploy time with SUPPORTED_PLATFORMS env var (comma-separated). 'available' is documentation only — lists all sources with working adapters."
+  },
+
+  "featureFlags": {
+    "phase2UserFeaturesEnabled": true,
+    "publicAllOffersEnabled": true,
+    "couponCodeEnabled": false,
+    "flightInternationalEnabled": false,
+    "cookieConsentEnabled": false,
+    "analyticsEnabled": true,
+    "bookingAmountComparisonEnabled": true,
+    "visitorCountEnabled": true,
+    "authEnabled": false,
+    "howItWorksEnabled": true,
+    "aboutEnabled": true,
+    "contactEnabled": true,
+    "privacyPolicyEnabled": true,
+    "termsOfServiceEnabled": true,
+    "splashScreenEnabled": false,
+    "homeEntranceAnimationEnabled": true,
+    "subscriptionsEnabled": false,
+    "userCardsEnabled": false,
+    "notificationsEnabled": false,
+    "tieredDiscountEnabled": true,
+    "instagramEnabled": false,
+    "youtubeEnabled": false
+  }
+}

@@ -68,10 +68,10 @@ def test_nonpositive_amount_rejected():
 # Tier 4: ₹75,000+         → Flat ₹5,000
 
 _ICICI_EMI_TIERS = [
-    {"min_amount": 5000,  "max_amount": 24999, "discount_type": "PERCENT", "discount_value": 12, "max_discount": 1500},
-    {"min_amount": 25000, "max_amount": 49999, "discount_type": "FLAT",    "discount_value": 1500, "max_discount": None},
-    {"min_amount": 50000, "max_amount": 74999, "discount_type": "FLAT",    "discount_value": 2500, "max_discount": None},
-    {"min_amount": 75000, "max_amount": None,  "discount_type": "FLAT",    "discount_value": 5000, "max_discount": None},
+    {"min_amount": 5000, "max_amount": 24999, "discount_type": "PERCENT", "discount_value": 12, "max_discount": 1500},
+    {"min_amount": 25000, "max_amount": 49999, "discount_type": "FLAT", "discount_value": 1500, "max_discount": None},
+    {"min_amount": 50000, "max_amount": 74999, "discount_type": "FLAT", "discount_value": 2500, "max_discount": None},
+    {"min_amount": 75000, "max_amount": None, "discount_type": "FLAT", "discount_value": 5000, "max_discount": None},
 ]
 
 

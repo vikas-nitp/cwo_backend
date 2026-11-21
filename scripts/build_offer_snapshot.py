@@ -285,7 +285,7 @@ def build_records(
         "availability_end": availability_end.isoformat() if availability_end else None,
         "dataset_last_updated_at": version_date.isoformat(),
     }
-    feature_config_version = load_feature_flags(ROOT / "data/config/feature_flags.json").version()
+    feature_config_version = load_feature_flags(ROOT / "data/config/controls.json").version()
     manifest = {
         "schema_version": "1.1",
         "data_version": data_version,

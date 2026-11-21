@@ -36,9 +36,9 @@ def export_bundle() -> None:
     (DISTRIBUTION / "airports.json").write_text(
         json.dumps(json.loads((ROOT / "data/airports.json").read_text()), indent=2) + "\n"
     )
-    (DISTRIBUTION / "featureFlags.json").write_text(
-        json.dumps(json.loads((ROOT / "data/config/feature_flags.json").read_text()), indent=2) + "\n"
-    )
+    controls = json.loads((ROOT / "data/config/controls.json").read_text())
+    flags_data = controls.get("featureFlags", controls)
+    (DISTRIBUTION / "featureFlags.json").write_text(json.dumps(flags_data, indent=2) + "\n")
     print(f"Exported frontend bundle to {DISTRIBUTION}")
 
     # Auto-sync to the frontend static directory so the React dev server

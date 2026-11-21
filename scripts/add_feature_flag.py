@@ -9,11 +9,11 @@ Examples:
     python3 scripts/add_feature_flag.py myNewFeatureEnabled false
 
 Touch points updated automatically:
-    Backend  : app/core/feature_flags.py     (Pydantic model -- source of truth)
-    Backend  : data/config/feature_flags.json (runtime overrides, if flag present)
-    Backend  : contracts/openapi.json         (regenerated)
-    Frontend : contracts/openapi.json         (synced copy)
-    Frontend : src/types/generated-api.d.ts   (regenerated)
+    Backend  : app/core/feature_flags.py          (Pydantic model -- source of truth)
+    Backend  : data/config/controls.json          (runtime overrides, featureFlags section)
+    Backend  : contracts/openapi.json             (regenerated)
+    Frontend : contracts/openapi.json             (synced copy)
+    Frontend : src/types/generated-api.d.ts       (regenerated)
     Frontend : src/config/featureCapabilities.ts  <- via sync_feature_flags.py
     Frontend : src/data/generated/featureFlags.json <- via sync_feature_flags.py
 """
@@ -28,7 +28,7 @@ BACKEND_ROOT = Path(__file__).parent.parent
 FRONTEND_ROOT = BACKEND_ROOT.parent / "cardwiseoffer"
 
 FF_PY = BACKEND_ROOT / "app/core/feature_flags.py"
-FF_JSON_BE = BACKEND_ROOT / "data/config/feature_flags.json"
+FF_JSON_BE = BACKEND_ROOT / "data/config/controls.json"
 OPENAPI_BE = BACKEND_ROOT / "contracts/openapi.json"
 OPENAPI_FE = FRONTEND_ROOT / "contracts/openapi.json"
 
@@ -70,12 +70,13 @@ def update_pydantic_model(flag_name: str, default: bool) -> None:
 
 def update_json_if_present(flag_name: str, value: bool) -> None:
     data = json.loads(FF_JSON_BE.read_text())
-    if flag_name in data:
-        data[flag_name] = value
+    flags = data.get("featureFlags", data)  # controls.json wraps under featureFlags
+    if flag_name in flags:
+        flags[flag_name] = value
         FF_JSON_BE.write_text(json.dumps(data, indent=2) + "\n")
-        print(f"  ok feature_flags.json       {flag_name} = {str(value).lower()} (override updated)")
+        print(f"  ok controls.json            {flag_name} = {str(value).lower()} (override updated)")
     else:
-        print(f"  -- feature_flags.json       {flag_name} not in overrides (using model default)")
+        print(f"  -- controls.json            {flag_name} not in overrides (using model default)")
 
 
 # -- 3. Regenerate derived files via sync_feature_flags.py -------------------

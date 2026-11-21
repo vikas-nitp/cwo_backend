@@ -25,6 +25,7 @@ PublishStatus = Literal["READY", "DRAFT", "HIDDEN"]
 
 class DiscountTier(BaseModel):
     """One spend-range row from a tiered EMI/discount table."""
+
     model_config = ConfigDict(frozen=True)
 
     min_amount: Decimal = Field(ge=0)

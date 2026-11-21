@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 from typing import Literal, cast
@@ -5,6 +6,19 @@ from typing import Literal, cast
 from pydantic import BaseModel, Field, model_validator
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def _platforms_default(controls_path: Path) -> str:
+    """Read supported platforms from controls.json; fall back to hardcoded pair."""
+    try:
+        if controls_path.exists():
+            data = json.loads(controls_path.read_text(encoding="utf-8"))
+            supported = data.get("platforms", {}).get("supported", [])
+            if isinstance(supported, list) and supported:
+                return ",".join(str(p) for p in supported)
+    except Exception:
+        pass
+    return "MAKEMYTRIP,CLEARTRIP"
 
 
 class RuntimeSettings(BaseModel):
@@ -21,7 +35,7 @@ class RuntimeSettings(BaseModel):
     metadata_snapshot_path: Path = ROOT / "data/generated/metadata.snapshot.json"
     facets_snapshot_path: Path = ROOT / "data/generated/facets.snapshot.json"
     manifest_path: Path = ROOT / "data/generated/manifest.json"
-    feature_flags_path: Path = ROOT / "data/config/feature_flags.json"
+    feature_flags_path: Path = ROOT / "data/config/controls.json"
     supported_platforms: tuple[str, ...] = ("MAKEMYTRIP", "CLEARTRIP")
     contract_version: str = "1.1"
     default_page_limit: int = Field(20, ge=1, le=100)
@@ -69,8 +83,13 @@ def load_runtime_settings() -> RuntimeSettings:
         ),
         facets_snapshot_path=Path(os.getenv("FACETS_SNAPSHOT_PATH", ROOT / "data/generated/facets.snapshot.json")),
         manifest_path=Path(os.getenv("MANIFEST_PATH", ROOT / "data/generated/manifest.json")),
-        feature_flags_path=Path(os.getenv("FEATURE_FLAGS_PATH", ROOT / "data/config/feature_flags.json")),
-        supported_platforms=tuple(_csv("SUPPORTED_PLATFORMS", "MAKEMYTRIP,CLEARTRIP")),
+        feature_flags_path=Path(os.getenv("FEATURE_FLAGS_PATH", ROOT / "data/config/controls.json")),
+        supported_platforms=tuple(
+            _csv(
+                "SUPPORTED_PLATFORMS",
+                _platforms_default(Path(os.getenv("FEATURE_FLAGS_PATH", ROOT / "data/config/controls.json"))),
+            )
+        ),
         contract_version=os.getenv("CONTRACT_VERSION", "1.1"),
         default_page_limit=int(os.getenv("DEFAULT_PAGE_LIMIT", "20")),
         max_page_limit=int(os.getenv("MAX_PAGE_LIMIT", "100")),
