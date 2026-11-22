@@ -34,6 +34,8 @@ class FeatureFlags(BaseModel):
     userCardsEnabled: bool = False
     notificationsEnabled: bool = False
     tieredDiscountEnabled: bool = True
+    instagramEnabled: bool = False
+    youtubeEnabled: bool = False
 
     def version(self) -> str:
         payload = json.dumps(self.model_dump(), sort_keys=True, separators=(",", ":"))
@@ -47,6 +49,9 @@ class FeatureFlagsResponse(FeatureFlags):
 def load_feature_flags(path: Path | None = None) -> FeatureFlags:
     """Load feature flags from *path*, falling back to model defaults when absent.
 
+    Accepts both the legacy flat format (feature_flags.json) and the new
+    controls.json format where flags live under a "featureFlags" key.
+
     Pass path=None (or omit) to get pure defaults — useful in tests and scripts
     that don't need environment-specific overrides.
     """
@@ -56,6 +61,9 @@ def load_feature_flags(path: Path | None = None) -> FeatureFlags:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise FeatureFlagConfigError(f"feature flag file is malformed: {exc.msg}") from exc
+    # controls.json wraps flags under "featureFlags"; flat format is used directly
+    if isinstance(payload, dict) and "featureFlags" in payload:
+        payload = payload["featureFlags"]
     try:
         return FeatureFlags.model_validate(payload)
     except Exception as exc:
