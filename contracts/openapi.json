@@ -313,6 +313,11 @@
             "title": "Howitworksenabled",
             "type": "boolean"
           },
+          "instagramEnabled": {
+            "default": false,
+            "title": "Instagramenabled",
+            "type": "boolean"
+          },
           "notificationsEnabled": {
             "default": false,
             "title": "Notificationsenabled",
@@ -361,6 +366,11 @@
           "visitorCountEnabled": {
             "default": false,
             "title": "Visitorcountenabled",
+            "type": "boolean"
+          },
+          "youtubeEnabled": {
+            "default": false,
+            "title": "Youtubeenabled",
             "type": "boolean"
           }
         },
